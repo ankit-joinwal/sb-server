@@ -1,0 +1,24 @@
+{
+  "name": "Ankit Joinwal",
+  "emailId": "ajoinwal@gmail.com",
+  "isEnabled":"true",
+  "password":"p@ssword",
+  "profilePic" : "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/12316467_10206731945876364_3008257792416820623_n.jpg?oh=99ec98c9f38ab3ee4b05cad802c2e39e&oe=5725C669&__gda__=1466317967_b0131ab2472d9474fa9440cb7fe265bb",
+  "smartDevices": [
+    {
+      "uniqueId": "SMART_DEVICE_1",
+      "buildVersion": "1.00",
+      "osVersion": "4.0",
+      "deviceType": "ANDROID",
+      "isEnabled":"true",
+      "gcmId" : "device1_id"
+    }
+  ],
+  "social_details": [
+    {
+      "system": "FACEBOOK",
+      "detail": "10204248372148573",
+      "detailType": "USER_EXTERNAL_ID"
+    }
+  ]
+}

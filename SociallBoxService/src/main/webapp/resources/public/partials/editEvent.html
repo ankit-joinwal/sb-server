@@ -1,0 +1,198 @@
+<div ng-controller="EventsController" ng-init="initEditEvent()">
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-3">
+						<h2 class="pull-left">Preview Event</h2>
+					</div>
+					
+					<div class="col-md-6">
+						<a class="a-prevent-default" ng-click="makeLive()">
+							<h3 class="pull-left"><span class="label label-success">Make Event Live</span></h3>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel-body">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-4">
+						<img data-ng-src="data:image/jpg;base64,{{eventInfo.image}}" class="img-responsive" alt="">
+					</div>
+					<div class="col-md-8">
+						
+						<div class="row">
+							<div class="col-md-2 pull-left">
+								<h4 class="pull-left font-black">Title :</h4>
+							</div>
+							<div class="col-md-8 pull-left">
+								<h4 class="font-black pull-left">{{eventInfo.title}}</h4>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2 pull-left">
+								<h4 class="pull-left font-black">Organizer :</h4>
+							</div>
+							<div class="col-md-8 pull-left">
+								<h4 class="pull-left font-black">{{eventInfo.eventDetails.organizer.name}}</h4>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2 pull-left">
+								<h4 class="pull-left font-black">Starts :</h4>
+							</div>
+							<div class="col-md-8 pull-left">
+								<h4 class="pull-left font-black">{{eventInfo.startDate}}</h4>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2 pull-left">
+								<h4 class="pull-left font-black">Ends :</h4>
+							</div>
+							<div class="col-md-8 pull-left">
+								<h4 class="pull-left font-black">{{eventInfo.endDate}}</h4>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-2 pull-left">
+								
+							</div>
+							<div class="col-md-4 pull-left">
+								<a class="a-prevent-default">
+									<h3 class="pull-left"><span class="label label-primary">Add To Favourites</span></h3>
+								</a>
+							</div>
+							<div class="col-md-4 pull-left">
+								<a class="a-prevent-default">
+									<h3 class="pull-left"><span class="label label-primary">Create Meetup Here</span></h3>
+								</a>
+							</div>
+						</div>
+						
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-11">
+						<hr class="hr-full" size=2>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-7">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h4>Who's Going</h4>
+									</div>
+									<div class="panel-body">
+										<div class="row">
+											<div class="col-md-12">
+												<h4 class="pull-left font-black">Connect with Facebook to see which of your friends are going</h4>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<a class="btn azm-social azm-btn azm-facebook a-prevent-default"><i class="fa fa-facebook"></i> Continue with Facebook</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h4>Event Details</h4>
+									</div>
+									<div class="panel-body">
+										<div class="row">
+											<div class="col-md-12">
+												<p class="font-black">{{eventInfo.description}}</p>
+											</div>
+										</div>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h4>Categories</h4>
+									</div>
+									<div class="panel-body">
+										<div class="row">
+											<div class="col-md-12">
+												<div class="form-group">
+												<input type="text" id="tags" class="form-control input-lg" />
+												</div>
+											</div>
+										</div>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-5">
+						<div class="row">
+							<div class="col-md-10">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h4>Venue</h4>
+									</div>
+									<div class="panel-body">
+										<div class="row">
+											<div class="col-md-12">
+												<div id="eventLocMap" style="width:100%;height:200px">
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-10">
+												<p class="font-black">{{eventInfo.eventDetails.location.name}}</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-10">
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h4>Organizer</h4>
+									</div>
+									<div class="panel-body">
+										<div class="row">
+											<div class="col-md-12">
+												<b><p class="font-black pull-left">{{eventInfo.eventDetails.organizer.name}}</p></b>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<span class="font-black pull-left">Email :</span><p class="font-black pull-left">{{eventInfo.eventDetails.organizer.emailId}}</p>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-10">
+												<a class="a-prevent-default">
+													<h3><span class="label label-default">Contact</span></h3>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="/GeoService/resources/js/ui/bootstrap-tagsinput.js"></script>

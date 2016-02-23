@@ -1,0 +1,190 @@
+
+<div ng-controller="MeetupsController" ng-init="initNewMeetup()">
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-3">
+						<h3 class="pull-left">Create Meetup</h3>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel-body">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-6">
+						<h4 class="pull-left font-black">Meetup Title</h4>
+					</div>
+					<div class="col-md-10">
+						<input class="form-control input-lg" ng-model="title"  id="title" type="text">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<h4 class="pull-left font-black">Description</h4>
+					</div>
+					<div class="col-md-10">
+						<textarea class="form-control" rows="5" ng-model="desc" id="desc" ></textarea>
+						
+					</div>
+					<div class="col-md-3">
+						<span id="text_counter" class="font-black pull-left"></span>
+					</div>
+				</div>
+				<div class="row" ng-if="isMeetupAtEvent">
+					<div class="col-md-6">
+						<h4 class="pull-left font-black">Event at Meetup</h4>
+					</div>
+					<div class="col-md-10">
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-md-3">
+										<a href="#/events/{{eventInfo.uuid}}" class="portfolio-box">
+											<img data-ng-src="data:image/jpg;base64,{{eventInfo.image}}" class="img-responsive" alt="">
+										</a>
+									</div>
+									<div class="col-md-8">
+										<div class="row">
+											<div class="col-md-8 pull-left">
+												<p class="font-black pull-left">{{eventInfo.startDate}}</p>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-8 pull-left">
+												<a href="#/events/{{eventInfo.uuid}}" class="portfolio-box">
+													<h4 class="font-black pull-left">{{eventInfo.title}}</h4>
+												</a>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-8 pull-left">
+												<span class="font-black pull-left">{{eventInfo.eventDetails.organizer.name}}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="panel-footer">
+									<div class="row">
+										<div class="col-md-11">
+											<ul class="list-inline">
+												<li class="font-black" ng-repeat="tag in eventInfo.tags">
+													<span class="label label-info">#{{tag.description}}</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+					</div>
+					
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<h4 class="pull-left font-black">Location</h4>
+					</div>
+					<div class="col-md-8">
+						<input class="form-control input-lg"  ng-model="chosenPlace" googleplace type="text">
+					</div>
+					<div class="col-md-1 pull-left">
+						 <a  ng-click="openMap()"  class="btn btn-info btn-md a-prevent-default">
+						  <span class="glyphicon glyphicon-map-marker"></span> Map
+						</a>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-5">
+						<h4 class="pull-left font-black">Starts</h4>
+					</div>
+					<div class="col-md-6">
+						<h4 class="pull-left font-black">Ends</h4>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-2">
+						<div class="hero-unit">
+						<input class="form-control input-lg" ng-model="startDate" id="startDate" type="text">
+						</div>
+					</div>
+					
+					<div class="col-md-2">
+						<select class="form-control input-lg" ng-model="startTime">
+							<option></option>
+							<option ng-repeat="time in timeSlots">{{time}}</option>
+							
+						</select>
+					</div>
+					<div class="col-md-1"></div>
+					<div class="col-md-2">
+						<input class="form-control input-lg" ng-model="endDate" id="endDate" type="text">
+					</div>
+					
+					<div class="col-md-2">
+						<select class="form-control input-lg" ng-model="endTime">
+							<option></option>
+							<option ng-repeat="time in timeSlots">{{time}}</option>
+						</select>
+					</div>
+				</div>
+				<!-- Do not allow invite friends from here
+				<div class="row">
+					<div class="col-md-6">
+						<a class="a-prevent-default" ng-click="getFriends()">
+							<h3 class="pull-left"><span class="label label-primary">Invite Friends</span></h3>
+						</a>
+					</div>
+					<div class="col-md-8">
+						<div ng-if="foundfriends" class="list-group">
+							 <div class="row list-group-item" ng-repeat="friend in fbfriends">
+								<div class="col-md-1">
+									<input type="checkbox" checked>
+								</div>
+								<div class="col-md-1">
+								
+								</div>
+								<div class="col-md-1">
+									<img src="{{friend.pic}}" style="width:30px;height:30px">
+								</div>
+								<div class="col-md-9">
+									<h4 class="list-group-item-heading font-black pull-left">{{friend.name}}</h4>
+								</div>
+							 
+							  </div>
+							 
+						</div>
+					</div>
+				</div> -->
+			</div>
+		</div>
+		<div class="panel-footer">
+			<div  class="container">
+				<a class="a-prevent-default" ng-click="createMeetup()">
+					<h3 class="pull-left"><span class="label label-success">Create</span></h3>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+ <script type="text/javascript">
+            // When the document is ready
+            $(document).ready(function () {
+                
+                $('#startDate').datepicker({
+                    format: "dd/mm/yyyy",
+					autoclose : true
+                });  
+				
+				$('#endDate').datepicker({
+                    format: "dd/mm/yyyy",
+					autoclose : true
+                });  
+				
+				
+				
+            });
+			
+		
+</script>

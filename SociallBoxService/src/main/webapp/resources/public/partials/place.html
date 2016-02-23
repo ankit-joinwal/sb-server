@@ -1,0 +1,164 @@
+
+
+	<div class="panel panel-default" ng-model="placeInfo">
+		<div class="panel-heading">
+			<div class="container">
+				<div class="row vdivide">
+				<div class="col-md-6">
+					<h3 class="pull-left">{{placeInfo.name}}</h3>
+				</div>
+				<div class="col-md-4"  ng-controller="MeetupsController">
+					<a class="a-prevent-default" ng-click="newMeetupAtPlace()">
+						<h4 class="pull-left"><span class="label label-primary">Create Meetup Here</span></h4>
+					</a>
+				</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel-body">
+			<div class="container">
+				<div class="row vdivide">
+					<div class="col-md-2">
+						<h3 class="pull-left"><span class="label label-primary">Rating  <span class="badge">{{placeInfo.rating}}/5</span></span></h3>
+					</div>
+					<div class="col-md-2">
+						<h3 ng-show="open_now" class="pull-left"><span class="label label-success">Open Now</span></h3>
+					</div>
+					<div class="col-md-4 pull-left">
+						<h4 class="pull-left font-black">Share via :</h4>
+						<a href="#" class="btn azm-social azm-size-64 azm-circle azm-whatsapp"><i class="fa fa-whatsapp"></i></a>
+						<a  class="btn azm-social azm-size-64 azm-circle azm-facebook a-prevent-default" ng-click="share()"><i class="fa fa-facebook"></i></a>
+						
+					</div>
+					
+				</div>
+				<div class="row vdivide">
+					<div class="col-md-2">
+						<h4 class="pull-left font-black">Categories :</h4>
+					</div>
+					<div class="col-md-10">
+						<div ng-repeat="category in placeInfo.types">
+							<h4 class="pull-left" style="padding-right:2px;"><span class="label label-info">{{category}}</span></h4>
+						</div>
+					</div>
+					
+				</div>
+				<div class="row vdivide">
+					<div class="col-md-2">
+						<h4 class="pull-left font-black">Address :</h4>
+					</div>
+					<div class="col-md-10">
+						<h4 class="pull-left font-black">{{placeInfo.formatted_address}}</h4>
+					</div>
+				</div>
+				<div class="row vdivide">
+					<div class="col-md-2">
+						<h4 class="pull-left font-black">Phone :</h4>
+					</div>
+					<div class="col-md-10">
+						<h4 class="pull-left font-black">{{placeInfo.formatted_phone_number}}</h4>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3>Photos</h3>
+							</div>
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-lg-3 col-md-2 col-xs-6 thumb">
+									<a class="thumbnail" href="#">
+										<img class="img-responsive" src="http://placehold.it/400x300" alt="">
+									</a>
+									</div>
+									<div class="col-lg-3 col-md-2 col-xs-6 thumb">
+										<a class="thumbnail" href="#">
+											<img class="img-responsive" src="http://placehold.it/400x300" alt="">
+										</a>
+									</div>
+									<div class="col-lg-3 col-md-2 col-xs-6 thumb">
+										<a class="thumbnail" href="#">
+											<img class="img-responsive" src="http://placehold.it/400x300" alt="">
+										</a>
+									</div>
+									<div class="col-lg-3 col-md-2 col-xs-6 thumb">
+										<a class="thumbnail" href="#">
+											<img class="img-responsive" src="http://placehold.it/400x300" alt="">
+										</a>
+									</div>
+									<div class="col-lg-3 col-md-2 col-xs-6 thumb">
+										<a class="thumbnail" href="#">
+											<img class="img-responsive" src="http://placehold.it/400x300" alt="">
+										</a>
+									</div>
+									<div class="col-lg-3 col-md-2 col-xs-6 thumb">
+										<a class="thumbnail" href="#">
+											<img class="img-responsive" src="http://placehold.it/400x300" alt="">
+										</a>
+									</div>
+									<div class="col-lg-3 col-md-2 col-xs-6 thumb">
+										<a class="thumbnail" href="#">
+											<img class="img-responsive" src="http://placehold.it/400x300" alt="">
+										</a>
+									</div>
+									<div class="col-lg-3 col-md-2 col-xs-6 thumb">
+										<a class="thumbnail" href="#">
+											<img class="img-responsive" src="http://placehold.it/400x300" alt="">
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-5">
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3>Location</h3>
+							</div>
+							<div class="panel-body">
+								<div id="map">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3>Reviews</h3>
+							</div>
+							<div class="panel-body">
+								<div class="list-group">
+								  <a href="#" class="list-group-item" ng-repeat="review in placeInfo.reviews">
+									<h4 class="list-group-item-heading">{{review.text}}</h4>
+									<p class="list-group-item-text">{{review.author_name}}</p>
+								  </a>
+								  <a href="#" class="list-group-item">
+									<button type="button" class="btn btn-primary">Create Review</button>
+								  </a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-5">
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3>Opening Hours</h3>
+							</div>
+							<div class="panel-body">
+								<div class="list-group">
+								  <button type="button" class="list-group-item" ng-repeat="wtext in placeInfo.opening_hours.weekday_text">{{wtext}}
+								  </button>
+								
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	

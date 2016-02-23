@@ -1,0 +1,19 @@
+<div class="container-fluid">
+	<div class="row no-gutter">
+		<h3 class="pull-left">Browse From Below Categories:</h3>
+	</div>
+	<div class="row no-gutter">
+		
+			<div class="col-lg-4 col-sm-6 col-xs-12" ng-repeat="item in categories">
+				<a href="{{item.navURL}}">
+					 <img src="/GeoService/resources/img/categories/{{item.id}}.jpg" class="thumbnail img-responsive">
+					 <div class="carousel-caption">
+					  <h1>{{item.description}}</h1>
+					</div>
+				</a>
+			</div>
+		
+	</div>
+</div>
+   
+

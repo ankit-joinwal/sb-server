@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+  
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/araura</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">admin</property>
+         
+        <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">1</property>
+         
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+ 
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+         
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+         <property  name="dateTime">org.jadira.usertype.dateandtime.joda.PersistentDateTime</property>
+         <property name="jadira.usertype.autoRegisterUserTypes" >true</property>
+        <property name="hbm2ddl.auto">update</property>
+        
+		<mapping class="com.bitlogic.sociallbox.data.model.User"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.SmartDevice"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.Role"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.EventTag"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.UserSocialDetail"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.EventTag"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.EventType"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.Category"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.Event"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.Meetup"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.MeetupAttendee"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.MeetupMessage"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.EventDetails"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.EventImage"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.EventAddressInfo"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.MeetupAddressInfo"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.AddressComponentType"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.UserSetting"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.PushNotificationSettingMaster"></mapping>
+		
+    </session-factory>
+</hibernate-configuration>
