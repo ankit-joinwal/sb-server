@@ -10,13 +10,12 @@ import com.bitlogic.sociallbox.data.model.MeetupAttendee;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@XmlRootElement(name="edit_meetup")
-public class EditMeetupRequest{
+@XmlRootElement(name="add_meetup_attendees")
+public class AddMeetupAttendeesRequest{
 	
 	@JsonIgnore
-	private String uuid;
-	
-	
+	private String meetupId;
+
 	@NotNull(message="error.attendees.mandatory")
 	@JsonProperty
 	@XmlElement
@@ -30,12 +29,12 @@ public class EditMeetupRequest{
 		this.attendees = attendees;
 	}
 
-	public String getUuid() {
-		return uuid;
+	public String getMeetupId() {
+		return meetupId;
 	}
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
+	public void setMeetupId(String uuid) {
+		this.meetupId = uuid;
 	}
 
 	

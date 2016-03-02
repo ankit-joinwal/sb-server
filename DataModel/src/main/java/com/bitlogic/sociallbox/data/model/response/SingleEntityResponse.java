@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.data.model;
+package com.bitlogic.sociallbox.data.model.response;
 
 import java.io.Serializable;
 
@@ -16,6 +16,7 @@ public class SingleEntityResponse<T> implements Serializable {
 	
 	@JsonProperty
 	private T data;
+	
 
 	public String getStatus() {
 		return status;

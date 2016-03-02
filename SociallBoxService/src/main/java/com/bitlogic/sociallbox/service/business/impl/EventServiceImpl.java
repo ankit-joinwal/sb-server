@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.business;
+package com.bitlogic.sociallbox.service.business.impl;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -27,7 +27,8 @@ import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventAddressInfo;
 import com.bitlogic.sociallbox.data.model.EventDetails;
 import com.bitlogic.sociallbox.data.model.EventImage;
-import com.bitlogic.sociallbox.data.model.EventResponse;
+import com.bitlogic.sociallbox.data.model.EventOrganizer;
+import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
@@ -35,7 +36,10 @@ import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
 import com.bitlogic.sociallbox.data.model.ext.PlaceDetails.Result.AddressComponent;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest.MockEventDetails;
+import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.service.business.EventService;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
+import com.bitlogic.sociallbox.service.dao.EventOrganizerDAO;
 import com.bitlogic.sociallbox.service.dao.EventTagDAO;
 import com.bitlogic.sociallbox.service.dao.EventTypeDAO;
 import com.bitlogic.sociallbox.service.dao.MeetupDAO;
@@ -47,6 +51,7 @@ import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.utils.GeoUtils;
 import com.bitlogic.sociallbox.service.utils.ImageUtils;
 
 @Service
@@ -70,6 +75,9 @@ public class EventServiceImpl implements EventService ,Constants{
 	@Autowired
 	private MeetupDAO meetupDAO;
 	
+	@Autowired
+	private EventOrganizerDAO eventOrganizerDAO;
+	
 	@Override
 	public Event create(CreateEventRequest createEventRequest) {
 		logger.info("### Inside CreateEventRequest.create ###");
@@ -77,8 +85,8 @@ public class EventServiceImpl implements EventService ,Constants{
 		MockEventDetails mockEventDetails = createEventRequest.getEventDetails();
 		
 		
-		User organizer = this.userDAO.getUserByEmailId(createEventRequest.getOrganizerId(), false); 
-		logger.info("   Found organizer details in DB for {} : Id {}",organizer.getEmailId(),organizer.getId());
+		EventOrganizer organizer = this.eventOrganizerDAO.getOrganizerDetails(createEventRequest.getOrganizerId()); 
+		logger.info("   Found organizer details in DB for {} : Id {}",organizer);
 		
 		Set<EventTag> tags = createEventRequest.getTags();
 		if(tags!=null && !tags.isEmpty()){
@@ -96,7 +104,7 @@ public class EventServiceImpl implements EventService ,Constants{
 			event.setEndDate(dateFormat.parse(createEventRequest.getEndDate()));
 		} catch (ParseException e) {
 
-			logger.error("ParseException",e);
+			throw new ClientException(RestErrorCodes.ERR_001, ERROR_DATE_INVALID_FORMAT);
 		}
 		
 		EventDetails eventDetails = new EventDetails();
@@ -105,6 +113,7 @@ public class EventServiceImpl implements EventService ,Constants{
 		event.setTitle(createEventRequest.getTitle());
 		event.setDescription(createEventRequest.getDescription());
 		event.setEventDetails(eventDetails);
+		event.setEventStatus(EventStatus.CREATED);
 		eventDetails.setEvent(event);
 		Event created = this.eventDAO.create(event);
 		created.getEventDetails().setAddressComponents(this.getEventAddressInfo(eventDetails,mockEventDetails.getAddressComponents()));
@@ -165,22 +174,29 @@ public class EventServiceImpl implements EventService ,Constants{
 	}
 	
 	@Override
-	public List<EventResponse> getEventsForUser(Long userId,String city, String country,Integer page) {
+	public List<EventResponse> getEventsForUser(String userLocation,Long userId,String city, String country,Integer page) {
 		logger.info("### Inside getEventsForUser . ###");
+		
+		//Parse Location is Format Lattitude,Longitude
+		Map<String,Double> cordinatesMap = GeoUtils.getCoordinatesFromLocation(userLocation);
+		
 		List<Long> userTags = null;
 		if(userId!=null){
 			userTags = this.eventTagDAO.getUserTagIds(userId);
 		}else{
 			userTags = this.eventTagDAO.getAllTagIds();
 		}
-		return this.eventDAO.getEventsByFilter(userTags, city, country,page);
+		return this.eventDAO.getEventsByFilter(cordinatesMap,userTags, city, country,page);
 		
 	}
 	
 	@Override
-	public List<EventResponse> getEventsByType(String eventTypeName, String city,
+	public List<EventResponse> getEventsByType(String userLocation,String eventTypeName, String city,
 			String country,Integer page){
 
+		//Parse Location is Format Lattitude,Longitude
+		Map<String,Double> cordinatesMap = GeoUtils.getCoordinatesFromLocation(userLocation);
+	
 		logger.info("### Inside getEventsByType .Type {}, City {} , Country {} ###",eventTypeName,city,country);
 		EventType eventType = this.eventTypeDAO.getEventTypeByName(eventTypeName);
 		if(eventType==null){
@@ -195,7 +211,7 @@ public class EventServiceImpl implements EventService ,Constants{
 			tagIds.add(eventTag.getId());
 		}
 
-		return this.eventDAO.getEventsByFilter(tagIds, city, country,page);
+		return this.eventDAO.getEventsByFilter(cordinatesMap,tagIds, city, country,page);
 	}
 	
 	@Override

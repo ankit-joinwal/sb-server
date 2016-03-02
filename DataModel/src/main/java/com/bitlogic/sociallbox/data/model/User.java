@@ -71,11 +71,6 @@ public class User implements Serializable,Cloneable {
 	@JsonIgnore
 	private Date createDt;
 	
-	@Column(nullable=false,name="PROFILE_PICTURE_URL")
-	@JsonProperty("profilePic")
-	@NotNull(message="error.profile.pic.mandatory")
-	private String profilePictureURL;
-	
 	@JsonIgnore
 	@XmlTransient
 	@ManyToMany
@@ -85,7 +80,6 @@ public class User implements Serializable,Cloneable {
 	@XmlElement(name="social_details")
 	@JsonProperty(value="social_details")
 	@OneToMany(mappedBy="user",fetch=FetchType.EAGER)
-	@NotNull(message="error.social.details.mandatory")
 	private Set<UserSocialDetail> socialDetails = new HashSet<>();
 	
 	@XmlTransient
@@ -251,15 +245,6 @@ public class User implements Serializable,Cloneable {
 	}
 
 	
-	
-	public String getProfilePictureURL() {
-		return profilePictureURL;
-	}
-
-	public void setProfilePictureURL(String profilePictureURL) {
-		this.profilePictureURL = profilePictureURL;
-	}
-
 	@Override
 	public String toString() {
 		return "[ name = " + name + " , email = " + emailId + " ] ";

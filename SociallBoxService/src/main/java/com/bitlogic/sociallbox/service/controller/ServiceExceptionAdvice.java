@@ -119,6 +119,17 @@ public class ServiceExceptionAdvice {
 		return message;
 	}
 	
+	@ExceptionHandler(Exception.class)
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ResponseBody
+	public MessageDTO processServerError(Exception ex) {
+		MessageDTO message = null;
+		ServiceException serviceException = new ServiceException(Constants.GEO_SERVICE_NAME,RestErrorCodes.ERR_050,ex.getMessage());
+		LOGGER.error("ServiceException occurred .",ex);
+		message = new MessageDTO( MessageType.ERROR,serviceException);
+		return message;
+	}
+	
 	@ExceptionHandler(BadCredentialsException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	@ResponseBody

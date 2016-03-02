@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.business;
+package com.bitlogic.sociallbox.service.business.impl;
 
 import javax.transaction.Transactional;
 
@@ -12,6 +12,7 @@ import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.GAPIConfig;
 import com.bitlogic.sociallbox.data.model.ext.Places;
 import com.bitlogic.sociallbox.data.model.requests.TextSearchRequest;
+import com.bitlogic.sociallbox.service.business.TextSearchService;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;

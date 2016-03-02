@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.business;
+package com.bitlogic.sociallbox.service.business.impl;
 
 import java.util.Date;
 import java.util.List;
@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bitlogic.sociallbox.data.model.Category;
+import com.bitlogic.sociallbox.service.business.CategoryService;
 import com.bitlogic.sociallbox.service.dao.CategoryDAO;
 
 @Service

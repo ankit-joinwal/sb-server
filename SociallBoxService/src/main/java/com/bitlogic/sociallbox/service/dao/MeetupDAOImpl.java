@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 import com.bitlogic.sociallbox.data.model.AddressComponentType;
 import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.Meetup;
-import com.bitlogic.sociallbox.data.model.MeetupAttendee;
+import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
@@ -50,8 +50,24 @@ public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{
 	}
 	
 	@Override
+	public MeetupAttendeeEntity addAttendee(MeetupAttendeeEntity meetupAttendee) {
+		Long id = (Long) save(meetupAttendee);
+		return getAttendeeById(id);
+	}
+	
+	@Override
+	public MeetupAttendeeEntity getAttendeeById(Long id) {
+	
+		Criteria criteria = getSession().createCriteria(MeetupAttendeeEntity.class)
+							.setFetchMode("user", FetchMode.JOIN)
+							.add(Restrictions.eq("id", id));
+		MeetupAttendeeEntity meetupAttendee = (MeetupAttendeeEntity) criteria.uniqueResult();
+		return meetupAttendee;
+	}
+	
+	@Override
 	public void saveAttendeeResponse(SaveAttendeeResponse attendeeResponse) {
-		MeetupAttendee meetupAttendee = (MeetupAttendee) getSession().get(MeetupAttendee.class, attendeeResponse.getAttendeeId());
+		MeetupAttendeeEntity meetupAttendee = (MeetupAttendeeEntity) getSession().get(MeetupAttendeeEntity.class, attendeeResponse.getAttendeeId());
 		if(meetupAttendee!=null){
 			logger.info("Storing attendee response for meetup {} for attendee {} ",attendeeResponse.getMeetupId(),attendeeResponse.getAttendeeId());
 			meetupAttendee.setAttendeeResponse(attendeeResponse.getAttendeeResponse());
@@ -62,7 +78,7 @@ public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{
 	@Override
 	public void sendMessageInMeetup(MeetupMessage meetupMessage,
 			String meetupId, Long senderId) {
-		MeetupAttendee meetupAttendee = (MeetupAttendee) getSession().get(MeetupAttendee.class, senderId);
+		MeetupAttendeeEntity meetupAttendee = (MeetupAttendeeEntity) getSession().get(MeetupAttendeeEntity.class, senderId);
 		Meetup meetup = (Meetup) getSession().get(Meetup.class, meetupId);
 		Date now = new Date();
 		if(meetup!=null && meetupAttendee!=null){

@@ -17,7 +17,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -25,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "EVENT")
-@XmlRootElement(name = "event")
 public class Event {
 
 	@Id
@@ -34,17 +32,17 @@ public class Event {
 	@Column(name = "ID", unique = true)
 	private String uuid;
 
-	@Column(length = 75,name="TITLE")
+	@Column(length = 75,name="TITLE",nullable=false)
 	private String title;
 
-	@Column(length = 1000,name="DESCRIPTION")
+	@Column(length = 1000,name="DESCRIPTION",nullable=false)
 	private String description;
 
 	@OneToMany(mappedBy="event",cascade=CascadeType.ALL)
 	@JsonIgnore
 	private List<EventImage> eventImages;
 	
-	@OneToOne(mappedBy="event",cascade = CascadeType.ALL)
+	@OneToOne(mappedBy="event",cascade = CascadeType.ALL,fetch=FetchType.EAGER)
 	private EventDetails eventDetails;
 
 	@ManyToMany
@@ -54,17 +52,25 @@ public class Event {
 	@OneToMany(mappedBy="eventAtMeetup",fetch= FetchType.LAZY)
 	private Set<Meetup> meetupsAtEvent = new HashSet<>();
 	
+	@Column(name="EVENT_STATUS",nullable=false)
+	private EventStatus eventStatus;
 	
-	@Column(name="IS_LIVE")
-	private String isLive;
-	
-	@Column(name="START_DT")
+	@Column(name="START_DT",nullable=false)
 	private Date startDate;
 
-	@Column(name="END_DT")
+	@Column(name="END_DT",nullable=false)
 	private Date endDate;
 
-	
+
+	public EventStatus getEventStatus() {
+		return eventStatus;
+	}
+
+	public void setEventStatus(EventStatus eventStatus) {
+		this.eventStatus = eventStatus;
+	}
+
+
 	public List<EventImage> getEventImages() {
 		return eventImages;
 	}
@@ -141,17 +147,11 @@ public class Event {
 		this.endDate = endDate;
 	}
 
-	public String getIsLive() {
-		return isLive==null ? "false":isLive;
-	}
 
-	public void setIsLive(String isLive) {
-		this.isLive = isLive;
-	}
 	
 	@Override
 	public String toString() {
-		return "Event [title="+this.title+" , organizer="+this.eventDetails.getOrganizer().getId()+" ]";
+		return "Event [title="+this.title+" , organizer="+this.eventDetails.getOrganizer().getUuid()+" ]";
 	}
 
 }

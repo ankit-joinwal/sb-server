@@ -23,11 +23,10 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
-import com.bitlogic.sociallbox.data.model.EventResponse;
-import com.bitlogic.sociallbox.data.model.SingleEntityResponse;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
+import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EventService;
-import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;

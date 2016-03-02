@@ -2,7 +2,6 @@ package com.bitlogic.sociallbox.data.model;
 
 import java.util.Date;
 
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

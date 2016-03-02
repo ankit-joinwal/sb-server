@@ -10,10 +10,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.bitlogic.sociallbox.data.model.Location;
-import com.bitlogic.sociallbox.data.model.MeetupAttendee;
+import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
-import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.response.UserPublicProfile;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -22,33 +23,51 @@ public class MeetupResponse  implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	@XmlElement
+	@JsonProperty("id")
 	private String uuid;
 
 	@XmlElement
+	@JsonProperty("title")
 	private String title;
 
 	@XmlElement
 	private String description;
 
 	@XmlElement
+	@JsonProperty("location")
 	private Location location;
 
 	@XmlElement
+	@JsonProperty("start_date")
 	private String startDate;
 
 	@XmlElement
+	@JsonProperty("end_date")
 	private String endDate;
 
 	@XmlElement
-	private User organizer;
+	@JsonProperty("organizer")
+	private UserPublicProfile organizer;
 	
 	@XmlElement
+	@JsonProperty("meetup_access_url")
 	private String url;
 	
+	@JsonProperty("display_pic")
 	private MeetupImage displayImage;
 	
 	@XmlElement
+	@JsonProperty("event_at_meetup")
 	private String eventAtMeetup;
+	
+	@XmlElement
+	@JsonProperty("attendees")
+	private Set<MeetupAttendeeEntity> attendees = new HashSet<>();
+	
+	@XmlElement
+	@JsonProperty("messages")
+	private Set<MeetupMessage> messages = new HashSet<>();
+
 	
 	
 	
@@ -76,12 +95,6 @@ public class MeetupResponse  implements Serializable{
 		this.url = url;
 	}
 
-	@XmlElement
-	private Set<MeetupAttendee> attendees;
-	
-	@XmlElement
-	private Set<MeetupMessage> messages = new HashSet<>();
-
 	
 	
 	public Set<MeetupMessage> getMessages() {
@@ -92,19 +105,19 @@ public class MeetupResponse  implements Serializable{
 		this.messages = messages;
 	}
 
-	public Set<MeetupAttendee> getAttendees() {
+	public Set<MeetupAttendeeEntity> getAttendees() {
 		return attendees;
 	}
 
-	public void setAttendees(Set<MeetupAttendee> attendees) {
+	public void setAttendees(Set<MeetupAttendeeEntity> attendees) {
 		this.attendees = attendees;
 	}
 
-	public User getOrganizer() {
+	public UserPublicProfile getOrganizer() {
 		return organizer;
 	}
 
-	public void setOrganizer(User organizer) {
+	public void setOrganizer(UserPublicProfile organizer) {
 		this.organizer = organizer;
 	}
 

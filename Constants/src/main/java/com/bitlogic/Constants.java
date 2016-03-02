@@ -4,6 +4,7 @@ import java.io.File;
 
 public interface Constants {
 
+	String BLANK = "";
 	String SUCCESS_STATUS = "Success";
 	String LOCATION_HEADER = "Location";
 	String JDBC_DRIVER_PROPERTY = "jdbc.driverClassName";
@@ -37,9 +38,14 @@ public interface Constants {
 	String DEFAULT_RADIUS = "1000";
 	Integer RECORDS_PER_PAGE = 5;
 	String MEETUP_DATE_FORMAT = "dd/MM/yyyy hh:mm aa";
-	
+	String EVENT_RESPONSE_DATE_FORMAT = "d MMM yyyy";
+	String MEETUP_RESPONSE_DATE_FORMAT = "d MMM yyyy";
+	String TRUE = "true";
 	String GEO_SERVICE_NAME = "GeoService";
-	
+	String LATTITUDE_KEY = "LATTITUDE";
+	String LONGITUDE_KEY = "LONGITUDE";
+	String KILOMETRES = " Kms";
+	String IS_ENABLED_TRUE = "true";
 	String ROLE_TYPE_ADMIN = "ADMIN";
 	String ROLE_TYPE_APP_USER = "APP_USER";
 	String ROLE_ORGANIZER = "EVENT_ORGANIZER";
@@ -67,4 +73,11 @@ public interface Constants {
 	String ERROR_EVENT_TYPE_INVALID = "error.event.type.invalid";
 	String ERROR_IMAGE_NOT_FOUND = "error.image.not.found";
 	String ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY = "error.feature.available.to.mobile.only";
+	String ERROR_LOCATION_INVALID_FORMAT = "error.location.invalid.format";
+	String ERROR_ADDRESS_MANDATORY = "error.address.mandatory";
+	String ERROR_ORGANIZER_EXISTS = "error.organizer.exists";
+	String ERROR_DATE_INVALID_FORMAT = "error.date.invalid.format";
+	String ERROR_ORGANIZER_NOT_FOUND = "error.organizer.not.found";
+	String ERROR_FEATURE_AVAILABLE_TO_WEB_ONLY = "error.feature.available.to.web.only";
+	String ERROR_USER_ALREADY_EXISTS = "error.user.already.exists";
 }

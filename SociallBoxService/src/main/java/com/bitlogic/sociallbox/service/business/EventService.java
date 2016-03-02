@@ -8,8 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventImage;
-import com.bitlogic.sociallbox.data.model.EventResponse;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
+import com.bitlogic.sociallbox.data.model.response.EventResponse;
 
 public interface EventService {
 
@@ -21,9 +21,9 @@ public interface EventService {
 	@PreAuthorize("hasAnyRole('"+Constants.ROLE_TYPE_ADMIN+"','"+Constants.ROLE_ORGANIZER+"')")
 	public void makeEventLive(String eventId);
 	
-	public List<EventResponse> getEventsForUser(Long userId,String city,String country,Integer page);
+	public List<EventResponse> getEventsForUser(String userLocation,Long userId,String city,String country,Integer page);
 	
-	public List<EventResponse> getEventsByType(String eventType,String city,String country,Integer page);
+	public List<EventResponse> getEventsByType(String userLocation,String eventType,String city,String country,Integer page);
 	
 	@PreAuthorize("hasAnyRole('"+Constants.ROLE_TYPE_ADMIN+"','"+Constants.ROLE_ORGANIZER+"')")
 	public void storeEventImages(String imagesURL,List<MultipartFile> images , String eventId) ;

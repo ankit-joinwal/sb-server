@@ -73,7 +73,7 @@ public class LoginUtil implements Constants{
 		}
 		
 		if(user.getSmartDevices()==null || user.getSmartDevices().isEmpty()){
-			msg = ERROR_LOGIN_SOCIAL_DETAILS_MISSING;
+			msg = ERROR_LOGIN_INVALID_DEVICES_IN_REQ;
 			LOGGER.error(msg);
 			throw new ClientException(RestErrorCodes.ERR_001,msg);
 		}
@@ -106,6 +106,17 @@ public class LoginUtil implements Constants{
 		//check for mandatory values
 		if(user.getSocialDetails()==null || user.getSocialDetails().isEmpty()){
 			msg = ERROR_LOGIN_SOCIAL_DETAILS_MISSING;
+			LOGGER.error(msg);
+			throw new ClientException(RestErrorCodes.ERR_001,msg);
+		}
+	}
+	
+	public static void validateOrganizerAdmin(User user){
+		LOGGER.info("Validating user:"+user);
+		String msg =  null;
+		//check for mandatory values
+		if(user.getSmartDevices()!=null && !user.getSmartDevices().isEmpty()){
+			msg = ERROR_FEATURE_AVAILABLE_TO_WEB_ONLY;
 			LOGGER.error(msg);
 			throw new ClientException(RestErrorCodes.ERR_001,msg);
 		}

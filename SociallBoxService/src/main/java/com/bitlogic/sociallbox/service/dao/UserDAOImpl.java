@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
-import com.bitlogic.sociallbox.data.model.MeetupAttendee;
+import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.PushNotificationSettingMaster;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
@@ -145,7 +145,22 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		return user;
 	}
 	
-	
+	@Override
+	public Map<Long, User> getUsersMapFromUserIds(List<Long> userIds) {
+		Map<Long,User> usersMap = new HashMap<>();
+		Criteria criteria = getSession().createCriteria(User.class)
+							.add(Restrictions.in("id", userIds))
+							.add(Restrictions.eq("isEnabled", "true"));
+		List<User> users = criteria.list();
+		
+		if(users !=null && !users.isEmpty()){
+			for(User user : users){
+				usersMap.put(user.getId(), user);
+				
+			}
+		}
+		return usersMap;
+	}
 
 	@Override
 	public User getUserByEmailId(String emailId, boolean updateQuota) {
@@ -210,12 +225,12 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 	}
 	
 	@Override
-	public MeetupAttendee getAttendeeByMeetupIdAndSocialId(String meetupId,
+	public MeetupAttendeeEntity getAttendeeByMeetupIdAndSocialId(String meetupId,
 			Long socialId) {
-		Criteria criteria = getSession().createCriteria(MeetupAttendee.class).createAlias("socialDetail", "sdtl").createAlias("meetup", "meet")
+		Criteria criteria = getSession().createCriteria(MeetupAttendeeEntity.class).createAlias("socialDetail", "sdtl").createAlias("meetup", "meet")
 				.setFetchMode("sdtl", FetchMode.JOIN).setFetchMode("meet", FetchMode.JOIN).add(Restrictions.eq("sdtl.id", socialId))
 				.add(Restrictions.eq("meet.uuid", meetupId));
-		MeetupAttendee meetupAttendee = (MeetupAttendee) criteria.uniqueResult();
+		MeetupAttendeeEntity meetupAttendee = (MeetupAttendeeEntity) criteria.uniqueResult();
 		
 		return meetupAttendee;
 	}

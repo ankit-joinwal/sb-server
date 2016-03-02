@@ -6,20 +6,26 @@ public class TransformerFactory {
 		MEETUP_TRANS , EVENT_TRANS , 
 		MULTIPART_TO_EVENT_IMAGE_TRANFORMER ,
 		MULTIPART_TO_MEETUP_IMAGE_TRANFORMER, 
-		USER_TO_FRIEND_TRANSFORMER
+		USER_TO_FRIEND_TRANSFORMER , 
+		CREATE_EO_TO_EO_TRANSFORMER,
+		EO_TO_EO_RESPONSE_TRANSFORMER
 	}
 	
 	public static Transformer<?, ?> getTransformer(Transformer_Types types){
 		if(types.equals(Transformer_Types.MEETUP_TRANS)){
-			return new MeetupTransformer();
+			return MeetupTransformer.getInstance();
 		}else if(types.equals(Transformer_Types.EVENT_TRANS)){
-			return new EventTransformer();
+			return EventTransformer.getInstance();
 		}else if(types.equals(Transformer_Types.MULTIPART_TO_EVENT_IMAGE_TRANFORMER)){
-			return new MultipartToEventImageTransformer();
+			return MultipartToEventImageTransformer.getInstance();
 		}else if(types.equals(Transformer_Types.MULTIPART_TO_MEETUP_IMAGE_TRANFORMER)){
-			return new MultipartToMeetupImageTransformer();
+			return MultipartToMeetupImageTransformer.getInstance();
 		}else if(types.equals(Transformer_Types.USER_TO_FRIEND_TRANSFORMER)){
-			return new UsersToFriendsTransformer();
+			return  UsersToFriendsTransformer.getInstance();
+		}else if (types.equals(Transformer_Types.CREATE_EO_TO_EO_TRANSFORMER)){
+			return  CreateEOReqToEOTransformer.getInstance();
+		}else if(types.equals(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER)){
+			return  EOToEOResponseTransformer.getInstance();
 		}
 		
 		

@@ -69,6 +69,9 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 			try {
 				SmartDevice device = this.userService
 						.getSmartDeviceDetails(deviceId);
+				if(device==null){
+					throw new ClientException(RestErrorCodes.ERR_002, ERROR_USER_INVALID);
+				}
 				deviceKey = device.getPrivateKey();
 			} catch (ClientException exception) {
 				throw new BadCredentialsException(exception.getMessage());
@@ -98,30 +101,17 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 		} else if (userType.equals(Constants.WEB_USER_PREFIX)) {
 			String userId = secretParts[1];
 			User user = null;
-			String externalId = null;
 
 			LOGGER.info("Loading user with id {}" + userId);
 			user = this.userService.loadUserByUsername(userId);
 
-			Set<UserSocialDetail> socialDetails = user.getSocialDetails();
-			if (socialDetails == null || socialDetails.isEmpty()) {
-				LOGGER.error("User Social Details are null ");
-				throw new UnauthorizedException(RestErrorCodes.ERR_002,
-						ERROR_LOGIN_INVALID_CREDENTIALS);
-			}
-			for (UserSocialDetail socialDetail : socialDetails) {
-				if (socialDetail.getSocialDetailType().equals(
-						SocialDetailType.USER_EXTERNAL_ID)) {
-					externalId = socialDetail.getUserSocialDetail();
-				}
-			}
-			if (externalId == null) {
-				LOGGER.error("Social details are missing for user");
-				throw new UnauthorizedException(RestErrorCodes.ERR_002,
-						ERROR_LOGIN_INVALID_CREDENTIALS);
+			if(user==null){
+				throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_USER_INVALID);
 			}
 
-			String signature = calculateSignature(externalId,
+			String password = user.getPassword();
+			
+			String signature = calculateSignature(password,
 					restToken.getTimestamp());
 			if (!credentials.getSignature().equals(signature)) {
 				throw new BadCredentialsException(

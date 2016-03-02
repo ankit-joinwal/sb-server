@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventImage;
-import com.bitlogic.sociallbox.data.model.EventResponse;
-import com.bitlogic.sociallbox.data.model.SingleEntityResponse;
+import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
+import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EventService;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
@@ -92,7 +92,9 @@ public class EventPublicController implements Constants{
 	@RequestMapping(value="/personalized",method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public EntityCollectionResponse<EventResponse> getPersonalizedEvents(@RequestParam(required = false, value = "id") Long userId,
+	public EntityCollectionResponse<EventResponse> getPersonalizedEvents(
+												@RequestParam(required = true, value = "location") String location,
+												@RequestParam(required = false, value = "id") Long userId,
 												@RequestParam(required = true, value = "city") String city,
 												@RequestParam(required = true, value = "country") String country,
 												@RequestParam(required=false,value="page") Integer page){
@@ -101,7 +103,8 @@ public class EventPublicController implements Constants{
 		if(page==null){
 			page = new Integer(1);
 		}
-		List<EventResponse> events = this.eventService.getEventsForUser(userId,city, country,page);
+		
+		List<EventResponse> events = this.eventService.getEventsForUser(location,userId,city, country,page);
 		EntityCollectionResponse<EventResponse> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setData(events);
 		collectionResponse.setStatus("Success");
@@ -116,7 +119,9 @@ public class EventPublicController implements Constants{
 	@RequestMapping(value="/types/{eventType}",method=RequestMethod.GET,produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public EntityCollectionResponse<EventResponse> getEventsOfType(@PathVariable String eventType,
+	public EntityCollectionResponse<EventResponse> getEventsOfType(
+												@RequestParam(required = true, value = "location") String location,
+												@PathVariable String eventType,
 												@RequestParam(required = true, value = "city") String city,
 												@RequestParam(required = true, value = "country") String country,
 												@RequestParam(required=false,value="page") Integer page) {
@@ -124,7 +129,7 @@ public class EventPublicController implements Constants{
 		if(page==null){
 			page = new Integer(1);
 		}
-		List<EventResponse> eventsList = this.eventService.getEventsByType(eventType, city, country,page);
+		List<EventResponse> eventsList = this.eventService.getEventsByType(location,eventType, city, country,page);
 		
 		EntityCollectionResponse<EventResponse> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setData(eventsList);

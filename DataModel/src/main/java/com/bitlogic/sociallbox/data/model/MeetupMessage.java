@@ -38,7 +38,7 @@ public class MeetupMessage implements Serializable {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "SENDER_ID")
 	@JsonProperty
-	private MeetupAttendee meetupAttendee;
+	private MeetupAttendeeEntity meetupAttendee;
 
 	@ManyToOne
 	@JsonIgnore
@@ -96,11 +96,11 @@ public class MeetupMessage implements Serializable {
 		this.message = message;
 	}
 
-	public MeetupAttendee getMeetupAttendee() {
+	public MeetupAttendeeEntity getMeetupAttendee() {
 		return meetupAttendee;
 	}
 
-	public void setMeetupAttendee(MeetupAttendee meetupAttendee) {
+	public void setMeetupAttendee(MeetupAttendeeEntity meetupAttendee) {
 		this.meetupAttendee = meetupAttendee;
 	}
 

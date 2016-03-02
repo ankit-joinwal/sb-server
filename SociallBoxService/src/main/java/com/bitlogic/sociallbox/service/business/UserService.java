@@ -9,9 +9,9 @@ import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
-import com.bitlogic.sociallbox.data.model.UserFriend;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
+import com.bitlogic.sociallbox.data.model.response.UserFriend;
 
 public interface UserService {
 

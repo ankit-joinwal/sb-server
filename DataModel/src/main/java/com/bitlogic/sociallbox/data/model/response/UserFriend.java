@@ -1,15 +1,12 @@
-package com.bitlogic.sociallbox.data.model;
+package com.bitlogic.sociallbox.data.model.response;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @XmlRootElement(name = "friend")
-@XmlAccessorType(XmlAccessType.NONE)
 public class UserFriend implements Serializable{
 
 

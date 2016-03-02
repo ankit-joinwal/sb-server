@@ -2,27 +2,45 @@ package com.bitlogic.sociallbox.service.transformers;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Meetup;
-import com.bitlogic.sociallbox.data.model.MeetupMessage;
+import com.bitlogic.sociallbox.data.model.SocialDetailType;
+import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
+import com.bitlogic.sociallbox.data.model.response.UserPublicProfile;
 
 public class MeetupTransformer implements Transformer<MeetupResponse, Meetup> {
 
+	private static volatile MeetupTransformer instance = null;
+	
+	private MeetupTransformer() {
+	}
+	
+	public static MeetupTransformer getInstance(){
+		if(instance == null){
+			synchronized (MeetupTransformer.class) {
+				if(instance==null){
+					instance = new MeetupTransformer();
+				}
+			}
+		}
+		return instance;
+	}
 	
 	@Override
 	public MeetupResponse transform(Meetup meetup) {
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MEETUP_DATE_FORMAT);
+		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MEETUP_RESPONSE_DATE_FORMAT);
 		MeetupResponse createMeetupResponse = new MeetupResponse();
 		
-		createMeetupResponse.setAttendees(meetup.getAttendees());
 		createMeetupResponse.setDescription(meetup.getDescription());
 		createMeetupResponse.setLocation(meetup.getLocation());
-		createMeetupResponse.setOrganizer(meetup.getOrganizer());
 		createMeetupResponse.setUuid(meetup.getUuid());
 		createMeetupResponse.setTitle(meetup.getTitle());
+
 		
 		if(meetup.getEventAtMeetup()!=null){
 			createMeetupResponse.setEventAtMeetup(meetup.getEventAtMeetup().getUuid());
@@ -37,7 +55,24 @@ public class MeetupTransformer implements Transformer<MeetupResponse, Meetup> {
 			createMeetupResponse.setDisplayImage(meetup.getImages().get(0));
 		}
 		
-		Date now = new Date();
+		if(meetup.getOrganizer()!=null){
+			UserPublicProfile userPublicProfile = new UserPublicProfile(meetup.getOrganizer());
+			if(meetup.getOrganizer().getSocialDetails()!=null){
+				Set<UserSocialDetail> socialDetailsToReturn = new HashSet<>();
+				Set<UserSocialDetail> socialDetails = meetup.getOrganizer().getSocialDetails();
+				for(UserSocialDetail socialDetail : socialDetails){
+					if(socialDetail.getSocialDetailType() == SocialDetailType.USER_PROFILE_PIC){
+						socialDetailsToReturn.add(socialDetail);
+						break;
+					}
+				}
+				userPublicProfile.setSocialDetails(socialDetailsToReturn);
+				createMeetupResponse.setOrganizer(userPublicProfile);
+			}
+		}
+		
+		//TODO: Another API to get meetup messages
+		/*Date now = new Date();
 		for(MeetupMessage meetupMessage : meetup.getMessages()){
 			Date messageTime = meetupMessage.getCreateDt();
 			long diff = now.getTime() - messageTime.getTime();//in millisecons
@@ -63,7 +98,7 @@ public class MeetupTransformer implements Transformer<MeetupResponse, Meetup> {
 			
 			meetupMessage.setTimeToDisplay("Just Now");
 		}
-		createMeetupResponse.setMessages(meetup.getMessages());
+		createMeetupResponse.setMessages(meetup.getMessages());*/
 		
 		return createMeetupResponse;
 	}

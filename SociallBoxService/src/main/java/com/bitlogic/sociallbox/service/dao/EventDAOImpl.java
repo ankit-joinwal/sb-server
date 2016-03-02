@@ -3,6 +3,7 @@ package com.bitlogic.sociallbox.service.dao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -15,10 +16,12 @@ import org.springframework.stereotype.Repository;
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventImage;
-import com.bitlogic.sociallbox.data.model.EventResponse;
+import com.bitlogic.sociallbox.data.model.EventStatus;
+import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.utils.GeoUtils;
 
 @Repository("eventDAO")
 public class EventDAOImpl extends AbstractDAO implements EventDAO {
@@ -44,7 +47,6 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 	public Event getEvent(String id) {
 		Criteria criteria = getSession().createCriteria(Event.class,"event")
 				.add(Restrictions.eq("event.uuid", id))
-				.setFetchMode("event.eventDetails", FetchMode.JOIN)
 				.setFetchMode("event.tags", FetchMode.JOIN)
 				.setFetchMode("event.eventImages", FetchMode.JOIN)
 				.createAlias("event.eventImages", "image")
@@ -65,11 +67,8 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 	public Event getEventWithoutImage(String id) {
 		Criteria criteria = getSession().createCriteria(Event.class,"event")
 				.add(Restrictions.eq("event.uuid", id))
-				.setFetchMode("event.eventDetails", FetchMode.JOIN)
 				.setFetchMode("event.tags", FetchMode.JOIN)
-				//.setFetchMode("event.eventImages", FetchMode.JOIN)
-				//.createAlias("event.eventImages", "image")
-				//.add(Restrictions.eq("image.displayOrder", 1))
+				
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		Event event = (Event) criteria.uniqueResult();
 		event.getTags().size();
@@ -99,17 +98,14 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 	
 	@Override
 	public void makeEventLive(Event event) {
-	
-		
-		event.setIsLive("true");
-		
+		event.setEventStatus(EventStatus.LIVE);
 	}
 	
 	@Override
-	public List<EventResponse> getEventsByFilter(List<Long> tagIds,
+	public List<EventResponse> getEventsByFilter(Map<String,Double> cordinatesMap , 
+			List<Long> tagIds,
 			String city, String country,Integer page) {
 		 Criteria criteria = getSession().createCriteria(Event.class,"event")
-					.setFetchMode("event.eventDetails", FetchMode.JOIN)
 					.setFetchMode("event.eventDetails.organizer", FetchMode.JOIN)
 					.setFetchMode("event.tags", FetchMode.JOIN)
 					.createAlias("event.eventDetails", "ed")
@@ -117,7 +113,7 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 					.setFetchMode("event.eventImages", FetchMode.JOIN)
 					.createAlias("event.eventImages", "image")
 					.add(Restrictions.eq("image.displayOrder", 1))
-					.add(Restrictions.eq("isLive", "true"))
+					.add(Restrictions.eq("event.eventStatus", EventStatus.LIVE))
 					.add((tagIds==null || tagIds.isEmpty() ) ?  Restrictions.like("eventTag.name","%") : Restrictions.in("eventTag.id",tagIds))
 					.add(Restrictions.and(Restrictions.like("ed.location.name", city,MatchMode.ANYWHERE)
 							,Restrictions.like("ed.location.name", country,MatchMode.ANYWHERE)))
@@ -129,8 +125,11 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 			
 			 	int totalEvents = events.size();
 			 	int startIdx = (page-1)*Constants.RECORDS_PER_PAGE;
-			 	int endIdx = (page*Constants.RECORDS_PER_PAGE)>totalEvents ? totalEvents : (page*Constants.RECORDS_PER_PAGE);
+			 	int endIdx = (page*Constants.RECORDS_PER_PAGE) > totalEvents ? totalEvents : (page*Constants.RECORDS_PER_PAGE);
 			 	List<Event> paginatedEvents = events.subList(startIdx, endIdx);
+			 	
+			 	Double sourceLatt = cordinatesMap.get(Constants.LATTITUDE_KEY);
+			 	Double sourceLng = cordinatesMap.get(Constants.LONGITUDE_KEY);
 			 	
 				Transformer<EventResponse, Event> transformer = (Transformer<EventResponse, Event>) TransformerFactory.getTransformer(Transformer_Types.EVENT_TRANS);
 				EventResponse eventInCity = null;
@@ -141,7 +140,11 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 						//To Load images
 						event.getEventImages().size();
 					}
+
 					eventInCity = transformer.transform(event);
+					eventInCity.setDistanceFromSource(GeoUtils.calculateDistance(sourceLatt,
+							sourceLng, event.getEventDetails().getLocation().getLattitude(),
+							event.getEventDetails().getLocation().getLongitude()));
 					eventsResponse.add(eventInCity);
 				}
 				

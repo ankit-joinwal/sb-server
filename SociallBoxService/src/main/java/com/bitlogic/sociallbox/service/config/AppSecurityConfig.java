@@ -77,6 +77,8 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 				.permitAll()
 				.antMatchers(HttpMethod.POST, "/api/secured/users")
 				.permitAll()
+				.antMatchers(HttpMethod.POST, "/api/secured/users/organizers/admins/signup")
+				.permitAll()
 				.antMatchers("/api/public/**")
 				.permitAll()
 				.anyRequest()

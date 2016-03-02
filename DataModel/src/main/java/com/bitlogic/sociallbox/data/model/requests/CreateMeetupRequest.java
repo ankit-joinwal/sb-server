@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.bitlogic.sociallbox.data.model.Location;
-import com.bitlogic.sociallbox.data.model.MeetupAttendee;
+import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
 
 @XmlRootElement(name="meetup")
@@ -41,7 +41,7 @@ public class CreateMeetupRequest implements Serializable{
 	
 	private String isPublic;
 	
-	private List<MeetupAttendee> attendees;
+	private List<MeetupAttendeeEntity> attendees;
 	
 	private Set<PlaceDetails.Result.AddressComponent> addressComponents;
 	
@@ -125,11 +125,11 @@ public class CreateMeetupRequest implements Serializable{
 		this.organizerId = organizerId;
 	}
 
-	public List<MeetupAttendee> getAttendees() {
+	public List<MeetupAttendeeEntity> getAttendees() {
 		return attendees;
 	}
 
-	public void setAttendees(List<MeetupAttendee> attendees) {
+	public void setAttendees(List<MeetupAttendeeEntity> attendees) {
 		this.attendees = attendees;
 	}
 	

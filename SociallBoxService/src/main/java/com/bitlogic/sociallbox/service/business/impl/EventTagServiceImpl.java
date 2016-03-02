@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.business;
+package com.bitlogic.sociallbox.service.business.impl;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bitlogic.sociallbox.data.model.EventTag;
+import com.bitlogic.sociallbox.service.business.EventTagService;
 import com.bitlogic.sociallbox.service.dao.EventTagDAO;
 
 @Service

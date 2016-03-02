@@ -27,12 +27,12 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Meetup;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
-import com.bitlogic.sociallbox.data.model.SingleEntityResponse;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.requests.CreateMeetupRequest;
-import com.bitlogic.sociallbox.data.model.requests.EditMeetupRequest;
+import com.bitlogic.sociallbox.data.model.requests.AddMeetupAttendeesRequest;
 import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
+import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.MeetupService;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
@@ -119,15 +119,14 @@ public class MeetupSecuredController implements Constants{
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, consumes = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
-	public SingleEntityResponse<MeetupResponse> addAttendees(@Valid @RequestBody EditMeetupRequest editMeetupRequest,@PathVariable String meetupId) throws ServiceException{
+	public SingleEntityResponse<MeetupResponse> addAttendees(@Valid @RequestBody AddMeetupAttendeesRequest editMeetupRequest,@PathVariable String meetupId) throws ServiceException{
 		logger.info("### Request recieved- editMeetup : {} ###",editMeetupRequest) ;
 		Transformer<MeetupResponse, Meetup> transformer = (Transformer<MeetupResponse, Meetup>) TransformerFactory.getTransformer(Transformer_Types.MEETUP_TRANS);
 		
-		editMeetupRequest.setUuid(meetupId);
-		MeetupResponse createMeetupResponse = transformer.transform(meetupService.addAttendees(editMeetupRequest));
+		editMeetupRequest.setMeetupId(meetupId);
+		meetupService.addAttendees(editMeetupRequest);
 
 		SingleEntityResponse<MeetupResponse> entityResponse = new SingleEntityResponse<>();
-		entityResponse.setData(createMeetupResponse);
 		entityResponse.setStatus(SUCCESS_STATUS);
 		return entityResponse;
 	}

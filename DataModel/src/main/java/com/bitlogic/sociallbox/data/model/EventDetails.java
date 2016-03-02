@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -46,8 +48,9 @@ public class EventDetails {
 	@XmlElement
 	private Location location;
 
-	@OneToOne
-	private User organizer;
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="ORGANIZER_ID",nullable=false)
+	private EventOrganizer organizer;
 	
 	@OneToMany(mappedBy="eventDetails",fetch=FetchType.LAZY)
 	@Cascade(value=CascadeType.ALL)
@@ -59,8 +62,19 @@ public class EventDetails {
 	@Column(nullable = false,name="CREATE_DT")
 	private Date createDt;
 
+	@XmlTransient
+	@JsonIgnore
+	@Column(name="UPD_DT")
+	private Date updateDt;
 	
-	
+	public Date getUpdateDt() {
+		return updateDt;
+	}
+
+	public void setUpdateDt(Date updateDt) {
+		this.updateDt = updateDt;
+	}
+
 	public Event getEvent() {
 		return event;
 	}
@@ -93,11 +107,13 @@ public class EventDetails {
 		this.location = location;
 	}
 
-	public User getOrganizer() {
+	
+
+	public EventOrganizer getOrganizer() {
 		return organizer;
 	}
 
-	public void setOrganizer(User organizer) {
+	public void setOrganizer(EventOrganizer organizer) {
 		this.organizer = organizer;
 	}
 

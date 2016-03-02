@@ -69,11 +69,11 @@ public class Meetup implements Serializable {
 	@JoinColumn(name="ORGANIZER_ID",nullable=false)
 	private User organizer;
 	
-	@OneToMany(mappedBy="meetup",fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="meetup")
 	@Cascade(value=CascadeType.ALL)
-	private Set<MeetupAttendee> attendees = new HashSet<>();
+	private Set<MeetupAttendeeEntity> attendees = new HashSet<>();
 	
-	@OneToMany(mappedBy="meetup",fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="meetup")
 	@Cascade(value=CascadeType.ALL)
 	private Set<MeetupMessage> messages = new HashSet<>();
 	
@@ -91,6 +91,17 @@ public class Meetup implements Serializable {
 	@JoinColumn(name="EVENT_ID")
 	private Event eventAtMeetup;
 	
+	@Column(name="CREATE_DT",nullable=false)
+	private Date createdDt;
+	
+	public Date getCreatedDt() {
+		return createdDt;
+	}
+
+	public void setCreatedDt(Date createdDt) {
+		this.createdDt = createdDt;
+	}
+
 	public String getIsPublic() {
 		return isPublic;
 	}
@@ -133,11 +144,11 @@ public class Meetup implements Serializable {
 		this.messages = messages;
 	}
 
-	public Set<MeetupAttendee> getAttendees() {
+	public Set<MeetupAttendeeEntity> getAttendees() {
 		return attendees;
 	}
 
-	public void setAttendees(Set<MeetupAttendee> attendees) {
+	public void setAttendees(Set<MeetupAttendeeEntity> attendees) {
 		this.attendees = attendees;
 	}
 

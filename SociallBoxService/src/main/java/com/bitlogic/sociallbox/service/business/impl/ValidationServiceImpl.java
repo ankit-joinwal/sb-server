@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.business;
+package com.bitlogic.sociallbox.service.business.impl;
 
 import javax.transaction.Transactional;
 
@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.bitlogic.sociallbox.service.business.ValidationService;
 import com.bitlogic.sociallbox.service.dao.UserDAO;
 
 @Service

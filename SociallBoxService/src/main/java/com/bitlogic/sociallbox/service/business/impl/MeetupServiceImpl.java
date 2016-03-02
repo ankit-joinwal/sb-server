@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.business;
+package com.bitlogic.sociallbox.service.business.impl;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.transaction.Transactional;
@@ -24,19 +26,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.AddressComponentType;
+import com.bitlogic.sociallbox.data.model.AttendeeResponse;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.Meetup;
 import com.bitlogic.sociallbox.data.model.MeetupAddressInfo;
 import com.bitlogic.sociallbox.data.model.MeetupAttendee;
+import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
 import com.bitlogic.sociallbox.data.model.ext.PlaceDetails.Result.AddressComponent;
+import com.bitlogic.sociallbox.data.model.requests.AddMeetupAttendeesRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateMeetupRequest;
-import com.bitlogic.sociallbox.data.model.requests.EditMeetupRequest;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
+import com.bitlogic.sociallbox.service.business.MeetupService;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
 import com.bitlogic.sociallbox.service.dao.MeetupDAO;
 import com.bitlogic.sociallbox.service.dao.SmartDeviceDAO;
@@ -75,6 +80,9 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 		logger.info("### Inside MeetupServiceImpl.createMetup ###");
 		Meetup meetup = new Meetup();
 		User organizer = userDAO.getUserByEmailId(createMeetupRequest.getOrganizerId(), false); 
+		if(organizer==null){
+			throw new ClientException(RestErrorCodes.ERR_003,Constants.ERROR_USER_INVALID);
+		}
 		logger.info("   Found organizer details in DB for {} : Id ",organizer.getEmailId(),organizer.getId());
 
 		Event eventAtMeetup = null;
@@ -84,13 +92,13 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 			eventAtMeetup = this.eventDAO.getEvent(createMeetupRequest.getEventAtMeetup());
 			meetup.setEventAtMeetup(eventAtMeetup);
 		}
-		
-		
+		Date now = new Date();
 		//Setting values into meetup
 		meetup.setTitle(createMeetupRequest.getTitle());
 		meetup.setDescription(createMeetupRequest.getDescription());
 		meetup.setLocation(createMeetupRequest.getLocation());
 		meetup.setIsPublic(createMeetupRequest.getIsPublic());
+		meetup.setCreatedDt(now);
 		try {
 			SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MEETUP_DATE_FORMAT);
 			meetup.setStartDate(dateFormat.parse(createMeetupRequest.getStartDate()));
@@ -100,6 +108,14 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 		}
 		meetup.setOrganizer(organizer);
 		Meetup created = meetupDAO.createMeetup(meetup);
+		MeetupAttendeeEntity organizerAsAttendee = new MeetupAttendeeEntity();
+		organizerAsAttendee.setAttendeeResponse(AttendeeResponse.YES);
+		organizerAsAttendee.setIsAdmin(Constants.TRUE);
+		organizerAsAttendee.setUser(organizer);
+		organizerAsAttendee.setMeetup(created);
+		organizerAsAttendee.setCreateDt(now);
+		organizerAsAttendee = this.meetupDAO.addAttendee(organizerAsAttendee);
+		
 		if(isMeetupAtEvent){
 			//TODO: Set address components
 		}else{
@@ -155,31 +171,44 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 	 
 	 
 	 @Override
-	public Meetup addAttendees(EditMeetupRequest editMeetupRequest) {
-		 List<MeetupAttendee> meetupAttendees = editMeetupRequest.getAttendees();
-		 Meetup meetup = this.meetupDAO.getMeetup(editMeetupRequest.getUuid());
+	public void addAttendees(AddMeetupAttendeesRequest addAttendeesRequest) {
+		 logger.info("### Inside addAttendees ###");
+		 List<MeetupAttendee> meetupAttendees = addAttendeesRequest.getAttendees();
+		 Meetup meetup = this.meetupDAO.getMeetup(addAttendeesRequest.getMeetupId());
 		 if(meetup==null){
+			 logger.error("No meetup found with id {}",addAttendeesRequest.getMeetupId());
 			 throw new ClientException(RestErrorCodes.ERR_003, ERROR_MEETUP_NOT_FOUND);
 		 }
-		 Set<String> attendeeSocialIds = new HashSet<>();
-		 
+		 List<Long> userIds = new ArrayList<>();
+		 Map<Long,MeetupAttendee> meetupAttendeesMap = new HashMap<>();
 		 for(MeetupAttendee meetupAttendee : meetupAttendees){
-			 attendeeSocialIds.add(meetupAttendee.getSocialDetail().getUserSocialDetail());
+			 userIds.add(meetupAttendee.getUserId());
+			 meetupAttendeesMap.put(meetupAttendee.getUserId(), meetupAttendee);
 		 }
+		 logger.info("Loading users corresponding to attendees");
+		 Map<Long,User> usersMap = this.userDAO.getUsersMapFromUserIds(userIds);
 		 
-		 Map<String,UserSocialDetail> socialIdVsSocialDetailMap = this.userDAO.getSocialDetails(attendeeSocialIds);
-		 
-		 if(socialIdVsSocialDetailMap!=null && !socialIdVsSocialDetailMap.isEmpty()){
-			 for(MeetupAttendee meetupAttendee : meetupAttendees){
-				 String socialId = meetupAttendee.getSocialDetail().getUserSocialDetail();
-				 meetupAttendee.setSocialDetail(socialIdVsSocialDetailMap.get(socialId));
-				 meetupAttendee.setMeetup(meetup);
+		 List<MeetupAttendeeEntity> attendeeEntities = new ArrayList<>(userIds.size());
+
+		 Iterator<Map.Entry<Long, MeetupAttendee>> iterator = meetupAttendeesMap.entrySet().iterator();
+		 Date now = new Date();
+		 while(iterator.hasNext()){
+			 Entry<Long, MeetupAttendee> entry = iterator.next();
+			 MeetupAttendeeEntity meetupAttendeeEntity = new MeetupAttendeeEntity(entry.getValue());
+			 meetupAttendeeEntity.setMeetup(meetup);
+			 meetupAttendeeEntity.setCreateDt(now);
+			 
+			 User user = usersMap.get(entry.getKey());
+			 if(user == null ){
+				 logger.warn("No user found for attendee {}",entry.getKey());
+				 continue;
 			 }
+			 meetupAttendeeEntity.setUser(user);
+			 attendeeEntities.add(meetupAttendeeEntity);
 		 }
-		 meetup.getAttendees().addAll(new HashSet<>(meetupAttendees));
-		 
+		 meetup.getAttendees().addAll(new HashSet<>(attendeeEntities));
 		 meetup = this.meetupDAO.saveMeetup(meetup);
-		 return meetup;
+		 
 	}
 	 
 	 @Override
@@ -195,7 +224,7 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 		 if(userSocialDetail==null){
 			 throw new ClientException(RestErrorCodes.ERR_003, ERROR_SOCIAL_DETAILS_NOT_FOUND);
 		 }
-		 MeetupAttendee meetupAttendee = this.userDAO.getAttendeeByMeetupIdAndSocialId(meetupId, userSocialDetail.getId());
+		 MeetupAttendeeEntity meetupAttendee = this.userDAO.getAttendeeByMeetupIdAndSocialId(meetupId, userSocialDetail.getId());
 		 if(meetupAttendee==null){
 			 logger.error("MeetupAttendee not found for social id {} , meetup {} ",userSocialId,meetupId);
 		 }else{

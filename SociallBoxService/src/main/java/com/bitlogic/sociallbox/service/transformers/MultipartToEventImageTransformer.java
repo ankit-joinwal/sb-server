@@ -7,6 +7,23 @@ import com.bitlogic.sociallbox.service.exception.ServiceException;
 
 public class MultipartToEventImageTransformer implements Transformer<EventImage,MultipartFile>{
 
+	private static MultipartToEventImageTransformer instance = null;
+	
+	private MultipartToEventImageTransformer(){
+		
+	}
+	
+	public static MultipartToEventImageTransformer getInstance(){
+		if(instance==null){
+			synchronized (MultipartToEventImageTransformer.class) {
+				if(instance==null){
+					instance = new MultipartToEventImageTransformer();
+				}
+			}
+		}
+		return instance;
+	}
+	
 	@Override
 	public EventImage transform(MultipartFile file) throws ServiceException{
 		EventImage eventImage = new EventImage();

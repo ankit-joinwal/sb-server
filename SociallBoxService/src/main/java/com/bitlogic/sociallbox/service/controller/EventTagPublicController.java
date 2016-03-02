@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.EventTag;
+import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.service.business.EventTagService;
 
 @RestController

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.EventTag;
-import com.bitlogic.sociallbox.data.model.SingleEntityResponse;
+import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EventTagService;
 
 @RestController

@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.EventTag;
-import com.bitlogic.sociallbox.data.model.SingleEntityResponse;
 import com.bitlogic.sociallbox.data.model.User;
-import com.bitlogic.sociallbox.data.model.UserFriend;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
+import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
+import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
+import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
@@ -37,7 +37,6 @@ import com.bitlogic.sociallbox.service.exception.ServiceException;
  */
 @RestController
 @RequestMapping("/api/secured/users")
-
 public class UserSecuredController implements Constants{
 
 	private static final Logger logger = LoggerFactory.getLogger(UserSecuredController.class);
@@ -60,7 +59,6 @@ public class UserSecuredController implements Constants{
 			  "emailId": "vsingh@gmail.com",
 			  "isEnabled":"true",
 			  "password":"p@ssword",
-			  "profilePic" : "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/12316467_10206731945876364_3008257792416820623_n.jpg?oh=99ec98c9f38ab3ee4b05cad802c2e39e&oe=5725C669&__gda__=1466317967_b0131ab2472d9474fa9440cb7fe265bb",
 			  "smartDevices": [
 			    {
 			      "uniqueId": "SMART_DEVICE_3",
@@ -76,6 +74,11 @@ public class UserSecuredController implements Constants{
 			      "system": "FACEBOOK",
 			      "detail": "10204248372148573",
 			      "detailType": "USER_EXTERNAL_ID"
+			    },
+			    {
+			      "system": "FACEBOOK",
+			      "detail": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/12316467_10206731945876364_3008257792416820623_n.jpg?oh=99ec98c9f38ab3ee4b05cad802c2e39e&oe=5725C669&__gda__=1466317967_b0131ab2472d9474fa9440cb7fe265bb",
+			      "detailType": "USER_PROFILE_PIC"
 			    }
 			  ]
 			}
@@ -98,13 +101,17 @@ public class UserSecuredController implements Constants{
 		                "privateKey": "bbcd781d-5a7e-4023-97aa-0e9445e09789"
 		            }
 		        ],
-		        "profilePic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/12316467_10206731945876364_3008257792416820623_n.jpg?oh=99ec98c9f38ab3ee4b05cad802c2e39e&oe=5725C669&__gda__=1466317967_b0131ab2472d9474fa9440cb7fe265bb",
 		        "social_details": [
 		            {
 		                "system": "FACEBOOK",
 		                "detail": "10204248372148573",
 		                "detailType": "USER_EXTERNAL_ID"
-		            }
+		            },
+				    {
+				      "system": "FACEBOOK",
+				      "detail": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/12316467_10206731945876364_3008257792416820623_n.jpg?oh=99ec98c9f38ab3ee4b05cad802c2e39e&oe=5725C669&__gda__=1466317967_b0131ab2472d9474fa9440cb7fe265bb",
+				      "detailType": "USER_PROFILE_PIC"
+				    }
 		        ]
 		    }
 		}
@@ -176,13 +183,17 @@ public class UserSecuredController implements Constants{
 		                "privateKey": "2fc9d17b-a4b1-4b75-b3e3-9b75353a3286"
 		            }
 		        ],
-		        "profilePic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/12316467_10206731945876364_3008257792416820623_n.jpg?oh=99ec98c9f38ab3ee4b05cad802c2e39e&oe=5725C669&__gda__=1466317967_b0131ab2472d9474fa9440cb7fe265bb",
 		        "social_details": [
 		            {
 		                "system": "FACEBOOK",
 		                "detail": "10204248372148573",
 		                "detailType": "USER_EXTERNAL_ID"
-		            }
+		            },
+				    {
+				      "system": "FACEBOOK",
+				      "detail": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/12316467_10206731945876364_3008257792416820623_n.jpg?oh=99ec98c9f38ab3ee4b05cad802c2e39e&oe=5725C669&__gda__=1466317967_b0131ab2472d9474fa9440cb7fe265bb",
+				      "detailType": "USER_PROFILE_PIC"
+				    }
 		        ]
 		    }
 		}
@@ -289,6 +300,30 @@ public class UserSecuredController implements Constants{
 		return collectionResponse;
 	}
 	
+	/**
+	 *  @api {get} /api/secured/users/:id/friends Get User friends
+	 *  @apiName Get User friends
+	 *  @apiGroup Users
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *	@apiSuccess (Success 200) {Object}  response  Response.
+	 *  @apiSuccess (Success 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success 200) {Object}  response.data User's Friends List Or Empty Array if no friends Found
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+		    "status": "Success",
+		    "data": [
+		        {
+		            "profilePic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/12316467_10206731945876364_3008257792416820623_n.jpg?oh=99ec98c9f38ab3ee4b05cad802c2e39e&oe=5725C669&__gda__=1466317967_b0131ab2472d9474fa9440cb7fe265bb",
+		            "name": "Vardhan Singh",
+		            "emailId": "vsingh@gmail.com"
+		        }
+		    ],
+		    "page": 1,
+		    "nextPage": null
+		}
+	 *	@apiError (Unauthorizes 401) {String}  message  Eg.error.login.invalid.credentials
+	 */
 	@RequestMapping(value = "/{id}/friends", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
@@ -308,7 +343,6 @@ public class UserSecuredController implements Constants{
 	 *  @apiGroup Users
 	 *  @apiParam {Number} id Mandatory User id
 	 *  @apiHeader {String} accept application/json
-	 *  @apiHeader {String} Content-Type application/json
 	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
 	 *  @apiHeader {String} Authorization Authentication Token
 	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
@@ -355,6 +389,42 @@ public class UserSecuredController implements Constants{
 		return  collectionResponse;
 	}
 	
+	/**
+	 *  @api {post} /api/secured/users/user/:id/settings Save User Settings
+	 *  @apiName Save User Settings
+	 *  @apiGroup Users
+	 *  @apiParam {Number} id Mandatory User id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data User Profile Information.
+	 * 	@apiParamExample {json} Request-Example:
+	 *  {
+		     [
+		        {
+		            "id": 1,
+		            "settingType": "PUSH_NOTIFICATION",
+		            "name": "newFriendNot",
+		            "displayName": "Notify me when my friend joins SociallBox",
+		            "value": "OFF"
+		        },
+		        {
+		            "id": 2,
+		            "settingType": "PUSH_NOTIFICATION",
+		            "name": "meetupInvite",
+		            "displayName": "Notify me when I'm invited for meetup",
+		            "value": "ON"
+		        }
+		    ]
+	 *	@apiError (NotFound 404) {String}  messageType  Eg.ERROR
+	 *	@apiError (NotFound 404) {String} errorCode	Eg. ERR_001
+	 *	@apiError (NotFound 404) {String} message		Eg. User Not Found
+	 *	@apiError (NotFound 404) {String} entityId		Entity Id which was searched
+	 *	@apiError (NotFound 404) {Object}  exception  StackTrace
+	 */
 	@RequestMapping(value = "/{id}/settings", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE},consumes={MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)

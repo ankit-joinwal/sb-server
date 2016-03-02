@@ -1,6 +1,5 @@
 package com.bitlogic.sociallbox.service.helper;
 
-import java.io.File;
 import java.security.GeneralSecurityException;
 
 import javax.crypto.Mac;
@@ -8,18 +7,21 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.security.crypto.codec.Base64;
 
-public class Test {
+public class AuthHeaderGenerator {
 	public static void main(String[] args)throws Exception {
+		
+		generateAuthorization("SMART_DEVICE", "9bb90719-2bd5-448e-8d8f-6bdf086b2439");
+		
+	}
+	
+	
+	public static void generateAuthorization(String deviceId,String privateKey){
 		Long timeStamp = System.currentTimeMillis();
-		System.out.println(timeStamp);
-		String sign = calculateSignature("2fc9d17b-a4b1-4b75-b3e3-9b75353a3286", timeStamp);
-		System.out.println(sign);
-
-		String path = "D:\\softwares\\apache-tomcat-7.0.65\\apache-tomcat-7.0.65\\images\\events\\40289188530948ba0153094be7f30000";
-		File eventImagesFolder = new File(path);
-		if(!eventImagesFolder.exists()){
-			eventImagesFolder.mkdir();
-		}
+		String signature = calculateSignature(privateKey, timeStamp);
+		String username = "SD~"+deviceId;
+		System.out.println("X-Auth-Date Header :"+timeStamp);
+		String token = new String(Base64.encode((username+":"+signature).getBytes()));
+		System.out.println("Token : "+"Basic "+token);
 		
 	}
 	

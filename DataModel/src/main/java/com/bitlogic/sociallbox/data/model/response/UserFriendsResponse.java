@@ -1,10 +1,11 @@
-package com.bitlogic.sociallbox.data.model;
+package com.bitlogic.sociallbox.data.model.response;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 
 @XmlRootElement(name="friends")
 public class UserFriendsResponse implements Serializable{

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.bitlogic.sociallbox.data.model.MeetupAttendee;
+import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
@@ -31,11 +31,13 @@ public interface UserDAO {
 	
 	public void saveUserSocialData(UserSocialDetail userSocialDetails);
 	
+	public Map<Long,User> getUsersMapFromUserIds(List<Long> userIds);
+	
 	public Map<String,UserSocialDetail> getSocialDetails(Set<String> socialIds);
 	
 	public UserSocialDetail getSocialDetail(String socialId);
 	
-	public MeetupAttendee getAttendeeByMeetupIdAndSocialId(String meetupId, Long socialId);
+	public MeetupAttendeeEntity getAttendeeByMeetupIdAndSocialId(String meetupId, Long socialId);
 	
 	public Role getRoleType(String roleName);
 	
@@ -44,7 +46,6 @@ public interface UserDAO {
 	public List<User> getUserFriends(User user);
 	
 	public List<UserSetting> getUserSettings(User user);
-	
 	
 	public void saveUserSettings(List<UserSetting> oldSettings,List<UserSetting> newSettings);
 }

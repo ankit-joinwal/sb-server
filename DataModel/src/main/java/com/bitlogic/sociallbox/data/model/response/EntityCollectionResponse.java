@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.data.model;
+package com.bitlogic.sociallbox.data.model.response;
 
 import java.io.Serializable;
 import java.util.List;
