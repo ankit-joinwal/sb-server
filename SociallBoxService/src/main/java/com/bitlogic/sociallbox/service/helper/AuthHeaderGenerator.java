@@ -10,10 +10,18 @@ import org.springframework.security.crypto.codec.Base64;
 public class AuthHeaderGenerator {
 	public static void main(String[] args)throws Exception {
 		
-		generateAuthorization("SMART_DEVICE", "9bb90719-2bd5-448e-8d8f-6bdf086b2439");
-		
+		//generateAuthorization("SMART_DEVICE", "9bb90719-2bd5-448e-8d8f-6bdf086b2439");
+		generateHeaderForWeb("eorganizer@gmail.com", "90f2c9c53f66540e67349e0ab83d8cd0");
 	}
 	
+	public static void generateHeaderForWeb(String userId,String password){
+		Long timeStamp = System.currentTimeMillis();
+		System.out.println("X-Auth-Date Header :"+timeStamp);
+		String passAndTime = password+"~"+timeStamp;
+		
+		String encryptedKey = new String(Base64.encode(passAndTime.getBytes()));
+		System.out.println(encryptedKey);
+	}
 	
 	public static void generateAuthorization(String deviceId,String privateKey){
 		Long timeStamp = System.currentTimeMillis();

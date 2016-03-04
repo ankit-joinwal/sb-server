@@ -77,7 +77,7 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 				throw new BadCredentialsException(exception.getMessage());
 			}
 
-			String signature = calculateSignature(deviceKey,
+			String signature = calculateSignatureForMobileDevice(deviceKey,
 					restToken.getTimestamp());
 			LOGGER.info("Signature Calculated = {}", signature);
 			// check if signatures match
@@ -109,27 +109,62 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 				throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_USER_INVALID);
 			}
 
+			/*	
+			* 	Signature recieved is of the form : Base64(Password(in MD5) + Timestamp)
+			*	Since we cannot decode MD5 , so we will compare encoded password stored in DB
+			*	with encoded password recieved in request.
+			*	Also we will need to verify the timestamp recieved in token should match with
+			*	Timestamp recieved in header.
+			*/
 			String password = user.getPassword();
 			
-			String signature = calculateSignature(password,
-					restToken.getTimestamp());
-			if (!credentials.getSignature().equals(signature)) {
+			String signature = credentials.getSignature();
+			String decodedSignature = new String(Base64.decode(signature.getBytes()));
+			
+			String[] passwordAndTimestamp = decodedSignature.split(UNAME_DELIM);
+			if(passwordAndTimestamp==null || passwordAndTimestamp.length!=2){
+				LOGGER.error("Decoded signature is not in correct format");
 				throw new BadCredentialsException(
 						ERROR_LOGIN_INVALID_CREDENTIALS);
 			}
-			List<Role> roles = new ArrayList<>(user.getUserroles());
-			if (roles == null || roles.isEmpty()) {
+			
+			String encryptedPass = passwordAndTimestamp[0];
+			try{
+				Long timeStampInToken = Long.parseLong(passwordAndTimestamp[1]);
+				Long timestampHeader = restToken.getTimestamp();
+				LOGGER.info("Password in DB :"+password);
+				LOGGER.info("Password in request :"+encryptedPass);
+				if(!password.equals(encryptedPass)){
+					LOGGER.error("Passwords do not match for user {}",userId);
+					throw new BadCredentialsException(
+							ERROR_LOGIN_INVALID_CREDENTIALS);
+				}
+				if(!timestampHeader.equals(timeStampInToken)){
+					LOGGER.error("Auth Date header not matching ");
+					throw new BadCredentialsException(
+							ERROR_LOGIN_INVALID_CREDENTIALS);
+				}
+				
+				/*String signature = calculateSignature(password,
+						restToken.getTimestamp());
+				if (!credentials.getSignature().equals(signature)) {
+					throw new BadCredentialsException(
+							ERROR_LOGIN_INVALID_CREDENTIALS);
+				}*/
+				List<Role> roles = new ArrayList<>(user.getUserroles());
+				if (roles == null || roles.isEmpty()) {
+					throw new BadCredentialsException(ERROR_LOGIN_USER_UNAUTHORIZED);
+				}
+				List<GrantedAuthority> authorities = new ArrayList<>();
+				authorities = convertRoleToGA(roles);
+				// this constructor create a new fully authenticated token, with the
+				// "authenticated" flag set to true
+				restToken = new RestToken(secret, credentials,
+						restToken.getTimestamp(), authorities);
+			}catch(Exception exception){
+				LOGGER.error("Error while authenticating web user", exception);
 				throw new BadCredentialsException(ERROR_LOGIN_USER_UNAUTHORIZED);
 			}
-			List<GrantedAuthority> authorities = new ArrayList<>();
-			authorities = convertRoleToGA(roles);
-			// this constructor create a new fully authenticated token, with the
-			// "authenticated" flag set to true
-			// we use null as to indicates that the user has no authorities. you
-			// can change it if you need to set some roles.
-			restToken = new RestToken(secret, credentials,
-					restToken.getTimestamp(), authorities);
-
 		}
 
 		return restToken;
@@ -150,7 +185,7 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 		return RestToken.class.equals(authentication);
 	}
 
-	private String calculateSignature(String secret, Long timeStamp) {
+	private String calculateSignatureForMobileDevice(String secret, Long timeStamp) {
 		try {
 			SecretKeySpec signingKey = new SecretKeySpec(secret.getBytes(),
 					"HmacSHA256");

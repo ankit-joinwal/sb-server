@@ -33,46 +33,10 @@ public class DBSetup {
 		session = factory.openSession();
 
 		session.beginTransaction();
-		//setupRoleData();
-		//setupCategories();
-		//setupPushSettingTypes();
-		int page = 3;
-		
-		
-		 Criteria criteria = session.createCriteria(Event.class,"event")
-					.setFetchMode("event.eventDetails", FetchMode.JOIN)
-					.setFetchMode("event.eventDetails.organizer", FetchMode.JOIN)
-					.setFetchMode("event.tags", FetchMode.JOIN)
-					.createAlias("event.eventDetails", "ed")
-					.createAlias("event.tags", "eventTag")
-					.setFetchMode("event.eventImages", FetchMode.JOIN)
-					.createAlias("event.eventImages", "image")
-					.add(Restrictions.eq("image.displayOrder", 1))
-					.add(Restrictions.eq("isLive", "true"))
-					.add(Restrictions.like("eventTag.name","%"))
-					.add(Restrictions.and(Restrictions.like("ed.location.name", "delhi",MatchMode.ANYWHERE)
-							,Restrictions.like("ed.location.name", "india",MatchMode.ANYWHERE)))
-					.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-		 List<Event> events = criteria.list();
-		 	
-		 if(events!=null && !events.isEmpty()){
-			 int totalEvents = events.size();
-			 int startIdx = (page-1)*Constants.RECORDS_PER_PAGE;
-			 int endIdx = (page*Constants.RECORDS_PER_PAGE)>totalEvents ? totalEvents : (page*Constants.RECORDS_PER_PAGE);
-			 System.out.println("Total :"+totalEvents+" , start :"+startIdx+" ,end:"+endIdx);
-			List<Event> tempEvents = events.subList(startIdx, endIdx);
-			System.out.println("Total events for Page "+page +" are "+tempEvents.size());
-			System.out.println(tempEvents);
-			for(Event event : tempEvents){
-				//TODO: This is done to lazy load the tags.
-				event.getTags().size();
-				if(event.getEventImages()!=null){
-					//To Load images
-					event.getEventImages().size();
-					
-				}
-			}
-		 }		
+		setupRoleData();
+		setupCategories();
+		setupPushSettingTypes();
+			
 		session.getTransaction().commit();
 		session.close();
 		factory.close();

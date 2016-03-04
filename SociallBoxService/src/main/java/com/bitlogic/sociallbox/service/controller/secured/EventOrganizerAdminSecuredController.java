@@ -20,6 +20,7 @@ import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.data.model.response.UserPublicProfile;
 import com.bitlogic.sociallbox.service.business.EventOrganizerAdminService;
+import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.dao.UserDAO;
 
 @RestController
@@ -32,7 +33,7 @@ public class EventOrganizerAdminSecuredController implements Constants{
 	private EventOrganizerAdminService eventOrganizerAdminService;
 	
 	@Autowired
-	private UserDAO userDAO;
+	private UserService userService;
 	
 	@RequestMapping(value="/signup",method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE}, consumes = {
@@ -52,7 +53,7 @@ public class EventOrganizerAdminSecuredController implements Constants{
 	@ResponseStatus(HttpStatus.OK)
 	public SingleEntityResponse<UserPublicProfile> getAdminInfo(@PathVariable Long id){
 		LOGGER.info("### Request recieved | Get Event Organizer Admin Info | {} ###",id);
-		User admin = this.userDAO.getUserById(id);
+		User admin = this.userService.getUser(id);
 		UserPublicProfile profile = new UserPublicProfile(admin);
 		SingleEntityResponse<UserPublicProfile> entityResponse = new SingleEntityResponse<>();
 		entityResponse.setStatus(SUCCESS_STATUS);

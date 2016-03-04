@@ -36,7 +36,8 @@
 		<mapping class="com.bitlogic.sociallbox.data.model.Category"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.Event"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.Meetup"></mapping>
-		<mapping class="com.bitlogic.sociallbox.data.model.MeetupAttendee"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.MeetupImage"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.MeetupMessage"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.EventDetails"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.EventImage"></mapping>

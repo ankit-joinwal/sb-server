@@ -16,7 +16,6 @@
 	 <modules>
 		<module>../Constants</module>
 		<module>../DataModel</module>
-		
 		<module>../SociallBoxService</module>
 	</modules> 
  
