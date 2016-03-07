@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.EventTag;
+import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
@@ -22,9 +22,9 @@ public interface UserService {
 	
 	public User signupOrSignin(User user,UserTypeBasedOnDevice userTypeBasedOnDevice) ;
 	
-	public List<EventTag> getUserTagPreferences(Long id);
+	public List<EventType> getUserEventInterests(Long id);
 	
-	public List<EventTag> saveUserTagPreferences(Long id,List<EventTag> tags);
+	public List<EventType> saveUserEventInterests(Long id,List<EventType> types);
 	
 	public SmartDevice getSmartDeviceDetails(String uniqueId) ;
 	

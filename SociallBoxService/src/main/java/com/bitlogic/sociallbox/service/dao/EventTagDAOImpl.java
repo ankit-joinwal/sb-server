@@ -64,18 +64,27 @@ public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {
 	public List<EventTag> getUserTags(Long userId) {
 
 		 Criteria criteria = getSession().createCriteria(User.class).add(Restrictions.eq("id", userId))
-	    		   .setFetchMode("tagPreferences", FetchMode.JOIN)
+	    		   .createAlias("userEventInterests", "tagPreference")
+				 	.setFetchMode("tagPreference", FetchMode.JOIN)
+				 	.setFetchMode("tagPreference.relatedEventTypes", FetchMode.JOIN)
 	    		   .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         User user = (User)criteria.uniqueResult();
-        
-		return new ArrayList<>(user.getTagPreferences());
+        Set<EventTag> userTags = new HashSet<>();
+        for(EventType eventType : user.getUserEventInterests()){
+        	userTags.addAll(eventType.getRelatedTags());
+        }
+		return new ArrayList<>(userTags);
 	}
+	
+	
 	
 	@Override
 	public List<Long> getUserTagIds(Long userId) {
 		 Criteria criteria = getSession().createCriteria(User.class).add(Restrictions.eq("id", userId))
-	    		   .setFetchMode("tagPreferences", FetchMode.JOIN)
-	    		   .createAlias("tagPreferences", "tag")
+	    		   .setFetchMode("userEventInterests", FetchMode.JOIN)
+	    		   .createAlias("userEventInterests", "eventType")
+	    		    .setFetchMode("eventType.relatedTags", FetchMode.JOIN)
+	    		   .createAlias("eventType.relatedTags", "tag")
 	    		   .setProjection(Projections.property("tag.id"))
 	    		   .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<Long> tagIds = criteria.list();
@@ -85,24 +94,15 @@ public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {
 	@Override
 	public List<Long> getAllTagIds() {
 		 Criteria criteria = getSession().createCriteria(User.class)
-	    		   .setFetchMode("tagPreferences", FetchMode.JOIN)
-	    		   .createAlias("tagPreferences", "tag")
+	    		   .setFetchMode("userEventInterests", FetchMode.JOIN)
+	    		   .createAlias("userEventInterests", "eventType")
+	    		   .setFetchMode("eventType.relatedTags", FetchMode.JOIN)
+	    		   .createAlias("eventType.relatedTags", "tag")
 	    		   .setProjection(Projections.property("tag.id"))
 	    		   .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<Long> tagIds = criteria.list();
 		return tagIds;
 	}
 	
-	@Override
-	public List<EventTag> saveUserTagPreferences(List<EventTag> tags,
-			Long userId) {
-		 Criteria criteria = getSession().createCriteria(User.class).add(Restrictions.eq("id", userId))
-	    		   .setFetchMode("tagPreferences", FetchMode.JOIN)
-	    		   .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-		 User user = (User)criteria.uniqueResult();
-		 
-		 user.setTagPreferences(new HashSet<>(tags));
-		 
-		return tags;
-	}
+
 }

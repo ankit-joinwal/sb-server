@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.EventTag;
+import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
@@ -225,29 +226,29 @@ public class UserSecuredController implements Constants{
 		return users;
 	}
 	
-	@RequestMapping(value = "/{id}/preferences/tags", method = RequestMethod.GET, produces = {
+	@RequestMapping(value = "/{id}/preferences/interests", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public EntityCollectionResponse<EventTag> getUserTagPreferences(@PathVariable Long id){
+	public EntityCollectionResponse<EventType> getUserEventInterests(@PathVariable Long id){
 		logger.info("### Request recieved- getUserTagPreferences ###");
-		List<EventTag> eventTags = this.userService.getUserTagPreferences(id);
-		EntityCollectionResponse<EventTag> collectionResponse = new EntityCollectionResponse<>();
-		collectionResponse.setData(eventTags);
+		List<EventType> userInterests = this.userService.getUserEventInterests(id);
+		EntityCollectionResponse<EventType> collectionResponse = new EntityCollectionResponse<>();
+		collectionResponse.setData(userInterests);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus("Success");
 		return collectionResponse;
 	}
 	
-	@RequestMapping(value = "/{id}/preferences/tags", method = RequestMethod.POST, produces = {
+	@RequestMapping(value = "/{id}/preferences/interests", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
-	public EntityCollectionResponse<EventTag> saveUserTagPreferences(@PathVariable Long id,@RequestBody List<EventTag> tags){
+	public EntityCollectionResponse<EventType> saveUserEventInterests(@PathVariable Long id,@RequestBody List<EventType> tags){
 		logger.info("### Request recieved- saveUserTagPreferences ###");
-		List<EventTag> eventTags = this.userService.saveUserTagPreferences(id, tags);
-		EntityCollectionResponse<EventTag> collectionResponse = new EntityCollectionResponse<>();
+		List<EventType> eventTags = this.userService.saveUserEventInterests(id, tags);
+		EntityCollectionResponse<EventType> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setData(eventTags);
 		collectionResponse.setPage(1);
-		collectionResponse.setStatus("Success");
+		collectionResponse.setStatus(SUCCESS_STATUS);
 		return collectionResponse;
 	}
 

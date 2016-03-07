@@ -84,6 +84,7 @@ public class LoginUtil implements Constants{
 			throw new ClientException(RestErrorCodes.ERR_001,msg);
 		}else{
 			SmartDevice smartDevice = null;
+			//Expecting only one device details in request event when there are multiple devices with user.
 			for(SmartDevice device : user.getSmartDevices()){
 				smartDevice = device;
 				break;

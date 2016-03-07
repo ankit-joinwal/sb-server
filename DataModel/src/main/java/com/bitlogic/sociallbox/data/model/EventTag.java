@@ -1,6 +1,7 @@
 package com.bitlogic.sociallbox.data.model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -46,6 +47,24 @@ public class EventTag {
 	@XmlTransient
 	private Set<Event> taggedEvents =  new HashSet<>();
 	
+	@Override
+	public boolean equals(Object obj) {
+		 if (obj == null)
+	      {
+	         return false;
+	      }
+	      if (getClass() != obj.getClass())
+	      {
+	         return false;
+	      }
+	      final EventTag eventTag = (EventTag) obj;
+		return  Objects.equals(this.name, eventTag.name);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(name);
+	}
 
 	public Set<Event> getTaggedEvents() {
 		return taggedEvents;

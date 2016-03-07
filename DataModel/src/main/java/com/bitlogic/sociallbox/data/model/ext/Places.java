@@ -13,7 +13,18 @@ public class Places implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private List<Result> results;
 	private String status;
+	@JsonProperty("next_page_token")
+	private String nexPageToken;
 	private Integer totalRecords;
+	
+	public String getNexPageToken() {
+		return nexPageToken;
+	}
+
+	public void setNexPageToken(String nexPageToken) {
+		this.nexPageToken = nexPageToken;
+	}
+
 	//{
 	@JsonIgnoreProperties(ignoreUnknown=true)
 	public static final class Result{
@@ -83,6 +94,41 @@ public class Places implements Serializable{
 		private String scope;
 		private String[] types;
 		private String vicinity;
+		private Photo[] photos;
+		
+		@JsonIgnoreProperties(ignoreUnknown=true)
+		private static final class Photo{
+			@JsonProperty("photo_reference")
+			private String photoReference;
+			private Integer height;
+			private Integer width;
+			public String getPhotoReference() {
+				return photoReference;
+			}
+			public void setPhotoReference(String photoReference) {
+				this.photoReference = photoReference;
+			}
+			public Integer getHeight() {
+				return height;
+			}
+			public void setHeight(Integer height) {
+				this.height = height;
+			}
+			public Integer getWidth() {
+				return width;
+			}
+			public void setWidth(Integer width) {
+				this.width = width;
+			}
+			
+		}
+		
+		public Photo[] getPhotos() {
+			return photos;
+		}
+		public void setPhotos(Photo[] photos) {
+			this.photos = photos;
+		}
 		public String getIcon() {
 			return icon;
 		}

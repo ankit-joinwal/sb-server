@@ -27,6 +27,7 @@ public class NearbySearchHelper {
 
 		StringBuilder url = new StringBuilder(gapiConfig.getNearBySearchURL());
 		url.append(gapiConfig.getDataExchangeFormat() + Constants.QUESTIONMARK);
+		
 		url.append(NearbySearchRequest.NearbySearchRequestParamNames.LOCATION
 				.getName()
 				+ Constants.EQUAL
@@ -60,6 +61,12 @@ public class NearbySearchHelper {
 		url.append(Constants.AMP
 				+ NearbySearchRequest.NearbySearchRequestParamNames.KEY
 						.getName() + Constants.EQUAL + gapiConfig.getGapiKey());
+		if (nearbySearchRequest.getPageToken() != null) {
+			url.append(Constants.AMP
+					+ NearbySearchRequest.NearbySearchRequestParamNames.PAGE_TOKEN
+							.getName() + Constants.EQUAL
+					+ nearbySearchRequest.getPageToken());
+		}
 
 		logger.info("### Inside NearbySearchHelper.executeSearch | URL : {} "
 				+ url.toString());

@@ -24,6 +24,72 @@ public class CategoryPublicController {
 	@Autowired
 	private CategoryService categoryService;
 	
+	/**
+	 *  @api {get} /api/public/categories Get All Categories
+	 *  @apiName Get Categories
+	 *  @apiGroup Categories
+	 *  @apiHeader {String} accept application/json
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Categories
+	 *  @apiSuccessExample {json} Success-Response: 
+	 *  {
+		  "status": "Success",
+		  "data": [
+		    {
+		      "id": 1,
+		      "name": "event",
+		      "description": "Event-o-pedia",
+		      "createDt": 1456599044000,
+		      "displayOrder": 1,
+		      "navURL": "#/categories/events"
+		    },
+		    {
+		      "id": 2,
+		      "name": "restaurant",
+		      "description": "Food Lust",
+		      "createDt": 1456599044000,
+		      "displayOrder": 2,
+		      "navURL": "#/categories/2/Food+Lust/places"
+		    },
+		    {
+		      "id": 3,
+		      "name": "cafe",
+		      "description": "Coffee Love",
+		      "createDt": 1456599044000,
+		      "displayOrder": 3,
+		      "navURL": "#/categories/3/Coffe+Love/places"
+		    },
+		    {
+		      "id": 4,
+		      "name": "night_club",
+		      "description": "NightLife",
+		      "createDt": 1456599044000,
+		      "displayOrder": 4,
+		      "navURL": "#/categories/4/NightLife+Karma/places"
+		    },
+		    {
+		      "id": 5,
+		      "name": "bar",
+		      "description": "Bar-O-Bar",
+		      "createDt": 1456599044000,
+		      "displayOrder": 5,
+		      "navURL": "#/categories/5/Bar-O-Bar/places"
+		    },
+		    {
+		      "id": 6,
+		      "name": "movie_theater",
+		      "description": "Movie-O-Logy",
+		      "createDt": 1456599044000,
+		      "displayOrder": 5,
+		      "navURL": "#/categories/5/Movie-O-Logy/places"
+		    }
+		  ],
+		  "page": 1,
+		  "nextPage": null
+		}
+	 *	
+	 */
 	@RequestMapping(method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)

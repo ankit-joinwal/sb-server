@@ -3,7 +3,7 @@ package com.bitlogic.sociallbox.data.model.requests;
 
 public class NearbySearchRequest {
 	public enum NearbySearchRequestParamNames{
-		LOCATION("location"),RADIUS("radius"),NAME("name"),TYPES("types"),RANKBY("rankby"),KEY("key");
+		LOCATION("location"),RADIUS("radius"),NAME("name"),TYPES("types"),RANKBY("rankby"),KEY("key"),PAGE_TOKEN("pagetoken");
 		String name;
 		
 		NearbySearchRequestParamNames(String name){
@@ -24,7 +24,15 @@ public class NearbySearchRequest {
 	private Long categoryId;
 	private String types;
 	private String rankBy;
+	private String pageToken;
 	
+	
+	public String getPageToken() {
+		return pageToken;
+	}
+	public void setPageToken(String pageToken) {
+		this.pageToken = pageToken;
+	}
 	public Long getCategoryId() {
 		return categoryId;
 	}
@@ -65,7 +73,7 @@ public class NearbySearchRequest {
 	@Override
 	public String toString() {
 		return "NearbySearchRequest = [location = "+ this.location+ " , radius = " + this.radius +
-				" , name = "+ this.name + " , categoryId = "+this.categoryId+" , types = "+this.types + " , rankBy = "+ this.rankBy + " ]";
+				" , name = "+ this.name + " , categoryId = "+this.categoryId+" , types = "+this.types + " , rankBy = "+ this.rankBy + " ,pagetoken="+this.pageToken+" ]";
 	}
 	
 }

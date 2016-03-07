@@ -3,6 +3,7 @@ package com.bitlogic.sociallbox.service.business.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -15,8 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.EventTag;
+import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
+import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
@@ -25,6 +28,7 @@ import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.dao.EventTagDAO;
+import com.bitlogic.sociallbox.service.dao.EventTypeDAO;
 import com.bitlogic.sociallbox.service.dao.SmartDeviceDAO;
 import com.bitlogic.sociallbox.service.dao.UserDAO;
 import com.bitlogic.sociallbox.service.exception.ClientException;
@@ -52,6 +56,9 @@ public class UserServiceImpl implements UserService, Constants {
 
 	@Autowired
 	private SmartDeviceDAO smartDeviceDAO;
+	
+	@Autowired
+	private EventTypeDAO eventTypeDAO;
 
 	public UserDAO getUserDAO() {
 		return userDAO;
@@ -115,8 +122,8 @@ public class UserServiceImpl implements UserService, Constants {
 				socialDetail.setUser(createdUser);
 				this.userDAO.saveUserSocialData(socialDetail);
 			}
-			List<EventTag> allTags = this.eventTagDAO.getAll();
-			this.eventTagDAO.saveUserTagPreferences(allTags, id);
+			List<EventType> userInterests = this.eventTypeDAO.getAllEventTypes();
+			this.eventTypeDAO.saveUserEventInterests(userInterests, id);
 
 			return createdUser;
 		} else {
@@ -191,17 +198,43 @@ public class UserServiceImpl implements UserService, Constants {
 			} else {
 				logger.info("No new device added. Simple User login case");
 				User userObjectToReturn = null;
-				try {
+				/*try {
 					logger.info("Cloning user object to return only newly added device");
-					userObjectToReturn = (User) userInDB.clone();
+					//userObjectToReturn = (User) userInDB.clone();
+					
 				} catch (CloneNotSupportedException cloneNotSupportedException) {
 					logger.error("Error while cloning user object",
 							cloneNotSupportedException);
 					// TODO:Add custom clone code here
 					userObjectToReturn = userInDB;
 				}
-				Set<SmartDevice> newDevices = new HashSet<>(1);
-				userObjectToReturn.setSmartDevices(newDevices);
+				*/
+				//Update Profile Pic if changed in request
+				if(user.getSocialDetails()!=null){
+					Set<UserSocialDetail> socialDetails = user.getSocialDetails();
+					Iterator<UserSocialDetail> iter = socialDetails.iterator();
+					Iterator<UserSocialDetail> existingDetailsIter = userInDB.getSocialDetails().iterator();
+					while(iter.hasNext()){
+						UserSocialDetail socialDetail = iter.next();
+						if(socialDetail.getSocialDetailType().equals(SocialDetailType.USER_PROFILE_PIC)){
+							String profilePic = socialDetail.getUserSocialDetail();
+							
+							while(existingDetailsIter.hasNext()){
+								UserSocialDetail existingSocialDetail = existingDetailsIter.next();
+								if(existingSocialDetail.getSocialDetailType().equals(SocialDetailType.USER_PROFILE_PIC)){
+									if(!profilePic.equals(existingSocialDetail.getUserSocialDetail())){
+										logger.info("Social Details change identified for user : {} , updating details",user.getEmailId());
+										existingSocialDetail.setUserSocialDetail(profilePic);
+									}
+								}
+							}
+							
+						}
+					}
+				}
+				userObjectToReturn = userInDB;
+				//Set<SmartDevice> newDevices = new HashSet<>(1);
+				//userObjectToReturn.setSmartDevices(newDevices);
 				return userObjectToReturn;
 			}
 
@@ -228,8 +261,8 @@ public class UserServiceImpl implements UserService, Constants {
 				socialDetail.setUser(createdUser);
 				this.userDAO.saveUserSocialData(socialDetail);
 			}
-			List<EventTag> allTags = this.eventTagDAO.getAll();
-			this.eventTagDAO.saveUserTagPreferences(allTags,
+			List<EventType> allTags = this.eventTypeDAO.getAllEventTypes();
+			this.eventTypeDAO.saveUserEventInterests(allTags,
 					createdUser.getId());
 			return createdUser;
 		} else {
@@ -277,22 +310,22 @@ public class UserServiceImpl implements UserService, Constants {
 	}
 
 	@Override
-	public List<EventTag> getUserTagPreferences(Long id) {
-		logger.info("### Getting user tag preferences ###");
-		List<EventTag> userTags = this.eventTagDAO.getUserTags(id);
+	public List<EventType> getUserEventInterests(Long id) {
+		logger.info("### Getting user interests ###");
+		List<EventType> userInterests = this.eventTypeDAO.getUserInterests(id);
 		
-		return userTags;
+		return userInterests;
 	}
 
 	@Override
-	public List<EventTag> saveUserTagPreferences(Long id, List<EventTag> tags) {
+	public List<EventType> saveUserEventInterests(Long id, List<EventType> types) {
 		logger.info("### Save user tag preferences ###");
-		List<String> tagNames = new ArrayList<>();
-		for (EventTag tag : tags) {
-			tagNames.add(tag.getName());
+		List<String> typeNames = new ArrayList<>();
+		for (EventType type : types) {
+			typeNames.add(type.getName());
 		}
-		List<EventTag> tagsInDB = this.eventTagDAO.getTagsByNames(tagNames);
-		return this.eventTagDAO.saveUserTagPreferences(tagsInDB, id);
+		List<EventType> typesInDB = this.eventTypeDAO.getEventTypesByNames(typeNames);
+		return this.eventTypeDAO.saveUserEventInterests(typesInDB, id);
 	}
 
 	@Override

@@ -73,6 +73,7 @@ public class NearbySearchServiceImpl implements NearbySearchService ,Constants{
 			 {
 		Places places = null;
 		try {
+			logger.info("Nearby Search Request : {}",nearbySearchRequest);
 			Category category = categoryDAO.getCategoryById(nearbySearchRequest
 					.getCategoryId());
 			if (category == null) {

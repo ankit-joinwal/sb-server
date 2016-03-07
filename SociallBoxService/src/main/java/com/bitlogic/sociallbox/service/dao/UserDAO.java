@@ -48,4 +48,5 @@ public interface UserDAO {
 	public List<UserSetting> getUserSettings(User user);
 	
 	public void saveUserSettings(List<UserSetting> oldSettings,List<UserSetting> newSettings);
+	
 }

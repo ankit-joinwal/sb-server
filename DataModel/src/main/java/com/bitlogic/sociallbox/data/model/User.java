@@ -74,8 +74,8 @@ public class User implements Serializable,Cloneable {
 	@JsonIgnore
 	@XmlTransient
 	@ManyToMany
-	@JoinTable(name = "USER_TAG_PREFERENCES", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = { @JoinColumn(name = "TAG_ID") })
-	private Set<EventTag> tagPreferences = new HashSet<EventTag>();
+	@JoinTable(name = "USER_EVENT_INTERESTS", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = { @JoinColumn(name = "EVENT_TYPE_ID") })
+	private Set<EventType> userEventInterests = new HashSet<EventType>();
 	
 	@XmlElement(name="social_details")
 	@JsonProperty(value="social_details")
@@ -150,12 +150,12 @@ public class User implements Serializable,Cloneable {
 		this.userroles = userroles;
 	}
 
-	public Set<EventTag> getTagPreferences() {
-		return tagPreferences;
+	public Set<EventType> getUserEventInterests() {
+		return userEventInterests;
 	}
 
-	public void setTagPreferences(Set<EventTag> tagPreferences) {
-		this.tagPreferences = tagPreferences;
+	public void setUserEventInterests(Set<EventType> tagPreferences) {
+		this.userEventInterests = tagPreferences;
 	}
 
 	public Set<SmartDevice> getSmartDevices() {

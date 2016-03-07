@@ -120,7 +120,10 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 
 	@Override
 	public void saveUserSocialData(UserSocialDetail socialDetails) {
-		Criteria criteria = getSession().createCriteria(UserSocialDetail.class).add(Restrictions.eq("socialSystem", socialDetails.getSocialSystem()))
+		User user = socialDetails.getUser();
+		Criteria criteria = getSession().createCriteria(UserSocialDetail.class)
+				.add(Restrictions.eq("user", user))
+				.add(Restrictions.eq("socialSystem", socialDetails.getSocialSystem()))
 				.add(Restrictions.eq("userSocialDetail", socialDetails.getUserSocialDetail()))
 				.add(Restrictions.eq("socialDetailType", socialDetails.getSocialDetailType()));
 		
@@ -214,6 +217,8 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		}
 		return socialIdVsDetailsMap;
 	}
+	
+
 	
 	@Override
 	public UserSocialDetail getSocialDetail(String socialId) {

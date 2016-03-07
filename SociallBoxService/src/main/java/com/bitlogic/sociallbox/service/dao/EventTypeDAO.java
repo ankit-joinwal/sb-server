@@ -12,7 +12,11 @@ public interface EventTypeDAO {
 	
 	public List<EventType> getEventTypesByNames(List<String> names);
 	
+	public List<EventType> getUserInterests(Long userId);
+	
 	public EventType getEventTypeByName(String name);
 	
 	public EventType save(EventType eventType);
+
+	public List<EventType> saveUserEventInterests(List<EventType> tags,Long userId);
 }
