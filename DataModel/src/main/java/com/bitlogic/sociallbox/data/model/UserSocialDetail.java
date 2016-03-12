@@ -1,26 +1,21 @@
 package com.bitlogic.sociallbox.data.model;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -50,6 +45,7 @@ public class UserSocialDetail implements Serializable,Cloneable{
 	@XmlElement(name="system")
 	@JsonProperty(value="system")
 	@Column(nullable=false,name="SOCIAL_SYSTEM")
+	@Enumerated(EnumType.STRING)
 	private SocialSystem socialSystem;
 	
 	@XmlElement(name="detail")
@@ -60,6 +56,7 @@ public class UserSocialDetail implements Serializable,Cloneable{
 	@XmlElement(name="detailType")
 	@JsonProperty(value="detailType")
 	@Column(nullable=false,name="DETAIL_TYPE")
+	@Enumerated(EnumType.STRING)
 	private SocialDetailType socialDetailType;
 
 	

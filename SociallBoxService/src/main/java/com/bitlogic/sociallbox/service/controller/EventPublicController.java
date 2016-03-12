@@ -36,8 +36,17 @@ import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transform
 
 @RestController
 @RequestMapping("/api/public/events")
-public class EventPublicController implements Constants{
+public class EventPublicController extends BaseController implements Constants{
 	private static final Logger logger = LoggerFactory.getLogger(EventPublicController.class);
+	private static final String GET_EVENT_API = "GetEvent API";
+	private static final String GET_EVENT_IMAGES_API = "GetEventImages API";
+	private static final String GET_EVENT_IMAGE_BY_NAME_API = "GetEventImageByName API";
+	private static final String GET_PERSONALIZEZ_EVENT_FOR_USER_API = "GetPersonalizedEventsForUser API";
+	private static final String GET_EVENTS_BY_TYPE_API = "GetEventsOfType API";
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
 	
 	@Autowired
 	private EventService eventService;
@@ -46,12 +55,14 @@ public class EventPublicController implements Constants{
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
 	public SingleEntityResponse<EventResponse> getEvent(@PathVariable String eventId) {
-		logger.info("### Request recieved - get event {} ",eventId);
+		logRequestStart(GET_EVENT_API, PUBLIC_REQUEST_START_LOG, GET_EVENT_API);
+		logInfo(GET_EVENT_API, "event id = {}", eventId);
 		Transformer<EventResponse, Event> transformer = (Transformer<EventResponse, Event>) TransformerFactory.getTransformer(Transformer_Types.EVENT_TRANS);
 		EventResponse createEventResponse = transformer.transform(eventService.get(eventId));
 		SingleEntityResponse<EventResponse> entityResponse = new SingleEntityResponse<>();
 		entityResponse.setData(createEventResponse);
 		entityResponse.setStatus(SUCCESS_STATUS);
+		logRequestEnd(GET_EVENT_API, GET_EVENT_API);
 		return entityResponse;
 	}
 	
@@ -59,12 +70,14 @@ public class EventPublicController implements Constants{
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
 	public EntityCollectionResponse<EventImage> getEventImages(@PathVariable String eventId){
-		
+		logRequestStart(GET_EVENT_IMAGES_API, PUBLIC_REQUEST_START_LOG, GET_EVENT_IMAGES_API);
+		logInfo(GET_EVENT_IMAGES_API, "Event id = {} ", eventId);
 		List<EventImage> eventImages = this.eventService.getEventImages(eventId);
 		EntityCollectionResponse<EventImage> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus(SUCCESS_STATUS);
 		collectionResponse.setData(eventImages);
+		logRequestEnd(GET_EVENT_IMAGES_API, GET_EVENT_IMAGES_API);
 		return collectionResponse;
 	}
 	
@@ -72,19 +85,24 @@ public class EventPublicController implements Constants{
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getEventImage(@PathVariable String eventId,
 								@PathVariable String imageName){
-		logger.info("### Request Recieved to get image for event {} with name {} ",eventId,imageName);
-		String filePath = Constants.EVENT_IMAGE_STORE_PATH+File.separator+eventId+File.separator+imageName+".jpg";
 		
+		logRequestStart(GET_EVENT_IMAGE_BY_NAME_API, PUBLIC_REQUEST_START_LOG, GET_EVENT_IMAGE_BY_NAME_API);
+		logInfo(GET_EVENT_IMAGE_BY_NAME_API, "Event id ={} , image name = {} ",eventId,imageName  );
+		String filePath = Constants.EVENT_IMAGE_STORE_PATH+File.separator+eventId+File.separator+imageName+".jpg";
+		logInfo(GET_EVENT_IMAGE_BY_NAME_API, "File Path = {}", filePath);
 		File file = new File(filePath);
 		if(!file.exists()){
+			logError(GET_EVENT_IMAGE_BY_NAME_API, "Image not found with name = {}", imageName);
 			throw new ClientException(RestErrorCodes.ERR_003, ERROR_IMAGE_NOT_FOUND);
 		}
 		InputStream inputStream = null;
 		try{
 			inputStream = new FileInputStream(file);
 		}catch(FileNotFoundException exception){
+			logError(GET_EVENT_IMAGE_BY_NAME_API, "Image not found with name = {}", imageName);
 			throw new ClientException(RestErrorCodes.ERR_003, ERROR_IMAGE_NOT_FOUND);
 		}
+		logRequestEnd(GET_EVENT_IMAGE_BY_NAME_API, GET_EVENT_IMAGE_BY_NAME_API);
 		 return ResponseEntity.ok()
 		            .body(new InputStreamResource(inputStream));
 	}
@@ -99,7 +117,8 @@ public class EventPublicController implements Constants{
 												@RequestParam(required = true, value = "country") String country,
 												@RequestParam(required=false,value="page") Integer page){
 
-		logger.info("### Request Recieved - getPersonalizedEvents. City {} , Country {} ,user {} ###",city,country,userId);
+		logRequestStart(GET_PERSONALIZEZ_EVENT_FOR_USER_API, PUBLIC_REQUEST_START_LOG, GET_PERSONALIZEZ_EVENT_FOR_USER_API);
+		logInfo(GET_PERSONALIZEZ_EVENT_FOR_USER_API, " City {} , Country {} ,user {} ", city,country,userId);
 		if(page==null){
 			page = new Integer(1);
 		}
@@ -110,7 +129,7 @@ public class EventPublicController implements Constants{
 		collectionResponse.setStatus("Success");
 		collectionResponse.setPage(page);
 		
-		
+		logRequestEnd(GET_PERSONALIZEZ_EVENT_FOR_USER_API, GET_PERSONALIZEZ_EVENT_FOR_USER_API);
 		return collectionResponse;
 	}
 	
@@ -125,7 +144,9 @@ public class EventPublicController implements Constants{
 												@RequestParam(required = true, value = "city") String city,
 												@RequestParam(required = true, value = "country") String country,
 												@RequestParam(required=false,value="page") Integer page) {
-		logger.info("### Request Recieved - getEventsOfType - Params [ Type :{} , City : {} , Country : {} ###",eventType,city,country);
+		logRequestStart(GET_EVENTS_BY_TYPE_API, PUBLIC_REQUEST_START_LOG, GET_EVENTS_BY_TYPE_API);
+		
+		logInfo(GET_EVENTS_BY_TYPE_API,"Params [ Type :{} , City : {} , Country : {} ",eventType,city,country);
 		if(page==null){
 			page = new Integer(1);
 		}
@@ -135,6 +156,7 @@ public class EventPublicController implements Constants{
 		collectionResponse.setData(eventsList);
 		collectionResponse.setStatus("Success");
 		collectionResponse.setPage(page);
+		logRequestEnd(GET_EVENTS_BY_TYPE_API, GET_EVENTS_BY_TYPE_API);
 		return collectionResponse;
 	}
 	

@@ -12,17 +12,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Category;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.service.business.CategoryService;
 
 @RestController
 @RequestMapping("/api/public/categories")
-public class CategoryPublicController {
+public class CategoryPublicController extends BaseController {
 
 	private static final Logger logger = LoggerFactory.getLogger(CategoryPublicController.class);
+	private static final String GET_CATEGORIES_API = "GetCategories API";
 	@Autowired
 	private CategoryService categoryService;
+	
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
 	
 	/**
 	 *  @api {get} /api/public/categories Get All Categories
@@ -94,12 +101,15 @@ public class CategoryPublicController {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
 	public EntityCollectionResponse<Category> get(){
-		logger.info("### Request recieved- Get All Categories. ###");
+
+		logRequestStart(GET_CATEGORIES_API, Constants.PUBLIC_REQUEST_START_LOG, GET_CATEGORIES_API);
+		
 		List<Category> categories = categoryService.getAll();
 		EntityCollectionResponse<Category> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setData(categories);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus("Success");
+		logRequestEnd(GET_CATEGORIES_API, GET_CATEGORIES_API);
 		return collectionResponse;
 	}
 	

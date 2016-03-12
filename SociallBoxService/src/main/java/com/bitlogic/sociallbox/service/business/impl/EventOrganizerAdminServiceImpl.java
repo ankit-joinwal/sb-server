@@ -40,8 +40,7 @@ public class EventOrganizerAdminServiceImpl implements EventOrganizerAdminServic
 			Date now = new Date();
 			user.setCreateDt(now);
 			Set<Role> userRoles = new HashSet<>();
-			Role appUserRole = this.userDAO.getRoleType(UserRoleType.EVENT_ORGANIZER
-					.getRoleType());
+			Role appUserRole = this.userDAO.getRoleType(UserRoleType.EVENT_ORGANIZER);
 			userRoles.add(appUserRole);
 			user.setUserroles(userRoles);
 			User createdUser = this.userDAO.createNewWebUser(user);

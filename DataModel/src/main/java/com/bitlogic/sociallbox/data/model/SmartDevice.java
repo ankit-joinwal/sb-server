@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -57,6 +59,7 @@ public class SmartDevice implements Serializable{
 	@Column(nullable=false,name="DEVICE_TYPE")
 	@XmlElement
 	@NotNull(message="error.device.type.mandatory")
+	@Enumerated(EnumType.STRING)
 	private DeviceType deviceType;
 	
 	@Column(nullable=false,name="GCM_ID")
@@ -74,8 +77,7 @@ public class SmartDevice implements Serializable{
 	@Column(nullable=false,name="IS_ENABLED")
 	@XmlTransient
 	@JsonIgnore
-	@NotNull(message="error.isenabled.mandatory")
-	private String isEnabled;
+	private Boolean isEnabled;
 	
 	@XmlTransient
 	@JsonIgnore
@@ -147,13 +149,11 @@ public class SmartDevice implements Serializable{
 		this.osVersion = osVersion;
 	}
 
-	@JsonIgnore
-	public String getIsEnabled() {
+	public Boolean getIsEnabled() {
 		return isEnabled;
 	}
 
-	@JsonProperty
-	public void setIsEnabled(String isEnabled) {
+	public void setIsEnabled(Boolean isEnabled) {
 		this.isEnabled = isEnabled;
 	}
 

@@ -16,7 +16,7 @@ public class EventOrganizerDAOImpl extends AbstractDAO implements EventOrganizer
 	public EventOrganizer create(EventOrganizer eventOrganizer) {
 		Date now = new Date();
 		eventOrganizer.setCreateDt(now);
-		eventOrganizer.setIsEnabled(Constants.IS_ENABLED_TRUE);
+		eventOrganizer.setIsEnabled(Boolean.TRUE);
 		String id = (String) save(eventOrganizer);
 		return getOrganizerDetails(id);
 	}
@@ -24,7 +24,7 @@ public class EventOrganizerDAOImpl extends AbstractDAO implements EventOrganizer
 	@Override
 	public EventOrganizer getOrganizerDetails(String organizerId) {
 		Criteria criteria = getSession().createCriteria(EventOrganizer.class)
-				.add(Restrictions.eq("isEnabled", Constants.IS_ENABLED_TRUE))
+				.add(Restrictions.eq("isEnabled", Boolean.TRUE))
 				.add(Restrictions.eq("uuid", organizerId));
 		EventOrganizer eventOrganizer = (EventOrganizer) criteria.uniqueResult();
 		return eventOrganizer;
@@ -33,7 +33,7 @@ public class EventOrganizerDAOImpl extends AbstractDAO implements EventOrganizer
 	@Override
 	public EventOrganizer getOrganizerByName(String name) {
 		Criteria criteria = getSession().createCriteria(EventOrganizer.class)
-				.add(Restrictions.eq("isEnabled", Constants.IS_ENABLED_TRUE))
+				.add(Restrictions.eq("isEnabled", Boolean.TRUE))
 				.add(Restrictions.eq("name", name));
 		EventOrganizer eventOrganizer = (EventOrganizer) criteria.uniqueResult();
 		return eventOrganizer;

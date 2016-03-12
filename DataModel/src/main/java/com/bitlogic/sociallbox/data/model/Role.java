@@ -2,6 +2,8 @@ package com.bitlogic.sociallbox.data.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -15,7 +17,8 @@ public class Role {
 	private Long id;
 	
 	@Column(name="ROLE_TYPE")
-	private String userRoleType ;
+	@Enumerated(EnumType.STRING)
+	private UserRoleType userRoleType ;
 	
 	public Long getId() {
 		return id;
@@ -25,11 +28,11 @@ public class Role {
 		this.id = id;
 	}
 
-	public String getUserRoleType() {
+	public UserRoleType getUserRoleType() {
 		return userRoleType;
 	}
 
-	public void setUserRoleType(String userRoleType) {
+	public void setUserRoleType(UserRoleType userRoleType) {
 		this.userRoleType = userRoleType;
 	}
 

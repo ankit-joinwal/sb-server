@@ -52,7 +52,7 @@ public class EventOrganizer {
 	private Date createDt;
 	
 	@Column(name="IS_ENABLED",nullable=false)
-	private String isEnabled;
+	private Boolean isEnabled;
 	
 	@OneToMany(mappedBy="organizer",cascade=CascadeType.ALL)
 	@JsonIgnore
@@ -131,11 +131,11 @@ public class EventOrganizer {
 		this.createDt = createDt;
 	}
 
-	public String getIsEnabled() {
+	public Boolean getIsEnabled() {
 		return isEnabled;
 	}
 
-	public void setIsEnabled(String isEnabled) {
+	public void setIsEnabled(Boolean isEnabled) {
 		this.isEnabled = isEnabled;
 	}
 

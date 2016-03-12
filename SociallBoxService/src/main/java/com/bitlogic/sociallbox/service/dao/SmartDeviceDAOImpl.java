@@ -32,8 +32,8 @@ public class SmartDeviceDAOImpl extends AbstractDAO implements SmartDeviceDAO {
 		Criteria criteria = getSession().createCriteria(User.class)
 				.createAlias("smartDevices", "sd")
 				.add(Restrictions.eq("sd.uniqueId", deviceId))
-				.add(Restrictions.eq("sd.isEnabled", "true"))
-				.add(Restrictions.eq("isEnabled", "true"))
+				.add(Restrictions.eq("sd.isEnabled", Boolean.TRUE))
+				.add(Restrictions.eq("isEnabled", Boolean.TRUE))
 				.setFetchMode("userroles", FetchMode.JOIN);
 		User user = (User) criteria.uniqueResult();
 		if(user!=null){
@@ -54,8 +54,8 @@ public class SmartDeviceDAOImpl extends AbstractDAO implements SmartDeviceDAO {
 		Criteria criteria = getSession().createCriteria(User.class)
 				.createAlias("smartDevices", "sd")
 				.add(Restrictions.eq("sd.uniqueId", deviceId))
-				.add(Restrictions.eq("sd.isEnabled", "true"))
-				.add(Restrictions.eq("isEnabled", "true"));
+				.add(Restrictions.eq("sd.isEnabled", Boolean.TRUE))
+				.add(Restrictions.eq("isEnabled", Boolean.TRUE));
 		User user = (User)criteria.uniqueResult();
 		
 		return user;

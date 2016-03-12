@@ -24,6 +24,8 @@ import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.SocialSystem;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserAndPlaceMapping;
+import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSettingType;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
@@ -87,7 +89,7 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		Date now = new Date();
 		for(PushNotificationSettingMaster notificationSettingMaster : notificationSettingMasters){
 			UserSetting settings = new UserSetting();
-			settings.setSettingType(UserSettingType.PUSH_NOTIFICATION.getSettingType());
+			settings.setSettingType(UserSettingType.PUSH_NOTIFICATION);
 			settings.setName(notificationSettingMaster.getName());
 			settings.setUser(user);
 			settings.setDisplayName(notificationSettingMaster.getDisplayName());
@@ -141,7 +143,7 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		Criteria idCrt = getSession().createCriteria(User.class)
 				.setFetchMode("smartDevices", FetchMode.JOIN)
 				.add(Restrictions.eq("id", id))
-				.add(Restrictions.eq("isEnabled", "true"));
+				.add(Restrictions.eq("isEnabled", Boolean.TRUE));
 
 		User user = (User) idCrt.uniqueResult();
 		// logger.info("User Devices :: ["+user.getSmartDevices()+" ] ");
@@ -153,7 +155,7 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		Map<Long,User> usersMap = new HashMap<>();
 		Criteria criteria = getSession().createCriteria(User.class)
 							.add(Restrictions.in("id", userIds))
-							.add(Restrictions.eq("isEnabled", "true"));
+							.add(Restrictions.eq("isEnabled", Boolean.TRUE));
 		List<User> users = criteria.list();
 		
 		if(users !=null && !users.isEmpty()){
@@ -169,7 +171,7 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 	public User getUserByEmailId(String emailId, boolean updateQuota) {
 		Criteria emailCrt = getSession().createCriteria(User.class)
 				.add(Restrictions.eq("emailId", emailId))
-				.add(Restrictions.eq("isEnabled", "true"))
+				.add(Restrictions.eq("isEnabled", Boolean.TRUE))
 				.setFetchMode("smartDevices", FetchMode.JOIN);
 		;
 		User user = (User) emailCrt.uniqueResult();
@@ -186,7 +188,7 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 	public User getUserByEmailIdWithRoles(String emailId, boolean updateQuota) {
 		Criteria emailCrt = getSession().createCriteria(User.class)
 				.add(Restrictions.eq("emailId", emailId))
-				.add(Restrictions.eq("isEnabled", "true"))
+				.add(Restrictions.eq("isEnabled", Boolean.TRUE))
 				.setFetchMode("smartDevices", FetchMode.JOIN)
 				.setFetchMode("userroles", FetchMode.JOIN);
 		;
@@ -241,8 +243,8 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 	}
 	
 	@Override
-	public Role getRoleType(String roleName) {
-		Criteria criteria = getSession().createCriteria(Role.class).add(Restrictions.eq("userRoleType", roleName));
+	public Role getRoleType(UserRoleType roleType) {
+		Criteria criteria = getSession().createCriteria(Role.class).add(Restrictions.eq("userRoleType", roleType));
 		
 		return (Role)criteria.uniqueResult();
 	}
@@ -286,7 +288,8 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		Criteria criteria = getSession().createCriteria(UserSetting.class,"setting")
 				.createAlias("setting.user", "user")
 				.setFetchMode("user", FetchMode.JOIN)
-				.add(Restrictions.eq("user.id", user.getId()));
+				.add(Restrictions.eq("user.id", user.getId()))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);;
 		return criteria.list();
 	}
 	
@@ -300,5 +303,10 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 			getSession().save(userSetting);
 		}
 		
+	}
+	@Override
+	public void saveUserLikeForPlace(UserAndPlaceMapping mapping) {
+
+		this.getSession().save(mapping);
 	}
 }

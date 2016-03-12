@@ -27,9 +27,10 @@ import com.bitlogic.sociallbox.service.business.TextSearchService;
 @RequestMapping("/api/public/places")
 public class GeoController extends BaseController {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(GeoController.class);
+	private static final Logger logger = LoggerFactory.getLogger(GeoController.class);
 
+	private static final String NEARBY_PLACES_REQUEST = "NearbyPlacesRequest API";
+	private static final String PLACE_DETAILS_REQUEST = "PlaceDetailsRequest API";
 	@Autowired
 	private NearbySearchService nearbySearchService;
 
@@ -39,6 +40,11 @@ public class GeoController extends BaseController {
 	@Autowired
 	private PlaceDetailService placeDetailService;
 
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
+	
 	public void setPlaceDetailService(PlaceDetailService placeDetailService) {
 		this.placeDetailService = placeDetailService;
 	}
@@ -139,23 +145,13 @@ public class GeoController extends BaseController {
 			@RequestParam(required = true, value = "cid") Long categoryId,
 			@RequestParam(required = false, value = "name") String name,
 			@RequestParam(required = false, value = "rankBy") String rankBy,
-			@RequestParam(required = false, value = "pagetoken") String pageToken,
-			@RequestHeader(required = false, value = Constants.AUTHORIZATION_HEADER) String authorization)
+			@RequestParam(required = false, value = "pagetoken") String pageToken
+			)
 			{
-		logger.info(
-				"### Nearby search Request recieved .Authorization : {} ###",
-				authorization);
-
-		/*
-		 * Object response = validateRequest(authorization);
-		 * 
-		 * if (response instanceof ServiceException) {
-		 * logger.error("### Invalid Authorization header", (ServiceException)
-		 * response); throw (ServiceException) response; }
-		 */
+		String LOG_PREFIX = NEARBY_PLACES_REQUEST;
+		logRequestStart(LOG_PREFIX, Constants.PUBLIC_REQUEST_START_LOG, NEARBY_PLACES_REQUEST);
 		Places places = null;
 
-	
 		NearbySearchRequest nearbySearchRequest = new NearbySearchRequest();
 		nearbySearchRequest.setLocation(location);
 		nearbySearchRequest.setName(name);
@@ -165,7 +161,7 @@ public class GeoController extends BaseController {
 		nearbySearchRequest.setPageToken(pageToken);
 
 		places = nearbySearchService.search(nearbySearchRequest);
-		
+		logRequestEnd(LOG_PREFIX,NEARBY_PLACES_REQUEST);
 		return places;
 	}
 
@@ -177,10 +173,9 @@ public class GeoController extends BaseController {
 			@RequestParam(required = false, value = "radius") String radius,
 			@RequestParam(required = false, value = "types") String types,
 			@RequestParam(required = false, value = "name") String name,
-			@RequestParam(required = false, value = "rankBy") String rankBy,
-			@RequestHeader(required = false, value = Constants.AUTHORIZATION_HEADER) String authorization)
+			@RequestParam(required = false, value = "rankBy") String rankBy)
 			{
-		logger.info("### Text search Request recieved ###");
+		logger.info("### Request Recieved | {}",NEARBY_PLACES_REQUEST);
 		/*
 		 * Object response = validateRequest(authorization);
 		 * 
@@ -210,21 +205,17 @@ public class GeoController extends BaseController {
 			@PathVariable(value = "placeId") String placeId,
 			@RequestHeader(required = false, value = Constants.AUTHORIZATION_HEADER) String authorization)
 		 {
-		logger.info("### Place detail request recieved ###");
-		/*
-		 * Object response = validateRequest(authorization);
-		 * 
-		 * if (response instanceof ServiceException) {
-		 * logger.error("### Invalid Authorization header", (ServiceException)
-		 * response); throw (ServiceException) response; }
-		 */
+		String LOG_PREFIX = PLACE_DETAILS_REQUEST;
+		logRequestStart(LOG_PREFIX, Constants.PUBLIC_REQUEST_START_LOG, PLACE_DETAILS_REQUEST);
 		PlaceDetails placeDetails = null;
 			PlaceDetailsRequest placeDetailsRequest = new PlaceDetailsRequest();
 			placeDetailsRequest.setPlaceId(placeId);
 			placeDetails = placeDetailService
 					.getPlaceDetails(placeDetailsRequest);
 		
-
+		logRequestEnd(LOG_PREFIX, PLACE_DETAILS_REQUEST);
 		return placeDetails;
 	}
+	
+	
 }

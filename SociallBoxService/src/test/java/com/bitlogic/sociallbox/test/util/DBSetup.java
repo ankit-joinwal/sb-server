@@ -12,13 +12,16 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.service.ServiceRegistry;
+import org.hibernate.transform.ResultTransformer;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Category;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.PushNotificationSettingMaster;
 import com.bitlogic.sociallbox.data.model.Role;
+import com.bitlogic.sociallbox.data.model.SourceSystemForPlaces;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
+import com.bitlogic.sociallbox.data.model.UserSetting;
 
 public class DBSetup {
 	private static Session session = null;
@@ -33,10 +36,18 @@ public class DBSetup {
 		session = factory.openSession();
 
 		session.beginTransaction();
-		setupRoleData();
-		setupCategories();
-		setupPushSettingTypes();
-			
+		//setupRoleData();
+		//setupCategories();
+		//setupPushSettingTypes();
+		Criteria criteria = session.createCriteria(UserSetting.class,"setting")
+				.createAlias("setting.user", "user")
+				.setFetchMode("user", FetchMode.JOIN)
+				/*.setFetchMode("user.smartDevices", FetchMode.SELECT)
+				.setFetchMode("user.socialDetails", FetchMode.SELECT)*/
+				.add(Restrictions.eq("user.id", 2L))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		List<UserSetting> settings = criteria.list();
+		System.out.println(settings.size());
 		session.getTransaction().commit();
 		session.close();
 		factory.close();
@@ -45,13 +56,13 @@ public class DBSetup {
 
 	private static void setupRoleData() {
 		Role role = new Role();
-		role.setUserRoleType(UserRoleType.APP_USER.getRoleType());
+		role.setUserRoleType(UserRoleType.APP_USER);
 		
 		Role role1 = new Role();
-		role1.setUserRoleType(UserRoleType.EVENT_ORGANIZER.getRoleType());
+		role1.setUserRoleType(UserRoleType.EVENT_ORGANIZER);
 
 		Role role2 = new Role();
-		role2.setUserRoleType(UserRoleType.ADMIN.getRoleType());
+		role2.setUserRoleType(UserRoleType.ADMIN);
 		session.save(role);
 		session.save(role1);
 		session.save(role2);
@@ -62,42 +73,40 @@ public class DBSetup {
 		category.setName("event");
 		category.setDescription("Event-o-pedia");
 		category.setDisplayOrder(1);
+		category.setExtId("1");
+		category.setSystemForPlaces(SourceSystemForPlaces.SOCIALLBOX);
 		category.setCreateDt(new Date());
-		category.setNavURL("#/categories/events");
 
 		Category categoryFood = new Category();
 		categoryFood.setDisplayOrder(2);
 		categoryFood.setName("restaurant");
 		categoryFood.setDescription("Food Lust");
-		categoryFood.setNavURL("#/categories/2/Food+Lust/places");
+		categoryFood.setExtId("2");
+		categoryFood.setSystemForPlaces(SourceSystemForPlaces.ZOMATO);
 		categoryFood.setCreateDt(new Date());
 		
 		Category categoryCafe = new Category();
 		categoryCafe.setDisplayOrder(3);
 		categoryCafe.setName("cafe");
 		categoryCafe.setDescription("Coffee Love");
-		categoryCafe.setNavURL("#/categories/3/Coffe+Love/places");
+		categoryCafe.setExtId("6");
+		categoryCafe.setSystemForPlaces(SourceSystemForPlaces.ZOMATO);
 		categoryCafe.setCreateDt(new Date());
 		
 		Category categoryClub = new Category();
 		categoryClub.setDisplayOrder(4);
 		categoryClub.setName("night_club");
-		categoryClub.setDescription("NightLife Karma");
-		categoryClub.setNavURL("#/categories/4/NightLife+Karma/places");
+		categoryClub.setDescription("NightLife");
+		categoryClub.setExtId("3");
+		categoryClub.setSystemForPlaces(SourceSystemForPlaces.ZOMATO);
 		categoryClub.setCreateDt(new Date());
-		
-		Category categoryBar = new Category();
-		categoryBar.setDisplayOrder(5);
-		categoryBar.setName("bar");
-		categoryBar.setDescription("Bar-O-Bar");
-		categoryBar.setNavURL("#/categories/5/Bar-O-Bar/places");
-		categoryBar.setCreateDt(new Date());
 		
 		Category categoryMovie = new Category();
 		categoryMovie.setDisplayOrder(5);
 		categoryMovie.setName("movie_theater");
+		categoryMovie.setExtId("movie_theater");
+		categoryMovie.setSystemForPlaces(SourceSystemForPlaces.GOOGLE);
 		categoryMovie.setDescription("Movie-O-Logy");
-		categoryMovie.setNavURL("#/categories/5/Movie-O-Logy/places");
 		categoryMovie.setCreateDt(new Date());
 		
 		
@@ -105,7 +114,6 @@ public class DBSetup {
 		session.save(categoryFood);
 		session.save(categoryCafe);
 		session.save(categoryClub);
-		session.save(categoryBar);
 		session.save(categoryMovie);
 	}
 	

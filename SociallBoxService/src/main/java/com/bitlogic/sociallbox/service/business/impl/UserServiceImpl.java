@@ -1,6 +1,7 @@
 package com.bitlogic.sociallbox.service.business.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,12 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserAndPlaceMapping;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
@@ -34,16 +35,16 @@ import com.bitlogic.sociallbox.service.dao.UserDAO;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.EntityNotFoundException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
-import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.utils.LoggingService;
 import com.bitlogic.sociallbox.service.utils.LoginUtil;
 
 @Service("userService")
 @Transactional
-public class UserServiceImpl implements UserService, Constants {
+public class UserServiceImpl extends LoggingService implements UserService, Constants {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(UserServiceImpl.class);
@@ -67,41 +68,50 @@ public class UserServiceImpl implements UserService, Constants {
 	public void setUserDAO(UserDAO userDAO) {
 		this.userDAO = userDAO;
 	}
+	
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
 
 	@Override
 	public User signupOrSignin(User user,
 			UserTypeBasedOnDevice userTypeBasedOnDevice)
-			throws ServiceException {
-		logger.debug("### Inside signupOrSignin of UserServiceImpl ###");
-
+			 {
+		
+		String LOG_PREFIX = "signupOrSignin";
 		if (userTypeBasedOnDevice == UserTypeBasedOnDevice.MOBILE) {
+			logInfo(LOG_PREFIX, "User is of Mobile type");
 			return handleMobileUser(user);
 		} else {
+			logInfo(LOG_PREFIX, "User is of User type");
 			return handleWebUser(user);
 		}
 	}
 
 	private User handleMobileUser(User user) {
-		logger.info("Validating mobile user");
-		LoginUtil.validateMobileUser(user);
-		logger.info("Mobile user validation success.\n Checking if user exists or not?");
+		String LOG_PREFIX = "handleMobileUser";
 
+		logInfo(LOG_PREFIX, "Validating mobile user");
+		
+		LoginUtil.validateMobileUser(user);
+
+		logInfo(LOG_PREFIX, "Mobile user validation success.Checking if user exists or not?");
 		User userInDB = this.userDAO.getUserByEmailId(user.getEmailId(), false);
 		if (userInDB == null) {
-			logger.info("Mobile user does not exist.Registering user :"
-					+ user.getEmailId());
-
+			logInfo(LOG_PREFIX, "Mobile user does not exist. Registering user : {}", user.getEmailId());
+			logUserObject(user, LOG_PREFIX,"New User Details");
 			Date now = new Date();
 			user.setCreateDt(now);
 			Set<SmartDevice> userDevices = new HashSet<>(user.getSmartDevices());
 			user.setSmartDevices(null);
 
 			Set<Role> userRoles = new HashSet<>();
-			Role appUserRole = this.userDAO.getRoleType(UserRoleType.APP_USER
-					.getRoleType());
+			Role appUserRole = this.userDAO.getRoleType(UserRoleType.APP_USER);
 
 			userRoles.add(appUserRole);
 			user.setUserroles(userRoles);
+			user.setIsEnabled(Boolean.TRUE);
 			User createdUser = this.userDAO.createNewMobileUser(user);
 
 			String privateKeyForDevice = UUID.randomUUID().toString();
@@ -112,7 +122,7 @@ public class UserServiceImpl implements UserService, Constants {
 				newDevice.setPrivateKey(privateKeyForDevice);
 				newDevice.setCreateDt(now);
 				newDevice.setUser(createdUser);
-
+				newDevice.setIsEnabled(Boolean.TRUE);
 				break;
 			}
 			createdUser = this.userDAO.setupFirstDeviceForUser(createdUser,
@@ -124,10 +134,9 @@ public class UserServiceImpl implements UserService, Constants {
 			}
 			List<EventType> userInterests = this.eventTypeDAO.getAllEventTypes();
 			this.eventTypeDAO.saveUserEventInterests(userInterests, id);
-
 			return createdUser;
 		} else {
-			logger.info("Mobile user exists. Checking if case of new device or login case.");
+			logInfo(LOG_PREFIX, "Mobile user exists. Checking if case of new device or login case.");
 			Set<SmartDevice> existingDevices = userInDB.getSmartDevices();
 			String deviceIdInRequest = null;
 			for (SmartDevice smartDevice : user.getSmartDevices()) {
@@ -149,8 +158,8 @@ public class UserServiceImpl implements UserService, Constants {
 			}
 
 			if (newDeviceCase && !devicesExistForUser) {
-				logger.info("First time mobile setup for user : {}",
-						user.getEmailId());
+				logInfo(LOG_PREFIX, "First time mobile setup for user : {}", user.getEmailId());
+				
 				Date now = new Date();
 				String privateKeyForDevice = UUID.randomUUID().toString();
 				SmartDevice newDevice = null;
@@ -166,9 +175,8 @@ public class UserServiceImpl implements UserService, Constants {
 						.setupFirstDeviceForUser(userInDB, newDevice);
 
 			} else if (newDeviceCase && devicesExistForUser) {
-				logger.info(
-						"New Device setup for user having existing devices {} ",
-						user.getEmailId());
+				
+				logInfo(LOG_PREFIX, "New Device setup for user having existing devices {} ", user.getEmailId());
 				Date now = new Date();
 				String privateKeyForDevice = UUID.randomUUID().toString();
 
@@ -184,11 +192,11 @@ public class UserServiceImpl implements UserService, Constants {
 						.addDeviceToExistingUserDevices(userInDB, newDevice);
 				User userObjectToReturn = null;
 				try {
-					logger.info("Cloning user object to return only newly added device");
+					logInfo(LOG_PREFIX, "Cloning user object to return only newly added device");
 					userObjectToReturn = (User) userWithAllDevices.clone();
 				} catch (CloneNotSupportedException cloneNotSupportedException) {
-					logger.error("Error while cloning user object",
-							cloneNotSupportedException);
+					
+					logError(LOG_PREFIX, "Error while cloning user object", cloneNotSupportedException);
 					userObjectToReturn = userWithAllDevices;
 				}
 				Set<SmartDevice> newDevices = new HashSet<>(1);
@@ -196,7 +204,7 @@ public class UserServiceImpl implements UserService, Constants {
 				userObjectToReturn.setSmartDevices(newDevices);
 				return userObjectToReturn;
 			} else {
-				logger.info("No new device added. Simple User login case");
+				logInfo(LOG_PREFIX, "No new device added. Simple User login case");
 				User userObjectToReturn = null;
 				/*try {
 					logger.info("Cloning user object to return only newly added device");
@@ -222,8 +230,8 @@ public class UserServiceImpl implements UserService, Constants {
 							while(existingDetailsIter.hasNext()){
 								UserSocialDetail existingSocialDetail = existingDetailsIter.next();
 								if(existingSocialDetail.getSocialDetailType().equals(SocialDetailType.USER_PROFILE_PIC)){
-									if(!profilePic.equals(existingSocialDetail.getUserSocialDetail())){
-										logger.info("Social Details change identified for user : {} , updating details",user.getEmailId());
+									if(!existingSocialDetail.getUserSocialDetail().equals(BLANK)&&!profilePic.equals(existingSocialDetail.getUserSocialDetail())){
+										logInfo(LOG_PREFIX, "Social Details change identified for user : {} , updating details", user.getEmailId());
 										existingSocialDetail.setUserSocialDetail(profilePic);
 									}
 								}
@@ -243,17 +251,17 @@ public class UserServiceImpl implements UserService, Constants {
 	}
 
 	private User handleWebUser(User user) {
-		logger.info("Validating Web User");
+		String LOG_PREFIX = "handleWebUser";
+		logInfo(LOG_PREFIX, "Validating Web User");
 		LoginUtil.validateWebUser(user);
-		logger.info("User validation successful. \n Checking if user existing or not.");
+		logInfo(LOG_PREFIX, "User validation successful. \n Checking if user existing or not.");
 		User userInDB = this.userDAO.getUserByEmailId(user.getEmailId(), false);
 		if (userInDB == null) {
-			logger.info("User does not exist. Signup Case");
+			logInfo(LOG_PREFIX, "User does not exist. Signup Case");
 			Date now = new Date();
 			user.setCreateDt(now);
 			Set<Role> userRoles = new HashSet<>();
-			Role appUserRole = this.userDAO.getRoleType(UserRoleType.APP_USER
-					.getRoleType());
+			Role appUserRole = this.userDAO.getRoleType(UserRoleType.APP_USER);
 			userRoles.add(appUserRole);
 			user.setUserroles(userRoles);
 			User createdUser = this.userDAO.createNewWebUser(user);
@@ -267,6 +275,7 @@ public class UserServiceImpl implements UserService, Constants {
 			return createdUser;
 		} else {
 			logger.info("User exists.Returning user details");
+			logInfo(LOG_PREFIX, "User exists.Returning user details");
 			User userToReturn = null;
 			try {
 				userToReturn = (User) userInDB.clone();
@@ -311,7 +320,8 @@ public class UserServiceImpl implements UserService, Constants {
 
 	@Override
 	public List<EventType> getUserEventInterests(Long id) {
-		logger.info("### Getting user interests ###");
+		String LOG_PREFIX = "getUserEventInterests";
+		logInfo(LOG_PREFIX, "Getting user event interests");
 		List<EventType> userInterests = this.eventTypeDAO.getUserInterests(id);
 		
 		return userInterests;
@@ -319,11 +329,12 @@ public class UserServiceImpl implements UserService, Constants {
 
 	@Override
 	public List<EventType> saveUserEventInterests(Long id, List<EventType> types) {
-		logger.info("### Save user tag preferences ###");
+		String LOG_PREFIX = "saveUserEventInterests";
 		List<String> typeNames = new ArrayList<>();
 		for (EventType type : types) {
 			typeNames.add(type.getName());
 		}
+		logInfo(LOG_PREFIX, "Saving user interests for user {} | {} ", id,typeNames);
 		List<EventType> typesInDB = this.eventTypeDAO.getEventTypesByNames(typeNames);
 		return this.eventTypeDAO.saveUserEventInterests(typesInDB, id);
 	}
@@ -331,10 +342,12 @@ public class UserServiceImpl implements UserService, Constants {
 	@Override
 	public SmartDevice getSmartDeviceDetails(String uniqueId)
 			{
-		logger.info("### Get SmartDevice Details ###");
+		String LOG_PREFIX = "getSmartDeviceDetails";
+		logInfo(LOG_PREFIX, "Getting device details for {} ", uniqueId);
 		SmartDevice smartDevice = this.smartDeviceDAO
 				.getSmartDeviceByDeviceId(uniqueId);
 		if (smartDevice == null) {
+			logError(LOG_PREFIX, "Device details not found for id {}", uniqueId);
 			throw new ClientException(RestErrorCodes.ERR_003,
 					ERROR_INVALID_DEVICE);
 		}
@@ -344,10 +357,12 @@ public class UserServiceImpl implements UserService, Constants {
 	@Override
 	public List<Role> getUserRolesByDevice(String deviceId)
 			 {
-		logger.info("### Get getUserRolesByDevice  ###");
+		String LOG_PREFIX = "getUserRolesByDevice";
+		logInfo(LOG_PREFIX, "Getting user roles for user with device {}", deviceId);
 		List<Role> userRoles = this.smartDeviceDAO
 				.getUserRolesByDevice(deviceId);
 		if (userRoles == null) {
+			logError(LOG_PREFIX, "No user roles found for user with device {}", deviceId);
 			throw new UnauthorizedException(RestErrorCodes.ERR_002,
 					ERROR_LOGIN_USER_UNAUTHORIZED);
 		}
@@ -358,18 +373,21 @@ public class UserServiceImpl implements UserService, Constants {
 	@Override
 	public List<UserFriend> setupUserFriendsForNewUser(Long userId,
 			String[] friendSocialIds) {
-		logger.info("### Inside setupUserFriendsForNewUser  ###");
+		String LOG_PREFIX  = "setupUserFriendsForNewUser";
+		logInfo(LOG_PREFIX, "Getting user details by id {}", userId);
 		User user = this.userDAO.getUserById(userId);
 
 		if (user == null) {
-			logger.error("User does not exist for id " + userId);
+			logError(LOG_PREFIX,"User does not exist for id {}" , userId);
 			throw new ClientException(RestErrorCodes.ERR_003,
 					ERROR_USER_INVALID);
 		}
 
+		logInfo(LOG_PREFIX, "Finding friends with external ids {}", Arrays.toString(friendSocialIds));
 		List<User> friendsInSystem = this.userDAO.setupFriendsUsingExternalIds(
 				user, friendSocialIds);
 		if (friendsInSystem == null) {
+			logInfo(LOG_PREFIX, "No friends found for user {}", userId);
 			friendsInSystem = new ArrayList<User>();
 		}
 
@@ -381,10 +399,12 @@ public class UserServiceImpl implements UserService, Constants {
 	
 	@Override
 	public List<UserFriend> getUserFriends(Long userId) {
+		String LOG_PREFIX = "getUserFriends";
+		logInfo(LOG_PREFIX, "Getting user details by id {}", userId);
 		User user = this.userDAO.getUserById(userId);
 
 		if (user == null) {
-			logger.error("User does not exist for id " + userId);
+			logError(LOG_PREFIX, "User not found with id {}", userId);
 			throw new ClientException(RestErrorCodes.ERR_003,
 					ERROR_USER_INVALID);
 		}
@@ -398,10 +418,11 @@ public class UserServiceImpl implements UserService, Constants {
 	
 	@Override
 	public List<UserSetting> getUserSettings(Long id) {
-		logger.info("### Inside getUserSettings ###");
+		String LOG_PREFIX = "getUserSettings";
+		logInfo(LOG_PREFIX, "Getting user details by id {}", id);
 		User user = this.userDAO.getUserById(id);
 		if(user==null){
-			logger.error("User does not exist for id " + id);
+			logError(LOG_PREFIX,"User does not exist for id {}" , id);
 			throw new ClientException(RestErrorCodes.ERR_003,
 					ERROR_USER_INVALID);
 		}
@@ -413,14 +434,41 @@ public class UserServiceImpl implements UserService, Constants {
 	@Override
 	public void setUserSettings(Long userId, List<UserSetting> newSettings) {
 		logger.info("### Inside setUserSettings ###");
+		String LOG_PREFIX = "setUserSettings";
+		logInfo(LOG_PREFIX, "Getting user details by id {}", userId);
 		User user = this.userDAO.getUserById(userId);
+		if(user==null){
+			logError(LOG_PREFIX,"User does not exist for id {}" , userId);
+			throw new ClientException(RestErrorCodes.ERR_003,
+					ERROR_USER_INVALID);
+		}
 		List<UserSetting> oldSettings = this.userDAO.getUserSettings(user);
+		logInfo(LOG_PREFIX, "Found Old User Settings {}", oldSettings);
 		Date now = new Date();
 		for(UserSetting userSetting : newSettings){
 			userSetting.setCreateDt(now);
 			userSetting.setUser(user);
 		}
-		
+		logInfo(LOG_PREFIX, "Storing new user settings {}", newSettings);
 		this.userDAO.saveUserSettings(oldSettings, newSettings);
+	}
+	
+	@Override
+	public void saveUserPlaceLike(String deviceId, String placeId) {
+
+		String LOG_PREFIX = "saveUserPlaceLike";
+		logInfo(LOG_PREFIX, "Getting user info from device id : {}",deviceId);
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
+		if(user == null){
+			logError(LOG_PREFIX, "No user exists fro given device Id {}", deviceId);
+			throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_LOGIN_USER_UNAUTHORIZED);
+		}
+		
+		UserAndPlaceMapping mapping = new UserAndPlaceMapping();
+		mapping.setUserId(user.getId());
+		mapping.setPlaceId(placeId);
+		
+		this.userDAO.saveUserLikeForPlace(mapping);
+		logInfo(LOG_PREFIX, "User Like for place saved successfully");
 	}
 }

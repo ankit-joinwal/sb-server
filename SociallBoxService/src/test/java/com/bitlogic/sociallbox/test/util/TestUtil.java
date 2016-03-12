@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Address;
 import com.bitlogic.sociallbox.data.model.EventOrganizer;
@@ -14,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestUtil {
 
-
+static final Logger LOGGER = LoggerFactory.getLogger(TestUtil.class);
 
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -25,17 +28,14 @@ public class TestUtil {
 
     
     public static void main(String[] args) throws Exception{
-    	CreateEventOrganizerRequest eventOrganizer = new CreateEventOrganizerRequest();
-    	eventOrganizer.setName("Remix Entertainment");
-    	eventOrganizer.setEmailId("harsh.singh@remixentertainments.com");
-    	eventOrganizer.setPhone1("+91 7838250407");
-    	Address address = new Address();
-    	address.setStreet("Mandakini Enclave");
-    	address.setCity("New Delhi");
-    	address.setCountry("India");
-    	address.setZipcode("110019");
-    	eventOrganizer.setAddress(address);
-    	ObjectMapper objectMapper = new ObjectMapper();
-    	System.out.println(objectMapper.writeValueAsString(eventOrganizer));
+    	for ( int i = 1; i <= 24; i++ ) {
+    		LOGGER.info( "write log" );
+
+    		try {
+    			Thread.sleep( 10000L );
+    		} catch ( final InterruptedException e ) {
+    			LOGGER.error( "an error occurred", e );
+    		}
+    	}
 	}
 }

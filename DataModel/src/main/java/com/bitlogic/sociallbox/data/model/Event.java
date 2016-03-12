@@ -55,6 +55,9 @@ public class Event {
 	@Column(name="EVENT_STATUS",nullable=false)
 	private EventStatus eventStatus;
 	
+	@Column(name="ALLOW_EVENT_TO_GO_LIVE")
+	private Boolean isAllowedEventToGoLive;
+	
 	@Column(name="START_DT",nullable=false)
 	private Date startDate;
 
@@ -70,6 +73,13 @@ public class Event {
 		this.eventStatus = eventStatus;
 	}
 
+	public Boolean getIsAllowedEventToGoLive() {
+		return isAllowedEventToGoLive;
+	}
+
+	public void setIsAllowedEventToGoLive(Boolean isAllowedEventToGoLive) {
+		this.isAllowedEventToGoLive = isAllowedEventToGoLive;
+	}
 
 	public List<EventImage> getEventImages() {
 		return eventImages;

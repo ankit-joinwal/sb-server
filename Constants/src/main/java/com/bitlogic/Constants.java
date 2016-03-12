@@ -49,6 +49,12 @@ public interface Constants {
 	String ROLE_TYPE_ADMIN = "ADMIN";
 	String ROLE_TYPE_APP_USER = "APP_USER";
 	String ROLE_ORGANIZER = "EVENT_ORGANIZER";
+	String ONE_WHITESPACE = " ";
+	String COLON = ":";
+	String DOUBLE_COLON = "::";
+	String SECURED_REQUEST_START_LOG_MESSAGE = "Request Recieved | {} ";
+	//Pass Request Name
+	String PUBLIC_REQUEST_START_LOG = "Request Recieved | {} ";
 	
 	String EVENT_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"events";
 	String MEETUP_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"meetups";

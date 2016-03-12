@@ -63,8 +63,7 @@ public class User implements Serializable,Cloneable {
 	@Column(nullable=false,name="IS_ENABLED")
 	@XmlTransient
 	@JsonIgnore
-	@NotNull(message="error.isenabled.mandatory")
-	private String isEnabled;
+	private Boolean isEnabled;
 	
 	@XmlTransient
 	@Column(nullable = false,name="CREATE_DT")
@@ -166,13 +165,11 @@ public class User implements Serializable,Cloneable {
 		this.smartDevices = smartDevices;
 	}
 
-	@JsonIgnore
-	public String getIsEnabled() {
+	public Boolean getIsEnabled() {
 		return isEnabled;
 	}
 
-	@JsonProperty
-	public void setIsEnabled(String isEnabled) {
+	public void setIsEnabled(Boolean isEnabled) {
 		this.isEnabled = isEnabled;
 	}
 

@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -24,7 +26,8 @@ public class UserSetting {
 	private Long id;
 
 	@Column(nullable=false,name="SETTING_TYPE")
-	private String settingType;
+	@Enumerated(EnumType.STRING)
+	private UserSettingType settingType;
 
 	@Column(nullable=false,name="NAME")
 	private String name;
@@ -70,11 +73,11 @@ public class UserSetting {
 		this.id = id;
 	}
 
-	public String getSettingType() {
+	public UserSettingType getSettingType() {
 		return settingType;
 	}
 
-	public void setSettingType(String settingType) {
+	public void setSettingType(UserSettingType settingType) {
 		this.settingType = settingType;
 	}
 

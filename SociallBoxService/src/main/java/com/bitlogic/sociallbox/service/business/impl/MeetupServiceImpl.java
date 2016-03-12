@@ -110,7 +110,7 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 		Meetup created = meetupDAO.createMeetup(meetup);
 		MeetupAttendeeEntity organizerAsAttendee = new MeetupAttendeeEntity();
 		organizerAsAttendee.setAttendeeResponse(AttendeeResponse.YES);
-		organizerAsAttendee.setIsAdmin(Constants.TRUE);
+		organizerAsAttendee.setIsAdmin(Boolean.TRUE);
 		organizerAsAttendee.setUser(organizer);
 		organizerAsAttendee.setMeetup(created);
 		organizerAsAttendee.setCreateDt(now);

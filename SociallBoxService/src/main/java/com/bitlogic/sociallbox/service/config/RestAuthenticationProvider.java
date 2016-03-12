@@ -75,6 +75,8 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 				deviceKey = device.getPrivateKey();
 			} catch (ClientException exception) {
 				throw new BadCredentialsException(exception.getMessage());
+			}catch (Exception exception){
+				throw new BadCredentialsException(exception.getMessage());
 			}
 
 			String signature = calculateSignatureForMobileDevice(deviceKey,
@@ -89,6 +91,8 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 			try {
 				userRoles = this.userService.getUserRolesByDevice(deviceId);
 			} catch (ServiceException exception) {
+				throw new BadCredentialsException(exception.getMessage());
+			}catch(Exception exception){
 				throw new BadCredentialsException(exception.getMessage());
 			}
 			authorities = convertRoleToGA(userRoles);
@@ -175,7 +179,7 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 		for (Role role : userRoles) {
 			GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(
-					role.getUserRoleType());
+					role.getUserRoleType().toString());
 			grantedAuthorities.add(grantedAuthority);
 		}
 		return grantedAuthorities;

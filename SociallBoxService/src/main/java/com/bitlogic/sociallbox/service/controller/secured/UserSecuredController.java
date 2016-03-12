@@ -2,7 +2,6 @@ package com.bitlogic.sociallbox.service.controller.secured;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserSetting;
@@ -28,6 +26,7 @@ import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.service.business.UserService;
+import com.bitlogic.sociallbox.service.controller.BaseController;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
@@ -38,14 +37,26 @@ import com.bitlogic.sociallbox.service.exception.ServiceException;
  */
 @RestController
 @RequestMapping("/api/secured/users")
-public class UserSecuredController implements Constants{
+public class UserSecuredController extends BaseController implements Constants{
 
 	private static final Logger logger = LoggerFactory.getLogger(UserSecuredController.class);
 	
-	@Autowired
-	UserService userService;
-
+	private static final String REQUEST_SIGNUP_SIGNIN = "SigninOrSignupUser API";
+	private static final String GET_USER_REQUEST = "GetUser API";
+	private static final String GET_USER_EVENTS_INTEREST_REQUEST = "GetUserEventInterests API";
+	private static final String SAVE_USER_EVENTS_INTEREST_REQUEST = "SaveUserEventInterests API";
+	private static final String SETUP_FRIENDS_REQUEST = "SetupFriendsForNewUser API";
+	private static final String GET_USER_FRIENDS_REQUEST = "GetUserFriends API";
+	private static final String GET_USER_SETTINGS = "GetUserSetings api";
+	private static final String SAVE_USER_SETTINGS_API = "SaveUserSetings API";
 	
+	@Autowired
+	private UserService userService;
+	
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
 
 	/**
 	 *  @api {post} /api/secured/users Signup or Login User
@@ -58,7 +69,6 @@ public class UserSecuredController implements Constants{
 	 *     {
 			  "name": "Vardhan Singh",
 			  "emailId": "vsingh@gmail.com",
-			  "isEnabled":"true",
 			  "password":"p@ssword",
 			  "smartDevices": [
 			    {
@@ -66,7 +76,6 @@ public class UserSecuredController implements Constants{
 			      "buildVersion": "1.00",
 			      "osVersion": "4.0",
 			      "deviceType": "ANDROID",
-			      "isEnabled":"true",
 			      "gcmId":"GCM_ID2"
 			    }
 			  ],
@@ -126,12 +135,12 @@ public class UserSecuredController implements Constants{
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
 	public SingleEntityResponse<User> signinOrSignupUser(@RequestHeader(required = true, value = Constants.USER_TYPE_HEADER) String userType,
-			@Valid @RequestBody User user, HttpServletRequest  request) throws ServiceException{
-		
-		logger.info("### Request recieved- signinOrSignupUser. Arguments : {} ###"+user);
-		logger.info("   Social Details : {} ",user.getSocialDetails());
-		
-		logger.info("	User Type : "+userType);
+			@Valid @RequestBody User user) throws ServiceException{
+
+		logRequestStart(REQUEST_SIGNUP_SIGNIN, PUBLIC_REQUEST_START_LOG, REQUEST_SIGNUP_SIGNIN);
+		logInfo(REQUEST_SIGNUP_SIGNIN, "User Id = {}", user.getEmailId());
+
+		logInfo(REQUEST_SIGNUP_SIGNIN, "User Type = {}", userType);
 		UserTypeBasedOnDevice userTypeBasedOnDevice = null;
 		
 		if(userType.equals(UserTypeBasedOnDevice.MOBILE.toString())){
@@ -145,8 +154,8 @@ public class UserSecuredController implements Constants{
 		SingleEntityResponse<User> entityResponse = new SingleEntityResponse<>();
 		entityResponse.setData(createdUser);
 		entityResponse.setStatus(SUCCESS_STATUS);
-		logger.info("### Signup/Signin successfull for user : {} ",user.getEmailId());
 		
+		logRequestEnd(REQUEST_SIGNUP_SIGNIN, REQUEST_SIGNUP_SIGNIN);
 		return entityResponse;
 		
 	}
@@ -207,13 +216,16 @@ public class UserSecuredController implements Constants{
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public SingleEntityResponse<User> getUser(@PathVariable long id) {
-		logger.debug("### Inside getUser method.Arguments {} ###",id);
+	public SingleEntityResponse<User> getUser(@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth,@PathVariable long id) {
+		logRequestStart(GET_USER_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE,GET_USER_REQUEST);
+		logInfo(GET_USER_REQUEST, "Auth header = {}", auth);
+		logInfo(GET_USER_REQUEST, "User id = {}", id);
 		//TODO:Check if user can access other user's profile?
 		User user = userService.getUser(id);
 		SingleEntityResponse<User> entityResponse = new SingleEntityResponse<>();
 		entityResponse.setData(user);
 		entityResponse.setStatus(SUCCESS_STATUS);
+		logRequestEnd(GET_USER_REQUEST, GET_USER_REQUEST);
 		return entityResponse;
 	}
 	
@@ -229,26 +241,36 @@ public class UserSecuredController implements Constants{
 	@RequestMapping(value = "/{id}/preferences/interests", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public EntityCollectionResponse<EventType> getUserEventInterests(@PathVariable Long id){
-		logger.info("### Request recieved- getUserTagPreferences ###");
+	public EntityCollectionResponse<EventType> getUserEventInterests(
+								@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth,
+								@PathVariable Long id){
+		logRequestStart(GET_USER_EVENTS_INTEREST_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE, GET_USER_EVENTS_INTEREST_REQUEST);
+		logInfo(GET_USER_EVENTS_INTEREST_REQUEST, "Auth header = {}", auth);
+		logInfo(GET_USER_EVENTS_INTEREST_REQUEST, "User id = {}", id);
 		List<EventType> userInterests = this.userService.getUserEventInterests(id);
 		EntityCollectionResponse<EventType> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setData(userInterests);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus("Success");
+		logRequestEnd(GET_USER_EVENTS_INTEREST_REQUEST, GET_USER_EVENTS_INTEREST_REQUEST);
 		return collectionResponse;
 	}
 	
 	@RequestMapping(value = "/{id}/preferences/interests", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
-	public EntityCollectionResponse<EventType> saveUserEventInterests(@PathVariable Long id,@RequestBody List<EventType> tags){
-		logger.info("### Request recieved- saveUserTagPreferences ###");
-		List<EventType> eventTags = this.userService.saveUserEventInterests(id, tags);
+	public EntityCollectionResponse<EventType> saveUserEventInterests(
+			@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
+			@PathVariable Long id,@RequestBody List<EventType> types){
+		logRequestStart(SAVE_USER_EVENTS_INTEREST_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE, SAVE_USER_EVENTS_INTEREST_REQUEST);
+		logInfo(SAVE_USER_EVENTS_INTEREST_REQUEST, "Auth Header = {}", auth);
+		logInfo(SAVE_USER_EVENTS_INTEREST_REQUEST, "User id {}", id);
+		List<EventType> eventTags = this.userService.saveUserEventInterests(id, types);
 		EntityCollectionResponse<EventType> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setData(eventTags);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus(SUCCESS_STATUS);
+		logRequestEnd(SAVE_USER_EVENTS_INTEREST_REQUEST, SAVE_USER_EVENTS_INTEREST_REQUEST);
 		return collectionResponse;
 	}
 
@@ -286,9 +308,13 @@ public class UserSecuredController implements Constants{
 	@RequestMapping(value = "/{id}/friends", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE},consumes={MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.CREATED)
-	public EntityCollectionResponse<UserFriend> setupFriendsForNewUser(@PathVariable Long id,
+	public EntityCollectionResponse<UserFriend> setupFriendsForNewUser(
+			@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth ,
+			@PathVariable Long id,
 			@RequestBody String[] friendsSocialIds){
-		logger.info("### Request recieved- setupFriendsForNewUser for user {} ###",id);
+		logRequestStart(SETUP_FRIENDS_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE, SETUP_FRIENDS_REQUEST);
+		logInfo(SETUP_FRIENDS_REQUEST, "Auth header = {}", auth);
+		logInfo(SETUP_FRIENDS_REQUEST, "User id = {}", id);
 		EntityCollectionResponse<UserFriend> collectionResponse = new EntityCollectionResponse<>();
 		if(friendsSocialIds!=null && friendsSocialIds.length>0){
 			List<UserFriend> userFriends = this.userService.setupUserFriendsForNewUser(id, friendsSocialIds);
@@ -298,6 +324,7 @@ public class UserSecuredController implements Constants{
 			collectionResponse.setStatus("Success");
 			
 		}
+		logRequestEnd(SETUP_FRIENDS_REQUEST, SETUP_FRIENDS_REQUEST);
 		return collectionResponse;
 	}
 	
@@ -328,14 +355,18 @@ public class UserSecuredController implements Constants{
 	@RequestMapping(value = "/{id}/friends", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
-	public EntityCollectionResponse<UserFriend> getUserFriends(@PathVariable Long id){
-		logger.info("### Request recieved- getUserFriends for user {} ###",id);
+	public EntityCollectionResponse<UserFriend> getUserFriends(
+			@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth,
+			@PathVariable Long id){
+		logRequestStart(GET_USER_FRIENDS_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE, GET_USER_FRIENDS_REQUEST);
+		logInfo(GET_USER_FRIENDS_REQUEST, "Auth header = {}", auth);
+		logInfo(GET_USER_FRIENDS_REQUEST, "User id = {}", id);
 		EntityCollectionResponse<UserFriend> collectionResponse = new EntityCollectionResponse<>();
 		List<UserFriend> userFriends = userService.getUserFriends(id);
 		collectionResponse.setData(userFriends);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus(SUCCESS_STATUS);
-		
+		logRequestEnd(GET_USER_FRIENDS_REQUEST, GET_USER_FRIENDS_REQUEST);
 		return collectionResponse;
 	}
 	/**
@@ -380,13 +411,15 @@ public class UserSecuredController implements Constants{
 	@RequestMapping(value = "/{id}/settings", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
-	public EntityCollectionResponse<UserSetting> getUserSetings(@PathVariable Long id){
-		logger.info("### Request recieved- getUserSetings for user {} ###",id);
+	public EntityCollectionResponse<UserSetting> getUserSetings(@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth ,@PathVariable Long id){
+		logRequestStart(GET_USER_SETTINGS, SECURED_REQUEST_START_LOG_MESSAGE, GET_USER_SETTINGS);
+		logInfo(GET_USER_SETTINGS, "Auth header = {}", auth);
 		List<UserSetting> userSettings = this.userService.getUserSettings(id);
 		EntityCollectionResponse<UserSetting> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setData(userSettings);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus("Success");
+		logRequestEnd(GET_USER_SETTINGS, GET_USER_SETTINGS);
 		return  collectionResponse;
 	}
 	
@@ -429,9 +462,12 @@ public class UserSecuredController implements Constants{
 	@RequestMapping(value = "/{id}/settings", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE},consumes={MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
-	public void saveUserSetings(@PathVariable Long id,@RequestBody List<UserSetting> settings){
-		logger.info("### Request recieved- saveUserSetings for user {} ###",id);
+	public void saveUserSetings(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,@PathVariable Long id,@RequestBody List<UserSetting> settings){
+		logRequestStart(SAVE_USER_SETTINGS_API, SECURED_REQUEST_START_LOG_MESSAGE, SAVE_USER_SETTINGS_API);
+		logInfo(SAVE_USER_SETTINGS_API, "Auth header = {}", auth);
+		logInfo(SAVE_USER_SETTINGS_API, "User id = {}", id);
 		this.userService.setUserSettings(id, settings);
+		logRequestEnd(SAVE_USER_SETTINGS_API, SAVE_USER_SETTINGS_API);
 	}
 	
 }

@@ -9,39 +9,43 @@
 			<level>TRACE</level>
 		</filter>
 	</appender>
- 
-  	<appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+	<appender name="dailyRollingFileAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<File>${catalina.home}/logs/sociallbox.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-		    <!-- daily rollover -->
-			<FileNamePattern>gGenie-archive.%d{yyyy-MM-dd}.log</FileNamePattern>
- 
-			<!-- keep 10 days' worth of history -->
-			<maxHistory>10</maxHistory>			
+
+			<!-- daily rollover -->
+
+			<fileNamePattern>${catalina.home}/logs/sociallbox.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+
+			<maxHistory>15</maxHistory>
+
 		</rollingPolicy>
- 
 		<encoder>
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</Pattern>
-		</encoder> 	    
-  	</appender>
- 	
- 
+			<pattern>%relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+		</encoder>
+		<encoder>
+			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n
+			</Pattern>
+		</encoder>
+	</appender>
+
+
 	<logger name="com.bitlogic" additivity="false">
-	    <level value="DEBUG" />
-		<appender-ref ref="dailyRollingFileAppender"/>
+		<level value="DEBUG" />
+		<appender-ref ref="dailyRollingFileAppender" />
 		<appender-ref ref="consoleAppender" />
 	</logger>
-	
-	
-	
-	 <logger name="org.hibernate.SQL" level="DEBUG" />
-    <logger name="org.hibernate.type" level="TRACE" />
-	
+
+	<!-- <logger name="org.hibernate.SQL" level="DEBUG" /> <logger name="org.hibernate.type" 
+		level="TRACE" /> -->
 	<logger name="org.hibernate" additivity="false">
-	    <level value="INFO" />
-		<appender-ref ref="dailyRollingFileAppender"/>
+		<level value="INFO" />
+		<appender-ref ref="dailyRollingFileAppender" />
 	</logger>
- 
+
 	<root>
 		<level value="INFO" />
 		<appender-ref ref="consoleAppender" />

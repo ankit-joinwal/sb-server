@@ -1,5 +1,7 @@
 package com.bitlogic.sociallbox.data.model;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -26,7 +28,7 @@ public class MeetupAttendee {
 	
 	@JsonProperty(value="is_admin")
 	@NotNull(message="error.attendee.isAdmin.mandatory")
-	private String isAdmin;
+	private Boolean isAdmin;
 
 	public Long getId() {
 		return id;
@@ -68,11 +70,11 @@ public class MeetupAttendee {
 		this.attendeeResponse = attendeeResponse;
 	}
 
-	public String getIsAdmin() {
+	public Boolean getIsAdmin() {
 		return isAdmin;
 	}
 
-	public void setIsAdmin(String isAdmin) {
+	public void setIsAdmin(Boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
 	

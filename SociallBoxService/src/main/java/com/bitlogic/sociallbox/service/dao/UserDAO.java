@@ -8,6 +8,8 @@ import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserAndPlaceMapping;
+import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 
@@ -39,7 +41,7 @@ public interface UserDAO {
 	
 	public MeetupAttendeeEntity getAttendeeByMeetupIdAndSocialId(String meetupId, Long socialId);
 	
-	public Role getRoleType(String roleName);
+	public Role getRoleType(UserRoleType roleType);
 	
 	public List<User> setupFriendsUsingExternalIds(User user,String[] externalIds);
 	
@@ -48,5 +50,7 @@ public interface UserDAO {
 	public List<UserSetting> getUserSettings(User user);
 	
 	public void saveUserSettings(List<UserSetting> oldSettings,List<UserSetting> newSettings);
+	
+	public void saveUserLikeForPlace(UserAndPlaceMapping mapping);
 	
 }

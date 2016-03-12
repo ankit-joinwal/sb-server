@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -18,6 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author ajoinwal
@@ -48,24 +51,43 @@ public class Category implements Serializable{
 	
 	@Column(name="CREATE_DT",nullable=false)
 	@XmlTransient
+	@JsonIgnore
 	private Date createDt;
 	
-	@Column(name="DISPLAY_ORDER")
+	@Column(name="DISPLAY_ORDER",nullable=false)
+	@JsonProperty("display_order")
 	private Integer displayOrder;
 	
-	@Column(name="NAV_URL")
-	private String navURL;
+	@Column(name="EXT_ID",nullable=false)
+	@JsonIgnore
+	private String extId;
+	
+	@Column(name="SOURCE_SYSTEM",nullable=false)
+	@Enumerated(EnumType.STRING)
+	private SourceSystemForPlaces systemForPlaces ;
 	
 	@JsonIgnore
 	@ManyToMany(mappedBy="relatedCategories")
 	private Set<EventType> relatedEventTypes = new HashSet<>();
 	
-	public String getNavURL() {
-		return navURL;
+	@JsonIgnore
+	public String getExtId() {
+		return extId;
 	}
 
-	public void setNavURL(String navURL) {
-		this.navURL = navURL;
+	@JsonProperty(value="ext_id")
+	public void setExtId(String extId) {
+		this.extId = extId;
+	}
+
+	@JsonIgnore
+	public SourceSystemForPlaces getSystemForPlaces() {
+		return systemForPlaces;
+	}
+	
+	@JsonProperty(value="source_system")
+	public void setSystemForPlaces(SourceSystemForPlaces systemForPlaces) {
+		this.systemForPlaces = systemForPlaces;
 	}
 
 	public Integer getDisplayOrder() {
