@@ -5,6 +5,8 @@ import java.io.File;
 public interface Constants {
 
 	String BLANK = "";
+	String ZERO = "0";
+	Integer RECORDS_PER_PAGE = 20;
 	String SUCCESS_STATUS = "Success";
 	String LOCATION_HEADER = "Location";
 	String JDBC_DRIVER_PROPERTY = "jdbc.driverClassName";
@@ -21,13 +23,20 @@ public interface Constants {
 	String G_TSEARCH_URL = "gplaces.tsearch.url";
 	String G_PLACE_DETAIL_URL = "gplaces.place.details.url";
 	String DEFAULT_GAPI_DATA_EXCHANGE_FMT = "gapi.data.format";
+	String G_PLACE_PHOTOS_URL_KEY = "gplaces.photo.url";
 	String GAPI_KEY = "gapi.key";
+	String ZOMATO_NEARBY_PLACES_URL = "zplaces.nearby.url";
+	String ZOMATO_PLACE_DETAIL_URL = "zplaces.place.details.url";
+	String ZOMATO_DEFAULT_GAPI_DATA_EXCHANGE_FMT = "zapi.data.format";
+	String PLACES_PHOTOS_GET_API_BASE_PATH_KEY = "places.photos.api";
+	String ZOMATO_API_KEY = "zapi.key";
 	String USER_SERVICE_URL = "user.svc.url";
 	String USER_VALIDATE_URL = "user.validate.url";
 	String AUTHORIZATION_HEADER = "Authorization";
 	String USER_TYPE_HEADER = "type";
 	String ACCEPT_HEADER = "Accept";
 	String QUESTIONMARK = "?";
+	String COMMA = ",";
 	String AMP = "&";
 	String EQUAL = "=";
 	String PLUS = "+";
@@ -35,8 +44,8 @@ public interface Constants {
 	String DEVICE_PREFIX = "SD";
 	String WEB_USER_PREFIX = "W";
 	//Default Radius for Nearby Search
-	String DEFAULT_RADIUS = "1000";
-	Integer RECORDS_PER_PAGE = 5;
+	String DEFAULT_RADIUS = "5000";
+	String URL_PATH_SEPARATOR = "/";
 	String MEETUP_DATE_FORMAT = "dd/MM/yyyy hh:mm aa";
 	String EVENT_RESPONSE_DATE_FORMAT = "d MMM yyyy";
 	String MEETUP_RESPONSE_DATE_FORMAT = "d MMM yyyy";
@@ -62,6 +71,8 @@ public interface Constants {
 	//Error Message Keys
 	String ERROR_GAPI_CLIENT_REQUEST = "error.gapi.client.request";
 	String ERROR_GAPI_WEBSERVICE_ERROR = "error.gapi.webservice.error";
+	String ERROR_ZAPI_CLIENT_REQUEST = "error.zapi.client.request";
+	String ERROR_ZAPI_WEBSERVICE_ERROR = "error.zapi.webservice.error";
 	String ERROR_LOGIN_SOCIAL_DETAILS_MISSING = "error.login.social.details.missing";
 	String ERROR_LOGIN_INVALID_DEVICES_IN_REQ = "error.login.invalid.devices.in.req";
 	String ERROR_LOGIN_DEVICE_MISSING = "error.login.device.missing";
@@ -86,4 +97,8 @@ public interface Constants {
 	String ERROR_ORGANIZER_NOT_FOUND = "error.organizer.not.found";
 	String ERROR_FEATURE_AVAILABLE_TO_WEB_ONLY = "error.feature.available.to.web.only";
 	String ERROR_USER_ALREADY_EXISTS = "error.user.already.exists";
+	String ERROR_INVALID_SOURCE_SYSTEM_PLACES = "error.invalid.source.system.places";
+	String ERROR_INVALID_INPUT_RADIUS = "error.invalid.input.radius";
+	String ERROR_INVALID_INPUT_PAGE = "error.invalid.input.page";
+	String ERROR_INVALID_SOURCE_SYSTEM = "error.invalid.source.system";
 }

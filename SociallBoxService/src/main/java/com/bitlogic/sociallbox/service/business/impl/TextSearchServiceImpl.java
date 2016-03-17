@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.GAPIConfig;
-import com.bitlogic.sociallbox.data.model.ext.Places;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlaces;
 import com.bitlogic.sociallbox.data.model.requests.TextSearchRequest;
 import com.bitlogic.sociallbox.service.business.TextSearchService;
 import com.bitlogic.sociallbox.service.exception.ClientException;
@@ -61,8 +61,8 @@ public class TextSearchServiceImpl implements TextSearchService,Constants{
 	
 
 	@Override
-	public Places search(TextSearchRequest textSearchRequest){
-		Places places= null;
+	public GooglePlaces search(TextSearchRequest textSearchRequest){
+		GooglePlaces places= null;
 		try{
 				places = TextSearchHelper.executeSearch(restTemplate, textSearchRequest, gapiConfig);
 				if(places!=null && places.getResults()!=null){

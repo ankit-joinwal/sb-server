@@ -13,7 +13,7 @@ import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.Location;
 import com.bitlogic.sociallbox.data.model.User;
-import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
 
 @XmlRootElement(name="createEvent")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -39,13 +39,13 @@ public class CreateEventRequest implements Serializable{
 		private User organizer;
 		
 		
-		private Set<PlaceDetails.Result.AddressComponent> addressComponents = new HashSet<>();
+		private Set<GooglePlace.Result.AddressComponent> addressComponents = new HashSet<>();
 		
-		public Set<PlaceDetails.Result.AddressComponent> getAddressComponents() {
+		public Set<GooglePlace.Result.AddressComponent> getAddressComponents() {
 			return addressComponents;
 		}
 
-		public void setAddressComponents(Set<PlaceDetails.Result.AddressComponent> addressComponents) {
+		public void setAddressComponents(Set<GooglePlace.Result.AddressComponent> addressComponents) {
 			this.addressComponents = addressComponents;
 		}
 

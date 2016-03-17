@@ -3,6 +3,7 @@ package com.bitlogic.sociallbox.data.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -12,6 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -19,6 +21,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.bitlogic.sociallbox.data.model.requests.SortOrderOption;
+import com.bitlogic.sociallbox.data.model.requests.SortOption;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -66,10 +70,38 @@ public class Category implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private SourceSystemForPlaces systemForPlaces ;
 	
+	
+	
 	@JsonIgnore
 	@ManyToMany(mappedBy="relatedCategories")
 	private Set<EventType> relatedEventTypes = new HashSet<>();
 	
+	@Transient
+	@JsonProperty("sortOptions")
+	private List<SortOption> sortByOptions;
+	
+	@Transient
+	@JsonProperty("sortOrderOptions")
+	private List<SortOrderOption> sortOrderOptions;
+	
+
+
+	public List<SortOrderOption> getSortOrderOptions() {
+		return sortOrderOptions;
+	}
+
+	public void setSortOrderOptions(List<SortOrderOption> sortOrderOptions) {
+		this.sortOrderOptions = sortOrderOptions;
+	}
+
+	public List<SortOption> getSortByOptions() {
+		return sortByOptions;
+	}
+
+	public void setSortByOptions(List<SortOption> sortByOptions) {
+		this.sortByOptions = sortByOptions;
+	}
+
 	@JsonIgnore
 	public String getExtId() {
 		return extId;

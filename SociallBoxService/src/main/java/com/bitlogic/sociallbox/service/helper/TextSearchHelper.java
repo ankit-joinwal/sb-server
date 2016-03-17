@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.GAPIConfig;
-import com.bitlogic.sociallbox.data.model.ext.Places;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlaces;
 import com.bitlogic.sociallbox.data.model.requests.TextSearchRequest;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
@@ -21,7 +21,7 @@ public class TextSearchHelper implements Constants{
 	private static final Logger logger = LoggerFactory
 			.getLogger(TextSearchHelper.class);
 
-	public static Places executeSearch(RestTemplate restTemplate,
+	public static GooglePlaces executeSearch(RestTemplate restTemplate,
 			TextSearchRequest textSearchRequest, GAPIConfig gapiConfig)
 			throws ClientException,ServiceException {
 
@@ -85,9 +85,9 @@ public class TextSearchHelper implements Constants{
 
 		logger.info("### Executing Search ###");
 
-		ResponseEntity<Places> placesResponse = restTemplate.exchange(
+		ResponseEntity<GooglePlaces> placesResponse = restTemplate.exchange(
 				url.toString(), HttpMethod.GET, null,
-				new ParameterizedTypeReference<Places>() {
+				new ParameterizedTypeReference<GooglePlaces>() {
 				});
 
 		HttpStatus returnStatus = placesResponse.getStatusCode();
@@ -102,7 +102,7 @@ public class TextSearchHelper implements Constants{
 				throw new ServiceException("GAPI",RestErrorCodes.ERR_010,Constants.ERROR_GAPI_WEBSERVICE_ERROR);
 			}
 		}
-		Places searchedPlaces = placesResponse.getBody();
+		GooglePlaces searchedPlaces = placesResponse.getBody();
 		logger.info("Searched Places {} ",searchedPlaces.getResults());
 		
 		return searchedPlaces;

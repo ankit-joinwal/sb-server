@@ -1,19 +1,18 @@
-package com.bitlogic.sociallbox.data.model.ext;
+package com.bitlogic.sociallbox.data.model.ext.google;
 
 import java.io.Serializable;
 import java.util.List;
 
+import com.bitlogic.sociallbox.data.model.ext.Place;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @SuppressWarnings(value = "unused")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PlaceDetails implements Serializable {
+public class GooglePlace extends Place implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String status;
 	private Result result;
-	
-	
 	
 	public Result getResult() {
 		return result;
@@ -57,13 +56,23 @@ public class PlaceDetails implements Serializable {
 		private Geometry geometry;
 		
 		private Photo[] photos;
-
+		@JsonProperty("distance_from_you")
+		private String distanceFromYou;
+		
 		@JsonIgnoreProperties(ignoreUnknown=true)
-		private static final class Photo{
+		public static final class Photo{
 			@JsonProperty("photo_reference")
 			private String photoReference;
 			private Integer height;
 			private Integer width;
+			private String url;
+			
+			public String getUrl() {
+				return url;
+			}
+			public void setUrl(String url) {
+				this.url = url;
+			}
 			public String getPhotoReference() {
 				return photoReference;
 			}
@@ -85,8 +94,14 @@ public class PlaceDetails implements Serializable {
 			
 		}
 		
-		
-		
+		public String getDistanceFromYou() {
+			return distanceFromYou;
+		}
+
+		public void setDistanceFromYou(String distanceFromYou) {
+			this.distanceFromYou = distanceFromYou;
+		}
+
 		public Photo[] getPhotos() {
 			return photos;
 		}
@@ -146,7 +161,7 @@ public class PlaceDetails implements Serializable {
 
 		// "geometry" : {
 		@JsonIgnoreProperties(ignoreUnknown = true)
-		private static final class Geometry {
+		public static final class Geometry {
 			private Location location;
 
 			public Location getLocation() {
@@ -159,7 +174,7 @@ public class PlaceDetails implements Serializable {
 
 			// "location" :{
 			@JsonIgnoreProperties(ignoreUnknown = true)
-			private static final class Location {
+			public static final class Location {
 				@JsonProperty(value = "lat")
 				private double lattitude;
 				@JsonProperty(value = "lng")

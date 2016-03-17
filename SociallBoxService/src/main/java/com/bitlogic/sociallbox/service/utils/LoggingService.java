@@ -8,6 +8,7 @@ import com.bitlogic.sociallbox.data.model.User;
 public abstract class LoggingService {
 
 	public abstract Logger getLogger();
+	
 	private static final String COMMA = " , ";
 	public void logInfo(String logPrefix, String logMessage,Object... args){
 		Logger logger = this.getLogger();
@@ -19,6 +20,12 @@ public abstract class LoggingService {
 		Logger logger = this.getLogger();
 		String message = logPrefix+ Constants.DOUBLE_COLON+logMessage;
 		logger.error(message,args);
+	}
+	
+	public void logWarning(String logPrefix, String logMessage,Object... args){
+		Logger logger = this.getLogger();
+		String message = logPrefix+ Constants.DOUBLE_COLON+logMessage;
+		logger.warn(message,args);
 	}
 	
 	public void logUserObject(User user,String logPrefix, String logMessage,Object... args){

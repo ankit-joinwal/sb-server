@@ -32,8 +32,8 @@ import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
-import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
-import com.bitlogic.sociallbox.data.model.ext.PlaceDetails.Result.AddressComponent;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace.Result.AddressComponent;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest.MockEventDetails;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
@@ -121,7 +121,7 @@ public class EventServiceImpl implements EventService ,Constants{
 		return created;
 	}
 	
-	private Set<EventAddressInfo> getEventAddressInfo(EventDetails eventDetails,Set<PlaceDetails.Result.AddressComponent> addressComponents){
+	private Set<EventAddressInfo> getEventAddressInfo(EventDetails eventDetails,Set<GooglePlace.Result.AddressComponent> addressComponents){
 		List<AddressComponentType> addressComponentTypes = this.meetupDAO.getAddressTypes();
 		logger.info("Inside getEventAddressInfo. addressComponentTypes : {}  ",addressComponentTypes);
 		Map<String,AddressComponentType> addressComponentTypesMap = new HashMap<>();

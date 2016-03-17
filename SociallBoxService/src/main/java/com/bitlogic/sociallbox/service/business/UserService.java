@@ -38,7 +38,7 @@ public interface UserService {
 	
 	public List<UserSetting> getUserSettings(Long userId);
 
-	public void setUserSettings(Long userId,List<UserSetting> newSettings);
+	public List<UserSetting> setUserSettings(Long userId,List<UserSetting> newSettings);
 	
-	public void saveUserPlaceLike(String deviceId, String placeId);
+	
 }

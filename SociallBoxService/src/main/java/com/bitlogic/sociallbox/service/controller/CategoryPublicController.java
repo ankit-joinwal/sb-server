@@ -40,60 +40,90 @@ public class CategoryPublicController extends BaseController {
 	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
 	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Categories
 	 *  @apiSuccessExample {json} Success-Response: 
-	 *  {
+	 * 
+	 {
 		  "status": "Success",
 		  "data": [
 		    {
 		      "id": 1,
 		      "name": "event",
 		      "description": "Event-o-pedia",
-		      "createDt": 1456599044000,
-		      "displayOrder": 1,
-		      "navURL": "#/categories/events"
+		      "display_order": 1,
+		      "sortOptions": [],
+		      "sortOrderOptions": []
 		    },
 		    {
 		      "id": 2,
 		      "name": "restaurant",
 		      "description": "Food Lust",
-		      "createDt": 1456599044000,
-		      "displayOrder": 2,
-		      "navURL": "#/categories/2/Food+Lust/places"
-		    },
-		    {
-		      "id": 3,
-		      "name": "cafe",
-		      "description": "Coffee Love",
-		      "createDt": 1456599044000,
-		      "displayOrder": 3,
-		      "navURL": "#/categories/3/Coffe+Love/places"
-		    },
-		    {
-		      "id": 4,
-		      "name": "night_club",
-		      "description": "NightLife",
-		      "createDt": 1456599044000,
-		      "displayOrder": 4,
-		      "navURL": "#/categories/4/NightLife+Karma/places"
+		      "display_order": 2,
+		      "sortOptions": [
+		        {
+		          "code": "prominence",
+		          "description": "Rating"
+		        },
+		        {
+		          "code": "real_distance",
+		          "description": "Distance"
+		        }
+		      ],
+		      "sortOrderOptions": []
 		    },
 		    {
 		      "id": 5,
 		      "name": "bar",
 		      "description": "Bar-O-Bar",
-		      "createDt": 1456599044000,
-		      "displayOrder": 5,
-		      "navURL": "#/categories/5/Bar-O-Bar/places"
+		      "display_order": 3,
+		      "sortOptions": [
+		        {
+		          "code": "prominence",
+		          "description": "Rating"
+		        },
+		        {
+		          "code": "real_distance",
+		          "description": "Distance"
+		        }
+		      ],
+		      "sortOrderOptions": []
 		    },
 		    {
-		      "id": 6,
-		      "name": "movie_theater",
-		      "description": "Movie-O-Logy",
-		      "createDt": 1456599044000,
-		      "displayOrder": 5,
-		      "navURL": "#/categories/5/Movie-O-Logy/places"
+		      "id": 3,
+		      "name": "cafe",
+		      "description": "Coffee Love",
+		      "display_order": 4,
+		      "sortOptions": [
+		        {
+		          "code": "prominence",
+		          "description": "Rating"
+		        },
+		        {
+		          "code": "real_distance",
+		          "description": "Distance"
+		        }
+		      ],
+		      "sortOrderOptions": []
+		    },
+		    {
+		      "id": 4,
+		      "name": "night_club",
+		      "description": "NightLife",
+		      "display_order": 5,
+		      "sortOptions": [
+		        {
+		          "code": "prominence",
+		          "description": "Rating"
+		        },
+		        {
+		          "code": "real_distance",
+		          "description": "Distance"
+		        }
+		      ],
+		      "sortOrderOptions": []
 		    }
 		  ],
 		  "page": 1,
-		  "nextPage": null
+		  "nextPage": null,
+		  "total_records": 5
 		}
 	 *	
 	 */
@@ -107,6 +137,7 @@ public class CategoryPublicController extends BaseController {
 		List<Category> categories = categoryService.getAll();
 		EntityCollectionResponse<Category> collectionResponse = new EntityCollectionResponse<>();
 		collectionResponse.setData(categories);
+		collectionResponse.setTotalRecords(categories.size());
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus("Success");
 		logRequestEnd(GET_CATEGORIES_API, GET_CATEGORIES_API);

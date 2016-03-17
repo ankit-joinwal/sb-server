@@ -333,6 +333,7 @@ public class UserSecuredController extends BaseController implements Constants{
 	 *  @apiName Get User friends
 	 *  @apiGroup Users
 	 *  @apiHeader {String} accept application/json
+	 *  
 	 *  @apiHeader {String} Authorization Authentication Token
 	 *	@apiSuccess (Success 200) {Object}  response  Response.
 	 *  @apiSuccess (Success 200) {String}  response.status   Eg.Success.
@@ -419,6 +420,7 @@ public class UserSecuredController extends BaseController implements Constants{
 		collectionResponse.setData(userSettings);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus("Success");
+		collectionResponse.setTotalRecords(userSettings.size());
 		logRequestEnd(GET_USER_SETTINGS, GET_USER_SETTINGS);
 		return  collectionResponse;
 	}
@@ -462,12 +464,19 @@ public class UserSecuredController extends BaseController implements Constants{
 	@RequestMapping(value = "/{id}/settings", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE},consumes={MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
-	public void saveUserSetings(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,@PathVariable Long id,@RequestBody List<UserSetting> settings){
+	public EntityCollectionResponse<UserSetting> saveUserSetings(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,@PathVariable Long id,@RequestBody List<UserSetting> settings){
 		logRequestStart(SAVE_USER_SETTINGS_API, SECURED_REQUEST_START_LOG_MESSAGE, SAVE_USER_SETTINGS_API);
 		logInfo(SAVE_USER_SETTINGS_API, "Auth header = {}", auth);
 		logInfo(SAVE_USER_SETTINGS_API, "User id = {}", id);
-		this.userService.setUserSettings(id, settings);
+		List<UserSetting> userSettings = this.userService.setUserSettings(id, settings);
+		EntityCollectionResponse<UserSetting> collectionResponse = new EntityCollectionResponse<>();
+		collectionResponse.setData(userSettings);
+		collectionResponse.setPage(1);
+		collectionResponse.setTotalRecords(userSettings.size());
+		collectionResponse.setStatus("Success");
 		logRequestEnd(SAVE_USER_SETTINGS_API, SAVE_USER_SETTINGS_API);
+		
+		return collectionResponse;
 	}
 	
 }

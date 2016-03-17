@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.bitlogic.sociallbox.data.model.Location;
 import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
-import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
 
 @XmlRootElement(name="meetup")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -43,7 +43,7 @@ public class CreateMeetupRequest implements Serializable{
 	
 	private List<MeetupAttendeeEntity> attendees;
 	
-	private Set<PlaceDetails.Result.AddressComponent> addressComponents;
+	private Set<GooglePlace.Result.AddressComponent> addressComponents;
 	
 	public String getIsPublic() {
 		return isPublic;
@@ -55,7 +55,7 @@ public class CreateMeetupRequest implements Serializable{
 	}
 
 
-	public Set<PlaceDetails.Result.AddressComponent> getAddressComponents() {
+	public Set<GooglePlace.Result.AddressComponent> getAddressComponents() {
 		return addressComponents;
 	}
 
@@ -71,7 +71,7 @@ public class CreateMeetupRequest implements Serializable{
 
 
 	public void setAddressComponents(
-			Set<PlaceDetails.Result.AddressComponent> addressComponents) {
+			Set<GooglePlace.Result.AddressComponent> addressComponents) {
 		this.addressComponents = addressComponents;
 	}
 

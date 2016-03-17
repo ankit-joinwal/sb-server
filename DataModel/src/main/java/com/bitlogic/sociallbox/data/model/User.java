@@ -3,6 +3,7 @@ package com.bitlogic.sociallbox.data.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -247,6 +248,24 @@ public class User implements Serializable,Cloneable {
 		return "[ name = " + name + " , email = " + emailId + " ] ";
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		 if (obj == null)
+	      {
+	         return false;
+	      }
+	      if (getClass() != obj.getClass())
+	      {
+	         return false;
+	      }
+	      final User user = (User) obj;
+		return  Objects.equals(this.emailId, user.emailId);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(emailId);
+	}
 	
 	@Override
 	public Object clone() throws CloneNotSupportedException {

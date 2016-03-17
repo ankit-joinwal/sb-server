@@ -56,6 +56,6 @@ public class GeoUtils implements Constants {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(calculateDistance(28.6126735, 77.2750732, 28.4682917, 77.06347870000002));
+		System.out.println(calculateDistance(28.5401956, 77.1786472, 28.5442613885, 77.1782181412));
 	}
 }

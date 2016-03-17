@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,17 +12,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
 import com.bitlogic.sociallbox.data.model.ext.Places;
-import com.bitlogic.sociallbox.data.model.requests.NearbySearchRequest;
-import com.bitlogic.sociallbox.data.model.requests.PlaceDetailsRequest;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlaces;
+import com.bitlogic.sociallbox.data.model.requests.NearbySearchRequestGoogle;
 import com.bitlogic.sociallbox.data.model.requests.TextSearchRequest;
-import com.bitlogic.sociallbox.service.business.NearbySearchService;
-import com.bitlogic.sociallbox.service.business.PlaceDetailService;
 import com.bitlogic.sociallbox.service.business.TextSearchService;
+import com.bitlogic.sociallbox.service.business.impl.NearbySearchServiceGoogle;
 
 @RestController
-@RequestMapping("/api/public/places")
+@RequestMapping("/api/public/googleplaces")
 public class GeoController extends BaseController {
 
 	private static final Logger logger = LoggerFactory.getLogger(GeoController.class);
@@ -32,31 +28,19 @@ public class GeoController extends BaseController {
 	private static final String NEARBY_PLACES_REQUEST = "NearbyPlacesRequest API";
 	private static final String PLACE_DETAILS_REQUEST = "PlaceDetailsRequest API";
 	@Autowired
-	private NearbySearchService nearbySearchService;
+	private NearbySearchServiceGoogle nearbySearchServiceGoogle;
 
 	@Autowired
 	private TextSearchService textSearchService;
 
-	@Autowired
-	private PlaceDetailService placeDetailService;
+/*	@Autowired
+	private PlaceDetailService placeDetailService;*/
 
 	@Override
 	public Logger getLogger() {
 		return logger;
 	}
 	
-	public void setPlaceDetailService(PlaceDetailService placeDetailService) {
-		this.placeDetailService = placeDetailService;
-	}
-
-	public void setTextSearchService(TextSearchService textSearchService) {
-		this.textSearchService = textSearchService;
-	}
-
-	public void setNearbySearchService(NearbySearchService nearbySearchService) {
-		this.nearbySearchService = nearbySearchService;
-	}
-
 	/**
 	 *  @api {get} /api/public/places/nearby?cid=:cid&location=:lattitude,:longitude&radius=:radius&pagetoken=:pagetoken Get Nearby Places
 	 *  @apiName Get Nearby Places
@@ -152,22 +136,22 @@ public class GeoController extends BaseController {
 		logRequestStart(LOG_PREFIX, Constants.PUBLIC_REQUEST_START_LOG, NEARBY_PLACES_REQUEST);
 		Places places = null;
 
-		NearbySearchRequest nearbySearchRequest = new NearbySearchRequest();
+		NearbySearchRequestGoogle nearbySearchRequest = new NearbySearchRequestGoogle();
 		nearbySearchRequest.setLocation(location);
-		nearbySearchRequest.setName(name);
+		//nearbySearchRequest.setName(name);
 		nearbySearchRequest.setRadius(radius);
 		nearbySearchRequest.setRankBy(rankBy);
 		nearbySearchRequest.setCategoryId(categoryId);
 		nearbySearchRequest.setPageToken(pageToken);
 
-		places = nearbySearchService.search(nearbySearchRequest);
+		places = nearbySearchServiceGoogle.search(nearbySearchRequest);
 		logRequestEnd(LOG_PREFIX,NEARBY_PLACES_REQUEST);
 		return places;
 	}
 
 	@RequestMapping(value = "/tsearch", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public Places getPlacesByTextSearch(
+	public GooglePlaces getPlacesByTextSearch(
 			@RequestParam(required = true, value = "query") String query,
 			@RequestParam(required = false, value = "location") String location,
 			@RequestParam(required = false, value = "radius") String radius,
@@ -183,7 +167,7 @@ public class GeoController extends BaseController {
 		 * logger.error("### Invalid Authorization header", (ServiceException)
 		 * response); throw (ServiceException) response; }
 		 */
-		Places places = null;
+		GooglePlaces places = null;
 
 		
 			TextSearchRequest textSearchRequest = new TextSearchRequest();
@@ -199,16 +183,16 @@ public class GeoController extends BaseController {
 		return places;
 	}
 
-	@RequestMapping(value = "/place/{placeId}/detail", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
+	/*@RequestMapping(value = "/place/{placeId}/detail", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public PlaceDetails getPlaceDetails(
+	public GooglePlace getPlaceDetails(
 			@PathVariable(value = "placeId") String placeId,
 			@RequestHeader(required = false, value = Constants.AUTHORIZATION_HEADER) String authorization)
 		 {
 		String LOG_PREFIX = PLACE_DETAILS_REQUEST;
 		logRequestStart(LOG_PREFIX, Constants.PUBLIC_REQUEST_START_LOG, PLACE_DETAILS_REQUEST);
-		PlaceDetails placeDetails = null;
-			PlaceDetailsRequest placeDetailsRequest = new PlaceDetailsRequest();
+		GooglePlace placeDetails = null;
+			PlaceDetailsRequestGoogle placeDetailsRequest = new PlaceDetailsRequestGoogle();
 			placeDetailsRequest.setPlaceId(placeId);
 			placeDetails = placeDetailService
 					.getPlaceDetails(placeDetailsRequest);
@@ -216,6 +200,6 @@ public class GeoController extends BaseController {
 		logRequestEnd(LOG_PREFIX, PLACE_DETAILS_REQUEST);
 		return placeDetails;
 	}
-	
+	*/
 	
 }

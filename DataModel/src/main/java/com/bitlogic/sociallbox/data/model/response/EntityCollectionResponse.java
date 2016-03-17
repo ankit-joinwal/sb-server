@@ -14,6 +14,8 @@ public class EntityCollectionResponse<T> implements Serializable{
 
 	@JsonProperty
 	private String status;
+	@JsonProperty("total_records")
+	private Integer totalRecords ;
 	
 	@JsonProperty
 	private List<T> data;
@@ -23,6 +25,32 @@ public class EntityCollectionResponse<T> implements Serializable{
 	
 	@JsonProperty
 	private String nextPage;
+	
+	
+	
+	public String getNextPage() {
+		return nextPage;
+	}
+
+	public void setNextPage(String nextPage) {
+		this.nextPage = nextPage;
+	}
+
+	public Integer getPage() {
+		return page;
+	}
+
+	public void setPage(Integer page) {
+		this.page = page;
+	}
+
+	public Integer getTotalRecords() {
+		return totalRecords;
+	}
+
+	public void setTotalRecords(Integer totalRecords) {
+		this.totalRecords = totalRecords;
+	}
 
 	public String getStatus() {
 		return status;
@@ -40,21 +68,7 @@ public class EntityCollectionResponse<T> implements Serializable{
 		this.data = data;
 	}
 
-	public Integer getPage() {
-		return page;
-	}
-
-	public void setPage(Integer page) {
-		this.page = page;
-	}
-
-	public String getNextPage() {
-		return nextPage;
-	}
-
-	public void setNextPage(String nextPage) {
-		this.nextPage = nextPage;
-	}
+	
 	
 	
 	

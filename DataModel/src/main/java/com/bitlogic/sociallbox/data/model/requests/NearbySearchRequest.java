@@ -2,78 +2,91 @@ package com.bitlogic.sociallbox.data.model.requests;
 
 
 public class NearbySearchRequest {
-	public enum NearbySearchRequestParamNames{
-		LOCATION("location"),RADIUS("radius"),NAME("name"),TYPES("types"),RANKBY("rankby"),KEY("key"),PAGE_TOKEN("pagetoken");
-		String name;
-		
-		NearbySearchRequestParamNames(String name){
-			this.name = name;
-		}
-		public String getName(){
-			return this.name;
-		}
-		
-		@Override
-		public String toString() {
-			return this.name;
-		}
-	}
-	private String location;
-	private String radius;
-	private String name;
+	
+	
 	private Long categoryId;
-	private String types;
-	private String rankBy;
-	private String pageToken;
+	private String pageNumber;
+	private String radius;
+	private String latitude;
+	private String longitude;
+	private String externalId;
+	private String sort;
+	private String order;
 	
 	
-	public String getPageToken() {
-		return pageToken;
+	public String getLatitude() {
+		return latitude;
 	}
-	public void setPageToken(String pageToken) {
-		this.pageToken = pageToken;
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
 	}
-	public Long getCategoryId() {
-		return categoryId;
+
+	public String getLongitude() {
+		return longitude;
 	}
-	public void setCategoryId(Long categoryId) {
-		this.categoryId = categoryId;
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
 	}
-	public String getLocation() {
-		return location;
+
+	public String getSort() {
+		return sort;
 	}
-	public void setLocation(String location) {
-		this.location = location;
+
+	public void setSort(String sort) {
+		this.sort = sort;
 	}
+
+	public String getOrder() {
+		return order;
+	}
+
+	public void setOrder(String order) {
+		this.order = order;
+	}
+
+	public String getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+
 	public String getRadius() {
 		return radius;
 	}
+
 	public void setRadius(String radius) {
 		this.radius = radius;
 	}
-	public String getName() {
-		return name;
+
+	public String getPageNumber() {
+		return pageNumber;
 	}
-	public void setName(String name) {
-		this.name = name;
+
+	public void setPageNumber(String pageNumber) {
+		this.pageNumber = pageNumber;
 	}
-	public String getTypes() {
-		return types;
+
+	public Long getCategoryId() {
+		return categoryId;
 	}
-	public void setTypes(String types) {
-		this.types = types;
-	}
-	public String getRankBy() {
-		return rankBy;
-	}
-	public void setRankBy(String rankBy) {
-		this.rankBy = rankBy;
+
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
 	}
 	
 	@Override
 	public String toString() {
-		return "NearbySearchRequest = [location = "+ this.location+ " , radius = " + this.radius +
-				" , name = "+ this.name + " , categoryId = "+this.categoryId+" , types = "+this.types + " , rankBy = "+ this.rankBy + " ,pagetoken="+this.pageToken+" ]";
+		return "NearbySearchRequest [categoryId="+this.getCategoryId()+
+				" , radius="+this.getRadius()+
+				" , pageNum="+this.getPageNumber()+
+				" , externalId="+this.getExternalId()+
+				" , latitude="+this.getLatitude()+
+				" , longitude="+this.getLongitude()+
+				" , sort="+this.getSort()+
+				" , order="+this.getOrder()+ " ]";
 	}
-	
 }

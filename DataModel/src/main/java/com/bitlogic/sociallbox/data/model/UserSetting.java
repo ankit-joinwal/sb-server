@@ -48,7 +48,18 @@ public class UserSetting {
 	@JsonIgnore
 	private Date createDt;
 	
+	@Column(name="UPDATE_DT")
+	@JsonIgnore
+	private Date updateDt;
 	
+	public Date getUpdateDt() {
+		return updateDt;
+	}
+
+	public void setUpdateDt(Date updateDt) {
+		this.updateDt = updateDt;
+	}
+
 	public Date getCreateDt() {
 		return createDt;
 	}

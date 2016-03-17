@@ -36,8 +36,8 @@ import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
-import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
-import com.bitlogic.sociallbox.data.model.ext.PlaceDetails.Result.AddressComponent;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace.Result.AddressComponent;
 import com.bitlogic.sociallbox.data.model.requests.AddMeetupAttendeesRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateMeetupRequest;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
@@ -126,7 +126,7 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 		return created;
 	}
 	
-	private Set<MeetupAddressInfo> getMeetupAddressInfo(Meetup meetup,Set<PlaceDetails.Result.AddressComponent> addressComponents){
+	private Set<MeetupAddressInfo> getMeetupAddressInfo(Meetup meetup,Set<GooglePlace.Result.AddressComponent> addressComponents){
 		List<AddressComponentType> addressComponentTypes = this.meetupDAO.getAddressTypes();
 		logger.info("Inside getMeetupAddressInfo. addressComponentTypes : {}  ",addressComponentTypes);
 		Map<String,AddressComponentType> addressComponentTypesMap = new HashMap<>();

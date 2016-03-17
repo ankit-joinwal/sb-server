@@ -5,15 +5,33 @@ package com.bitlogic.sociallbox.data.model;
  * @author ajoinwal
  *
  */
-public class GAPIConfig {
+public class GAPIConfig extends APIConfig{
 
 	private String nearBySearchURL;
 	private String textSearchURL;
 	private String placeDetailsURL;
 	private String dataExchangeFormat;
 	private String gapiKey;
+	private String placePhotoGetAPI ;
+	private String placePhotoGoogleAPI;
 	
 	
+	public String getPlacePhotoGoogleAPI() {
+		return placePhotoGoogleAPI;
+	}
+
+	public void setPlacePhotoGoogleAPI(String placePhotoGoogleAPI) {
+		this.placePhotoGoogleAPI = placePhotoGoogleAPI;
+	}
+
+	public String getPlacePhotoGetAPI() {
+		return placePhotoGetAPI;
+	}
+
+	public void setPlacePhotoGetAPI(String placePhotoGetAPI) {
+		this.placePhotoGetAPI = placePhotoGetAPI;
+	}
+
 	public String getPlaceDetailsURL() {
 		return placeDetailsURL;
 	}

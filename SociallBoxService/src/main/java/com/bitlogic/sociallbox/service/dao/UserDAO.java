@@ -51,6 +51,6 @@ public interface UserDAO {
 	
 	public void saveUserSettings(List<UserSetting> oldSettings,List<UserSetting> newSettings);
 	
-	public void saveUserLikeForPlace(UserAndPlaceMapping mapping);
+	
 	
 }

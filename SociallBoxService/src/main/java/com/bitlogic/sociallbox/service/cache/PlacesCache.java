@@ -3,14 +3,14 @@ package com.bitlogic.sociallbox.service.cache;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.bitlogic.sociallbox.data.model.ext.Places;
-import com.bitlogic.sociallbox.data.model.requests.NearbySearchRequest;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlaces;
+import com.bitlogic.sociallbox.data.model.requests.NearbySearchRequestGoogle;
 
 public class PlacesCache {
 
 	private static volatile PlacesCache instance = null;
 
-	private Map<String, Places> placesMap = null;
+	private Map<String, GooglePlaces> placesMap = null;
 	
 	
 
@@ -19,7 +19,7 @@ public class PlacesCache {
 	}
 
 	public static String createKeyForCache(
-			NearbySearchRequest nearbySearchRequest) {
+			NearbySearchRequestGoogle nearbySearchRequest) {
 		return nearbySearchRequest.toString();
 	}
 
@@ -36,18 +36,18 @@ public class PlacesCache {
 		return instance;
 	}
 
-	public static Places getPlacesFromCache(String key) {
+	public static GooglePlaces getPlacesFromCache(String key) {
 
 		synchronized (PlacesCache.class) {
 			return getCache().placesMap.get(key);
 		}
 	}
 
-	public static Places getPlacesFromCache(String key,
+	public static GooglePlaces getPlacesFromCache(String key,
 			Integer numOfRecPerPage, Integer pageNumber) {
 
 		synchronized (PlacesCache.class) {
-			Places places = getPlacesFromCache(key);
+			GooglePlaces places = getPlacesFromCache(key);
 
 			if (places == null || places.getResults().isEmpty()
 					|| ((places.getResults().size() / numOfRecPerPage) < (pageNumber))) {
@@ -68,7 +68,7 @@ public class PlacesCache {
 				 endIdx = pageNumber*numOfRecPerPage;
 			}
 			//TODO: Remove this transformation from here
-			Places places2 = new Places();
+			GooglePlaces places2 = new GooglePlaces();
 			places2.setResults(places.getResults().subList(startIdx, endIdx));
 			places2.setStatus("OK");
 			
@@ -77,7 +77,7 @@ public class PlacesCache {
 
 	}
 
-	public static void putInCache(String key, Places places) {
+	public static void putInCache(String key, GooglePlaces places) {
 		synchronized (PlacesCache.class) {
 			getCache().placesMap.put(key, places);
 		}

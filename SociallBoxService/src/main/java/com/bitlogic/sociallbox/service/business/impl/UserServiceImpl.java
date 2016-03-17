@@ -3,9 +3,11 @@ package com.bitlogic.sociallbox.service.business.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -432,7 +434,7 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 	}
 	
 	@Override
-	public void setUserSettings(Long userId, List<UserSetting> newSettings) {
+	public List<UserSetting> setUserSettings(Long userId, List<UserSetting> newSettings) {
 		logger.info("### Inside setUserSettings ###");
 		String LOG_PREFIX = "setUserSettings";
 		logInfo(LOG_PREFIX, "Getting user details by id {}", userId);
@@ -444,31 +446,24 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 		}
 		List<UserSetting> oldSettings = this.userDAO.getUserSettings(user);
 		logInfo(LOG_PREFIX, "Found Old User Settings {}", oldSettings);
-		Date now = new Date();
+		Map<String,UserSetting> settingsMap = new HashMap<String,UserSetting>();
 		for(UserSetting userSetting : newSettings){
-			userSetting.setCreateDt(now);
-			userSetting.setUser(user);
+			settingsMap.put(userSetting.getName(), userSetting);
 		}
-		logInfo(LOG_PREFIX, "Storing new user settings {}", newSettings);
-		this.userDAO.saveUserSettings(oldSettings, newSettings);
+		Date now = new Date();
+		for(UserSetting userSetting : oldSettings){
+			String name = userSetting.getName();
+			String value = userSetting.getValue();
+			UserSetting newSetting = settingsMap.get(name);
+			if(newSetting!=null && !newSetting.getValue().equalsIgnoreCase(value)){
+				logInfo(LOG_PREFIX, "Updating User Setting {} to {}", name,newSetting.getValue());
+				userSetting.setValue(newSetting.getValue());
+				userSetting.setUpdateDt(now);
+			}
+		}
+		List<UserSetting> updatedSettings = this.userDAO.getUserSettings(user);
+		return updatedSettings;
 	}
 	
-	@Override
-	public void saveUserPlaceLike(String deviceId, String placeId) {
-
-		String LOG_PREFIX = "saveUserPlaceLike";
-		logInfo(LOG_PREFIX, "Getting user info from device id : {}",deviceId);
-		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
-		if(user == null){
-			logError(LOG_PREFIX, "No user exists fro given device Id {}", deviceId);
-			throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_LOGIN_USER_UNAUTHORIZED);
-		}
-		
-		UserAndPlaceMapping mapping = new UserAndPlaceMapping();
-		mapping.setUserId(user.getId());
-		mapping.setPlaceId(placeId);
-		
-		this.userDAO.saveUserLikeForPlace(mapping);
-		logInfo(LOG_PREFIX, "User Like for place saved successfully");
-	}
+	
 }

@@ -9,49 +9,75 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.bitlogic.Constants;
+import com.bitlogic.sociallbox.data.model.APIConfig;
 import com.bitlogic.sociallbox.data.model.GAPIConfig;
-import com.bitlogic.sociallbox.data.model.ext.PlaceDetails;
-import com.bitlogic.sociallbox.data.model.requests.NearbySearchRequest;
+import com.bitlogic.sociallbox.data.model.ext.Place;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
+import com.bitlogic.sociallbox.data.model.requests.NearbySearchRequestGoogle;
 import com.bitlogic.sociallbox.data.model.requests.PlaceDetailsRequest;
+import com.bitlogic.sociallbox.data.model.requests.PlaceDetailsRequestGoogle;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
+import com.bitlogic.sociallbox.service.utils.LoggingService;
 
-public class PlaceDetailsHelper implements Constants{
+public class PlaceDetailsHelper extends LoggingService implements Constants {
 
-	private static final Logger logger = LoggerFactory.getLogger(PlaceDetailsHelper.class);
-	
-	public static PlaceDetails executeSearch(RestTemplate restTemplate,PlaceDetailsRequest placeDetailsRequest,GAPIConfig gapiConfig) throws ClientException,ServiceException{
-		StringBuilder url = new StringBuilder(gapiConfig.getPlaceDetailsURL());
-		url.append(gapiConfig.getDataExchangeFormat() + Constants.QUESTIONMARK);
-		url.append(PlaceDetailsRequest.PlaceDetailsRequestParams.PLACEID.getName()
-				+ Constants.EQUAL
-				+ placeDetailsRequest.getPlaceId());
-		url.append(Constants.AMP
-				+ NearbySearchRequest.NearbySearchRequestParamNames.KEY
-						.getName() + Constants.EQUAL + gapiConfig.getGapiKey());
-		logger.info("### Inside PlaceDetailsHelper.executeSearch | URL : {} "
-				+ url.toString());
+	private static final Logger logger = LoggerFactory
+			.getLogger(PlaceDetailsHelper.class);
 
-		logger.info("### Executing Search ###");
-		ResponseEntity<PlaceDetails> placesResponse = restTemplate.exchange(
-				url.toString(), HttpMethod.GET, null,
-				new ParameterizedTypeReference<PlaceDetails>() {
-				});
-		HttpStatus returnStatus = placesResponse.getStatusCode();
-		boolean isSuccess = returnStatus.is2xxSuccessful();
-		if(isSuccess){
-			logger.info("### Search successful for url : {} "+url.toString());
-			
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public static Place executeSearch(RestTemplate restTemplate,
+			PlaceDetailsRequest placeDetailsRequest, APIConfig apiConfig)
+			 {
+		if(placeDetailsRequest instanceof PlaceDetailsRequestGoogle){
+			PlaceDetailsRequestGoogle requestGoogle = (PlaceDetailsRequestGoogle) placeDetailsRequest;
+			GAPIConfig gapiConfig = (GAPIConfig) apiConfig;
+			return getPlaceDetailsFromGoogle(restTemplate, requestGoogle, gapiConfig);
 		}else{
-			if(returnStatus.is4xxClientError()){
-				throw new ClientException(RestErrorCodes.ERR_010,ERROR_GAPI_CLIENT_REQUEST);
-			}else if (returnStatus.is5xxServerError()){
-				throw new ServiceException("GAPI",RestErrorCodes.ERR_010,Constants.ERROR_GAPI_WEBSERVICE_ERROR);
-			}
+			throw new IllegalArgumentException("Place Details request is of invalid type");
 		}
 		
+	}
+
+	private static Place getPlaceDetailsFromGoogle(RestTemplate restTemplate,
+			PlaceDetailsRequestGoogle placeDetailsRequest, GAPIConfig gapiConfig) {
 		
+		String LOG_PREFIX = "getPlaceDetailsFromGoogle";
+		StringBuilder url = new StringBuilder(gapiConfig.getPlaceDetailsURL());
+		url.append(gapiConfig.getDataExchangeFormat() + Constants.QUESTIONMARK);
+		url.append(PlaceDetailsRequestGoogle.PlaceDetailsRequestParams.PLACEID
+				.getName() + Constants.EQUAL + placeDetailsRequest.getPlaceId());
+		url.append(Constants.AMP
+				+ NearbySearchRequestGoogle.RequestParamNames.KEY.getName()
+				+ Constants.EQUAL + gapiConfig.getGapiKey());
+		String message = LOG_PREFIX + " :: " + "Invoking request to URL = {}";
+		logger.info(message, url.toString());
+
+		ResponseEntity<GooglePlace> placesResponse = restTemplate
+				.exchange(url.toString(), HttpMethod.GET, null,
+						new ParameterizedTypeReference<GooglePlace>() {
+						});
+		HttpStatus returnStatus = placesResponse.getStatusCode();
+		boolean isSuccess = returnStatus.is2xxSuccessful();
+		if (isSuccess) {
+			message = LOG_PREFIX + " :: " + "Search returned success response";
+			logger.info(message);
+
+		} else {
+			if (returnStatus.is4xxClientError()) {
+				throw new ClientException(RestErrorCodes.ERR_010,
+						ERROR_GAPI_CLIENT_REQUEST);
+			} else if (returnStatus.is5xxServerError()) {
+				throw new ServiceException("GAPI", RestErrorCodes.ERR_010,
+						Constants.ERROR_GAPI_WEBSERVICE_ERROR);
+			}
+		}
+
 		return placesResponse.getBody();
 	}
 }

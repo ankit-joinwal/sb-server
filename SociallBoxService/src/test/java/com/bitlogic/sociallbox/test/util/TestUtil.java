@@ -1,16 +1,14 @@
 package com.bitlogic.sociallbox.test.util;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.Address;
-import com.bitlogic.sociallbox.data.model.EventOrganizer;
-import com.bitlogic.sociallbox.data.model.requests.CreateEventOrganizerRequest;
+import com.bitlogic.sociallbox.data.model.SourceSystemForPlaces;
+import com.bitlogic.sociallbox.data.model.requests.NearbySearchRequestZomato;
+import com.bitlogic.sociallbox.data.model.requests.SortOrderOption;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,14 +26,6 @@ static final Logger LOGGER = LoggerFactory.getLogger(TestUtil.class);
 
     
     public static void main(String[] args) throws Exception{
-    	for ( int i = 1; i <= 24; i++ ) {
-    		LOGGER.info( "write log" );
-
-    		try {
-    			Thread.sleep( 10000L );
-    		} catch ( final InterruptedException e ) {
-    			LOGGER.error( "an error occurred", e );
-    		}
-    	}
-	}
+    	System.out.println(SourceSystemForPlaces.valueOf("GOOGLE1"));
+    }
 }

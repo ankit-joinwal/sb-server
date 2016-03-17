@@ -24,7 +24,6 @@ import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.SocialSystem;
 import com.bitlogic.sociallbox.data.model.User;
-import com.bitlogic.sociallbox.data.model.UserAndPlaceMapping;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSettingType;
@@ -256,7 +255,8 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 				.createAlias("socialDetails", "socialDetail")
 				.add(Restrictions.in("socialDetail.userSocialDetail", externalIds))
 				.add(Restrictions.eq("socialDetail.socialSystem", SocialSystem.FACEBOOK))
-				.add(Restrictions.eq("socialDetail.socialDetailType", SocialDetailType.USER_EXTERNAL_ID));
+				.add(Restrictions.eq("socialDetail.socialDetailType", SocialDetailType.USER_EXTERNAL_ID))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);;
 		List<User> friendsInSystem = criteria.list();
 		if(friendsInSystem!=null){
 			//Save friends with user
@@ -304,9 +304,5 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		}
 		
 	}
-	@Override
-	public void saveUserLikeForPlace(UserAndPlaceMapping mapping) {
 
-		this.getSession().save(mapping);
-	}
 }

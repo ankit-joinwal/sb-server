@@ -47,6 +47,6 @@
 		<mapping class="com.bitlogic.sociallbox.data.model.UserSetting"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.PushNotificationSettingMaster"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.EventOrganizer"></mapping>
-		
+		<mapping class="com.bitlogic.sociallbox.data.model.UserAndPlaceMapping"></mapping>
     </session-factory>
 </hibernate-configuration>
