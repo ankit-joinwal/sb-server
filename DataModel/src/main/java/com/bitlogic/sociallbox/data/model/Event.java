@@ -8,9 +8,12 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -23,13 +26,13 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "EVENT")
+@Table(name = "EVENT",indexes = { @Index(name = "IDX_EVENT", columnList = "TITLE,END_DT") })
 public class Event {
 
 	@Id
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name = "ID", unique = true)
+	@Column(name = "ID", unique = true,length=50)
 	private String uuid;
 
 	@Column(length = 75,name="TITLE",nullable=false)
@@ -52,10 +55,11 @@ public class Event {
 	@OneToMany(mappedBy="eventAtMeetup",fetch= FetchType.LAZY)
 	private Set<Meetup> meetupsAtEvent = new HashSet<>();
 	
-	@Column(name="EVENT_STATUS",nullable=false)
+	@Column(name="EVENT_STATUS",nullable=false,length=20)
+	@Enumerated(EnumType.STRING)
 	private EventStatus eventStatus;
 	
-	@Column(name="ALLOW_EVENT_TO_GO_LIVE")
+	@Column(name="ALLOW_EVENT_TO_GO_LIVE",length=5)
 	private Boolean isAllowedEventToGoLive;
 	
 	@Column(name="START_DT",nullable=false)

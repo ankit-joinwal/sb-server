@@ -8,6 +8,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -23,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @XmlRootElement(name="social_detail")
 @XmlAccessorType(XmlAccessType.NONE)
 @Entity
-@Table(name="USER_SOCIAL_DETAILS")
+@Table(name="USER_SOCIAL_DETAILS",indexes = { @Index(name = "IDX_USR_SOC_DTL", columnList = "USER_ID") })
 public class UserSocialDetail implements Serializable,Cloneable{
 	
 

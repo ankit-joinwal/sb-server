@@ -8,7 +8,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name="address_component_type")
+@Table(name="ADDRESS_COMPONENT_TYPE")
 @XmlRootElement
 public class AddressComponentType {
 

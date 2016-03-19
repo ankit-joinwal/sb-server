@@ -13,6 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -31,11 +32,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 @Entity
+@Table(name="CATEGORY")
 @XmlRootElement(name="CATEGORY")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Category implements Serializable{
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 8168541480477475386L;
 
 	@Id
 	@GeneratedValue
@@ -43,12 +45,12 @@ public class Category implements Serializable{
 	@Column(name="ID")
 	private Long id;
 	
-	@Column(nullable=false,name="NAME")
+	@Column(nullable=false,name="NAME",length=10)
 	@XmlElement
 	@NotNull(message="error.name.mandatory")
 	private String name;
 	
-	@Column(name="DESCRIPTION",nullable=false)
+	@Column(name="DESCRIPTION",nullable=false,length=20)
 	@XmlElement
 	@NotNull(message="error.desc.mandatory")
 	private String description;
@@ -66,11 +68,9 @@ public class Category implements Serializable{
 	@JsonIgnore
 	private String extId;
 	
-	@Column(name="SOURCE_SYSTEM",nullable=false)
+	@Column(name="SOURCE_SYSTEM",nullable=false,length=20)
 	@Enumerated(EnumType.STRING)
 	private SourceSystemForPlaces systemForPlaces ;
-	
-	
 	
 	@JsonIgnore
 	@ManyToMany(mappedBy="relatedCategories")

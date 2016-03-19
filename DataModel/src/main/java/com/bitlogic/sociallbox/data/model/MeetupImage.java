@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -13,7 +14,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "MEETUP_IMAGES")
+@Table(name = "MEETUP_IMAGES",indexes = { @Index(name = "IDX_MEETUP_IMAGE", columnList = "MEETUP_ID") })
 public class MeetupImage {
 	
 	@Id

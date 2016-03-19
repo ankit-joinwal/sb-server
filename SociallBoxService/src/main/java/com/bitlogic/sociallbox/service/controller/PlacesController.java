@@ -827,6 +827,196 @@ public class PlacesController extends BaseController implements Constants{
 		
 	}
 	
+	/**
+	*  @api {get} /api/public/places/place/:place_id/detail?lat=:userLatitude&lon=:userLongitude&source=:source Get Place Details
+	*  @apiName Get Place Details
+	*  @apiGroup Places
+	*  @apiHeader {String} accept application/json
+	*  @apiParam {Number} place_id Mandatory Place Id receieved from Nearby Places API
+	*  @apiParam {String} userLatitude Mandatory Lattitude of User
+	*  @apiParam {String} userLongitude Mandatory Longitude of User
+	*  @apiParam {String} source Mandatory Source is recieved from Nearby Places API eg. GOOGLE
+	*  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	*  @apiSuccess (Success - OK 200) {String}  response.status   OK.
+	*  @apiSuccess (Success - OK 200) {Object}  response.data Place Details data
+	*  @apiSuccessExample {json} Success-Response:
+	{
+		"status": "Success",
+		"data": {
+			"status": "OK",
+			"result": {
+				"icon": "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png",
+				"id": "49223a21f97edf98b5b5f57ae1af6816b159988c",
+				"name": "Ploof",
+				"rating": 4,
+				"geometry": {
+					"location": {
+						"lat": 28.5834989,
+						"lng": 77.22301709999999
+					}
+				},
+				"photos": [
+					{
+						"height": 814,
+						"width": 545,
+						"url": "http://ec2-54-169-186-129.ap-southeast-1.compute.amazonaws.com:80/SociallBox/api/public/places/photos/CmRdAAAAE_SN4PeTsOZw38yMODd3TUGsSAVkZZUefalL7G5jB1fATsn13VS4V7ygYpFxIdOEtNhXAhiIPR401hAFxE2feWx1CAWtCiaWEHYZgutyXSQDN3O92D7t_WADu-sUIcJWEhC4YfEjNeSPXpEoNdJhVy7_GhQ-b9M0pYvjKS8yvu_J-UWyYehcqA",
+						"photo_reference": "CmRdAAAAE_SN4PeTsOZw38yMODd3TUGsSAVkZZUefalL7G5jB1fATsn13VS4V7ygYpFxIdOEtNhXAhiIPR401hAFxE2feWx1CAWtCiaWEHYZgutyXSQDN3O92D7t_WADu-sUIcJWEhC4YfEjNeSPXpEoNdJhVy7_GhQ-b9M0pYvjKS8yvu_J-UWyYehcqA"
+					},
+					{
+						"height": 1000,
+						"width": 1600,
+						"url": "http://ec2-54-169-186-129.ap-southeast-1.compute.amazonaws.com:80/SociallBox/api/public/places/photos/CmRdAAAAd6xgggFCCeTepmLJ-dg2P14HI0-GyYfBw-XquqkcoKtvGuZXgJdMIKQfkWBj3owrNmQ0X8ML0u0hubzwC_pQVQ2x60d08p-1CbB_m_fyMx8iKMCrSD-Vkq3c5EPfq1LcEhA14dx392oQAaurUoQKPmnhGhQyAANM_n2GMOfWKwIOan3QDafyvQ",
+						"photo_reference": "CmRdAAAAd6xgggFCCeTepmLJ-dg2P14HI0-GyYfBw-XquqkcoKtvGuZXgJdMIKQfkWBj3owrNmQ0X8ML0u0hubzwC_pQVQ2x60d08p-1CbB_m_fyMx8iKMCrSD-Vkq3c5EPfq1LcEhA14dx392oQAaurUoQKPmnhGhQyAANM_n2GMOfWKwIOan3QDafyvQ"
+					},
+					{
+						"height": 360,
+						"width": 537,
+						"url": "http://ec2-54-169-186-129.ap-southeast-1.compute.amazonaws.com:80/SociallBox/api/public/places/photos/CmRdAAAAAEXwV729upu0PkMVDQvd6cVHzQvhQWqjjLDSkTWV2LAQ923RruyQFyVR3_NMbJHfstdO4pOXIGWYhJnFKXZumxwd5lJFI2-b9Wbgh_JrPjmkTc6juMRpL__1xeDvhx_eEhCPJsjrz5ZwVjjITTTPNmtoGhRmr41_6oOcVT2rwobiedHtjrwW9Q",
+						"photo_reference": "CmRdAAAAAEXwV729upu0PkMVDQvd6cVHzQvhQWqjjLDSkTWV2LAQ923RruyQFyVR3_NMbJHfstdO4pOXIGWYhJnFKXZumxwd5lJFI2-b9Wbgh_JrPjmkTc6juMRpL__1xeDvhx_eEhCPJsjrz5ZwVjjITTTPNmtoGhRmr41_6oOcVT2rwobiedHtjrwW9Q"
+					},
+					{
+						"height": 419,
+						"width": 626,
+						"url": "http://ec2-54-169-186-129.ap-southeast-1.compute.amazonaws.com:80/SociallBox/api/public/places/photos/CmRdAAAArVQ3A8Vwr71XZ2wbP96z7oF_G6fvXAKk39pK648DolW3YpueQZZ9n-vy3mu8qCmA5dhCRmeuaFJGxm_2AOcpkkeGCaWx6vPLwWyDZuUsKMMNNUgcaCWP6gJiH9f96KbxEhAz693aLKUlo9Ml9AvyU2HeGhSOnI0HKuH3u0D39YQgEYFcL2sZhQ",
+						"photo_reference": "CmRdAAAArVQ3A8Vwr71XZ2wbP96z7oF_G6fvXAKk39pK648DolW3YpueQZZ9n-vy3mu8qCmA5dhCRmeuaFJGxm_2AOcpkkeGCaWx6vPLwWyDZuUsKMMNNUgcaCWP6gJiH9f96KbxEhAz693aLKUlo9Ml9AvyU2HeGhSOnI0HKuH3u0D39YQgEYFcL2sZhQ"
+					},
+					{
+						"height": 897,
+						"width": 600,
+						"url": "http://ec2-54-169-186-129.ap-southeast-1.compute.amazonaws.com:80/SociallBox/api/public/places/photos/CmRdAAAAQe4be2nKMPkysn7Qra8rAtnipWyOgUIfuB8BpGvzRQLiycBcU5kG-T-YrXjG4aIqi1tzAna-DP_C_GevyqG7Qm7TmApzHjEIHpiOe10k7NZ2op8Q92zwrf4od18yNFEEEhCZ_8PRLKEhlew6z1U9b3Y6GhSbkDJhQXOGnZAuynfiqCOUWM2v2g",
+						"photo_reference": "CmRdAAAAQe4be2nKMPkysn7Qra8rAtnipWyOgUIfuB8BpGvzRQLiycBcU5kG-T-YrXjG4aIqi1tzAna-DP_C_GevyqG7Qm7TmApzHjEIHpiOe10k7NZ2op8Q92zwrf4od18yNFEEEhCZ_8PRLKEhlew6z1U9b3Y6GhSbkDJhQXOGnZAuynfiqCOUWM2v2g"
+					}
+				],
+				"reviews": [
+					{
+						"aspects": [
+							{
+								"type": "overall",
+								"rating": "3"
+							}
+						],
+						"rating": 5,
+						"text": "Ploof is known for its authentic European food with a relaxed ambiance. The place serves European, continental and seafood. The restaurant also has a unique variety of Sandwiches and Burgers with stuffing like salami, smoked turkey, ham, goat cheese, cheddar along with the regular ones. Good enough for friends and casual outings. The service is a little slow but the food is totally worth the wait. One of the must try places in Delhi NCR!",
+						"author_name": "Sachin Bansal",
+						"author_url": "https://plus.google.com/102201120739761227941",
+						"time": 1436613726
+					},
+					{
+						"aspects": [
+							{
+								"type": "overall",
+								"rating": "3"
+							}
+						],
+						"rating": 5,
+						"text": "Love the Salmon...  Enjoyed every bite. ",
+						"author_name": "N RI",
+						"author_url": "https://plus.google.com/109356618527521626531",
+						"time": 1449758981
+					},
+					{
+						"aspects": [
+							{
+								"type": "overall",
+								"rating": "3"
+							}
+						],
+						"rating": 5,
+						"text": "Great Food and Ambiance",
+						"author_name": "Aman Madan",
+						"author_url": "https://plus.google.com/100212719815065204219",
+						"time": 1437639593
+					},
+					{
+						"aspects": [
+							{
+								"type": "overall",
+								"rating": "2"
+							}
+						],
+						"rating": 4,
+						"text": "Nice place and the overall ambiance is great. A must for those who want to spend quality time with friends and family. ",
+						"author_name": "Faisal Khan",
+						"author_url": "https://plus.google.com/106187474153886831014",
+						"time": 1424173356
+					},
+					{
+						"aspects": [
+							{
+								"type": "overall",
+								"rating": "2"
+							}
+						],
+						"rating": 4,
+						"text": "One of the better places for continental sea food in the capital.",
+						"author_name": "Daljit Singh",
+						"author_url": "https://plus.google.com/105389341864329219624",
+						"time": 1424533566
+					}
+				],
+				"types": [
+					"restaurant",
+					"food",
+					"point_of_interest",
+					"establishment"
+				],
+				"url": "https://maps.google.com/?cid=15238670586700303595",
+				"vicinity": "13, Lodhi Colony Market, Next to Khubsoorat Salon & Lodhi Sports, New Delhi",
+				"website": "http://www.ploof.co/",
+				"formatted_address": "13, Lodhi Colony Market, Next to Khubsoorat Salon & Lodhi Sports, New Delhi, Delhi 110003, India",
+				"formatted_phone_number": "099580 27772",
+				"international_phone_number": "+91 99580 27772",
+				"place_id": "ChIJq11ZZh3jDDkR6wx3ISmietM",
+				"distance_from_you": "4 Kms",
+				"address_components": [
+					{
+						"short_name": "New Delhi",
+						"long_name": "New Delhi",
+						"types": [
+							"locality",
+							"political"
+						]
+					},
+					{
+						"short_name": "DL",
+						"long_name": "Delhi",
+						"types": [
+							"administrative_area_level_1",
+							"political"
+						]
+					},
+					{
+						"short_name": "IN",
+						"long_name": "India",
+						"types": [
+							"country",
+							"political"
+						]
+					},
+					{
+						"short_name": "110003",
+						"long_name": "110003",
+						"types": [
+							"postal_code"
+						]
+					}
+				],
+				"opening_hours": {
+					"open_now": true,
+					"weekday_text": [
+						"Monday: 11:00 AM – 12:00 AM",
+						"Tuesday: 11:00 AM – 12:00 AM",
+						"Wednesday: 11:00 AM – 12:00 AM",
+						"Thursday: 11:00 AM – 12:00 AM",
+						"Friday: 11:00 AM – 12:00 AM",
+						"Saturday: 11:00 AM – 12:00 AM",
+						"Sunday: 11:00 AM – 12:00 AM"
+					]
+				}
+			}
+		}
+	}
+	*/
 	@RequestMapping(value = "/place/{placeId}/detail", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.OK)
 	public SingleEntityResponse<Place> getPlaceDetails(@PathVariable(value = "placeId") String placeId,

@@ -1,7 +1,5 @@
 package com.bitlogic.sociallbox.data.model;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 

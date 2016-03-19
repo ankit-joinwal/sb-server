@@ -6,11 +6,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "USER_PLACE_MAPPING")
+@Table(name = "USER_PLACE_MAPPING",indexes = { @Index(name = "IDX_USR_PLC_MAP", columnList = "PLACE_ID") })
 public class UserAndPlaceMapping {
 
 	@Id

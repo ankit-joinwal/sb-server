@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -33,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  */
 @Entity
-@Table(name = "USER")
+@Table(name = "USER",indexes = { @Index(name = "IDX_USER", columnList = "EMAIL_ID",unique=true) })
 @XmlRootElement(name = "user")
 @XmlAccessorType(XmlAccessType.NONE)
 @NamedQuery(name = "getUserByEmail", query = "from User where emailId like :emailId")

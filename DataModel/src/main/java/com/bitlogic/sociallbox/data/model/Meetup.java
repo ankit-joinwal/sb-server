@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -30,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-@Table(name="MEETUP")
+@Table(name="MEETUP",indexes = { @Index(name = "IDX_MEETUP", columnList = "ORGANIZER_ID") })
 @XmlRootElement(name = "meetup")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Meetup implements Serializable {

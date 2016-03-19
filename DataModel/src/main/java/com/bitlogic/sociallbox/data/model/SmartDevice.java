@@ -9,6 +9,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -27,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 @Entity
-@Table(name="SMART_DEVICE")
+@Table(name="SMART_DEVICE",indexes = { @Index(name = "IDX_SM_DEVICE", columnList = "UNIQUE_ID",unique=true) })
 @XmlRootElement(name="smartDevice")
 @XmlAccessorType(XmlAccessType.NONE)
 public class SmartDevice implements Serializable{
