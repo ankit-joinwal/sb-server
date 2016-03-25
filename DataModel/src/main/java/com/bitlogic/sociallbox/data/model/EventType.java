@@ -29,12 +29,12 @@ public class EventType {
 	@Column(name="ID")
 	private Long id;
 
-	@Column(name="NAME")
+	@Column(name="NAME",length=20,nullable=false)
 	@XmlElement
 	@JsonProperty
 	private String name;
 
-	@Column(name="DESCRIPTION")
+	@Column(name="DESCRIPTION",length=30,nullable=false)
 	@XmlElement
 	@JsonProperty
 	private String description;

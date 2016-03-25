@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @XmlRootElement
 @Embeddable
 public class Location implements Serializable{
@@ -15,18 +17,31 @@ public class Location implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	@NotNull
-	@XmlElement
+	@JsonProperty("name")
+	@Column(name="LOCATION_NAME")
 	private String name;
+	
+	@JsonProperty("locality")
+	@Column(name="LOCALITY")
+	private String locality;
 	
 	@NotNull
 	@XmlElement
-	@Column( precision=8, scale=2)
+	@Column( precision=8, scale=2,name="LOCATION_LAT",nullable=false)
 	private Double lattitude;
 	
 	@NotNull
 	@XmlElement
-	@Column( precision=8, scale=2)
+	@Column( precision=8, scale=2,name="LOCATION_LON",nullable=false)
 	private Double longitude;
+
+	public String getLocality() {
+		return locality;
+	}
+
+	public void setLocality(String locality) {
+		this.locality = locality;
+	}
 
 	public String getName() {
 		return name;

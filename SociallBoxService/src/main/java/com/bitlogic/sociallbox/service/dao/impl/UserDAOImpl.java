@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.dao;
+package com.bitlogic.sociallbox.service.dao.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +28,10 @@ import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSettingType;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
+import com.bitlogic.sociallbox.service.dao.AbstractDAO;
+import com.bitlogic.sociallbox.service.dao.EventTagDAO;
+import com.bitlogic.sociallbox.service.dao.PushNotificationDAO;
+import com.bitlogic.sociallbox.service.dao.UserDAO;
 import com.bitlogic.sociallbox.service.utils.PasswordUtils;
 import com.bitlogic.sociallbox.service.utils.UserSVCConstants;
 
@@ -71,7 +75,7 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 
 			userToCreate.setDailyQuota(UserSVCConstants.DEFAULT_USER_DAILY_QUOTA);
 		}
-		userToCreate.setPassword(PasswordUtils.encryptPass(userToCreate.getPassword()));
+		
 		Long id = (Long) save(userToCreate);
 		return getUserById(id);
 	}

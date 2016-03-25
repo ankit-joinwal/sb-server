@@ -39,18 +39,21 @@ public class CreateMeetupRequest implements Serializable{
 	
 	private String eventAtMeetup;
 	
-	private String isPublic;
+	private Boolean isPublic;
 	
 	private List<MeetupAttendeeEntity> attendees;
 	
 	private Set<GooglePlace.Result.AddressComponent> addressComponents;
 	
-	public String getIsPublic() {
+	
+
+
+	public Boolean getIsPublic() {
 		return isPublic;
 	}
 
 
-	public void setIsPublic(String isPublic) {
+	public void setIsPublic(Boolean isPublic) {
 		this.isPublic = isPublic;
 	}
 

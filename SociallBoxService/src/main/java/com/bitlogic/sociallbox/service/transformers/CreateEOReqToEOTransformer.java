@@ -36,7 +36,7 @@ public class CreateEOReqToEOTransformer implements Transformer<EventOrganizer, C
 		eventOrganizer.setPhone1(createOrgRequest.getPhone1());
 		eventOrganizer.setPhone2(createOrgRequest.getPhone2()==null?Constants.BLANK:createOrgRequest.getPhone2());
 		eventOrganizer.setPhone3(createOrgRequest.getPhone3()==null ? Constants.BLANK : createOrgRequest.getPhone3());
-
+		eventOrganizer.setWebsite(createOrgRequest.getWebsite());
 		return eventOrganizer;
 	}
 }

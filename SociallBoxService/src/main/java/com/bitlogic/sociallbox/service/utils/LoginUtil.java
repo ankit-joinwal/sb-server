@@ -62,6 +62,15 @@ public class LoginUtil implements Constants{
 		return deviceId;
 	}
 	
+	public static String getUserEmailIdFromUserName(String username){
+		String[] secretParts = getUsernameParts(username);
+		if (secretParts == null || secretParts.length != 2) {
+			throw new ClientException(RestErrorCodes.ERR_002,ERROR_LOGIN_INVALID_CREDENTIALS);
+		}
+		String userEmail = secretParts[1];
+		return userEmail;
+	}
+	
 	public static void validateMobileUser(User user) throws ClientException{
 		LOGGER.info("Validating user:"+user);
 		String msg =  null;

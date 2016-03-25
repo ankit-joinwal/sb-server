@@ -78,6 +78,9 @@ public interface Constants {
 	String MEETUP_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"meetups";
 	
 	//Error Message Keys
+	String ERROR_ID_MANDATORY = "error.id.mandatory";
+	String ERROR_NAME_MANDATORY = "error.name.mandatory";
+	String ERROR_EMAIL_MANDATORY = "error.email.mandatory";
 	String ERROR_GAPI_CLIENT_REQUEST = "error.gapi.client.request";
 	String ERROR_GAPI_WEBSERVICE_ERROR = "error.gapi.webservice.error";
 	String ERROR_ZAPI_CLIENT_REQUEST = "error.zapi.client.request";
@@ -101,6 +104,7 @@ public interface Constants {
 	String ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY = "error.feature.available.to.mobile.only";
 	String ERROR_LOCATION_INVALID_FORMAT = "error.location.invalid.format";
 	String ERROR_ADDRESS_MANDATORY = "error.address.mandatory";
+	String ERROR_CITY_MANDATORY = "error.city.mandatory";
 	String ERROR_ORGANIZER_EXISTS = "error.organizer.exists";
 	String ERROR_DATE_INVALID_FORMAT = "error.date.invalid.format";
 	String ERROR_ORGANIZER_NOT_FOUND = "error.organizer.not.found";
@@ -110,4 +114,13 @@ public interface Constants {
 	String ERROR_INVALID_INPUT_RADIUS = "error.invalid.input.radius";
 	String ERROR_INVALID_INPUT_PAGE = "error.invalid.input.page";
 	String ERROR_INVALID_SOURCE_SYSTEM = "error.invalid.source.system";
+	String ERROR_COMPANY_ID_MANDATORY = "error.company.id.mandatory";
+	String ERROR_STATE_MANDATORY  = "error.state.mandatory";
+	String ERROR_STREET_MANDATORY = "error.street.mandatory";
+	String ERROR_COUNTRY_MANDATORY = "error.country.mandatory";
+	String ERROR_ZIPCODE_MANDATORY = "error.zipcode.mandatory";
+	String ERROR_PHONE_MANDATORY = "error.phone.mandatory";
+	String ERROR_INVALID_EOADMIN_ID = "error.invalid.eoadmin.id";
+	String ERROR_TAGS_MANDATORY = "error.tags.mandatory";
+	String ERROR_EO_ADMIN_UNAPPROVED = "error.eo.admin.unapproved";
 }

@@ -15,10 +15,10 @@ public class PushNotificationSettingMaster {
 	@Column(name="ID")
 	private Long id;
 	
-	@Column(nullable=false,name="NAME")
+	@Column(nullable=false,name="NAME",length=50)
 	private String name;
 	
-	@Column(nullable=false,name="DISPLAY_NAME")
+	@Column(nullable=false,name="DISPLAY_NAME",length=50)
 	private String displayName;
 	
 	@Column(nullable=false,name="DISPLAY_ORDER")

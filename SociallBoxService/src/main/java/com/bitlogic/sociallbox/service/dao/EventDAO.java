@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.bitlogic.sociallbox.data.model.Event;
+import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
@@ -26,6 +27,13 @@ public interface EventDAO {
 	
 	public List<EventImage> getEventImages(String eventId);
 	
-	//public EventImage getEventImage(String eventId, String imageName);
+	public List<EventResponse> getPendingEvents();
 	
+	public List<Event> getEventsByIds(List<String> eventIds);
+	
+	public EventAttendee saveAttendee(EventAttendee attendee);
+	
+	public EventAttendee getAttendee(String eventId , Long userId);
+	
+	public EventAttendee getAttendeeById(Long attendeeId);
 }

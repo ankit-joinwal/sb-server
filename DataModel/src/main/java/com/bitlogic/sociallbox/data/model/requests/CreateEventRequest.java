@@ -14,6 +14,7 @@ import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.Location;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @XmlRootElement(name="createEvent")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -30,15 +31,13 @@ public class CreateEventRequest implements Serializable{
 	private EventImage image;
 	
 	@NotNull(message="error.event.details.mandatory")
+	@JsonProperty("event_details")
 	private MockEventDetails eventDetails;
 	
 	public static final class MockEventDetails{
 
 		private Location location;
 
-		private User organizer;
-		
-		
 		private Set<GooglePlace.Result.AddressComponent> addressComponents = new HashSet<>();
 		
 		public Set<GooglePlace.Result.AddressComponent> getAddressComponents() {
@@ -57,14 +56,6 @@ public class CreateEventRequest implements Serializable{
 			this.location = location;
 		}
 
-		public User getOrganizer() {
-			return organizer;
-		}
-
-		public void setOrganizer(User organizer) {
-			this.organizer = organizer;
-		}
-
 	}
 	
 	@NotNull(message="error.start.date.mandatory")
@@ -77,9 +68,17 @@ public class CreateEventRequest implements Serializable{
 	private Set<EventTag> tags = new HashSet<>();
 	
 	@NotNull(message="error.event.organizer.mandatory")
-	private String organizerId;
+	@JsonProperty("profile_id")
+	private Long organizerProfileId;
 
-	
+	public Long getOrganizerProfileId() {
+		return organizerProfileId;
+	}
+
+	public void setOrganizerProfileId(Long profileId) {
+		this.organizerProfileId = profileId;
+	}
+
 	public Set<EventTag> getTags() {
 		return tags;
 	}
@@ -136,13 +135,6 @@ public class CreateEventRequest implements Serializable{
 		this.endDate = endDate;
 	}
 
-	public String getOrganizerId() {
-		return organizerId;
-	}
-
-	public void setOrganizerId(String organizerId) {
-		this.organizerId = organizerId;
-	}
 
 	@Override
 	public String toString() {

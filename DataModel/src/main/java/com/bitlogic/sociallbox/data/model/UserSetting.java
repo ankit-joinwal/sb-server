@@ -25,23 +25,23 @@ public class UserSetting {
 	@Column(name="ID")
 	private Long id;
 
-	@Column(nullable=false,name="SETTING_TYPE")
+	@Column(nullable=false,name="SETTING_TYPE",length=50)
 	@Enumerated(EnumType.STRING)
 	private UserSettingType settingType;
 
-	@Column(nullable=false,name="NAME")
+	@Column(nullable=false,name="NAME",length=50)
 	private String name;
 
-	@Column(nullable=false,name="DISPLAY_NAME")
+	@Column(nullable=false,name="DISPLAY_NAME",length=100)
 	private String displayName;
 	
-	@Column(nullable=false,name="VALUE")
+	@Column(nullable=false,name="VALUE",length=100)
 	private String value;
 
 	@ManyToOne
 	@JsonIgnore
 	@XmlTransient
-	@JoinColumn(name = "USER_ID")
+	@JoinColumn(name = "USER_ID",nullable=false)
 	private User user;
 
 	@Column(nullable=false,name="CREATE_DT")

@@ -14,10 +14,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
+import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventOrganizerRequest;
 import com.bitlogic.sociallbox.data.model.response.EventOrganizerProfile;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EventOrganizerService;
+import com.bitlogic.sociallbox.service.transformers.Transformer;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
 
 @RestController
 @RequestMapping("/api/secured/users/organizers")
@@ -35,7 +39,11 @@ public class EventOrganizerSecuredController implements Constants{
 	public SingleEntityResponse<EventOrganizerProfile> create(@Valid @RequestBody CreateEventOrganizerRequest request){
 		LOGGER.info("### Request recieved | Create Event Organizer ###");
 		LOGGER.info("Request Payload : {} ",request);
-		EventOrganizerProfile eventOrganizerResponse = this.eventOrganizerService.create(request);
+		EventOrganizer eventOrganizer = this.eventOrganizerService.create(request);
+		Transformer<EventOrganizerProfile, EventOrganizer> responseTransformer = 
+				(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER);
+		EventOrganizerProfile eventOrganizerResponse = responseTransformer.transform(eventOrganizer);
+		
 		SingleEntityResponse<EventOrganizerProfile> entityResponse = new SingleEntityResponse<>();
 		entityResponse.setData(eventOrganizerResponse);
 		entityResponse.setStatus(SUCCESS_STATUS);

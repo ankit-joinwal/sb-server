@@ -21,22 +21,22 @@ public class MeetupImage {
 	@GeneratedValue
 	private Long id;
 	
-	@Column(name="NAME")
+	@Column(name="NAME",length=50,nullable=false)
 	private String name;
 
-	@Column(name="URL")
+	@Column(name="URL",nullable=false)
 	private String url;
 
-	@Column(name="MIME_TYPE")
+	@Column(name="MIME_TYPE",length=20)
 	private String mimeType;
 	
 	@ManyToOne
-	@JoinColumn(name = "MEETUP_ID")
+	@JoinColumn(name = "MEETUP_ID",nullable=false)
 	@JsonIgnore
 	private Meetup meetup;
 	
 	@ManyToOne
-	@JoinColumn(name = "UPLOADED_BY")
+	@JoinColumn(name = "UPLOADED_BY",nullable=false)
 	@JsonIgnore
 	private User uploadedBy;
 	

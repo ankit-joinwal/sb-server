@@ -46,12 +46,12 @@ public class User implements Serializable,Cloneable {
 	@Column(name="ID")
 	private Long id;
 	@XmlElement
-	@Column(nullable = false,name="NAME")
+	@Column(nullable = false,name="NAME",length=100)
 	@NotNull(message="error.name.mandatory")
 	private String name;
 	
 	@XmlElement
-	@Column(nullable = false,name="EMAIL_ID")
+	@Column(nullable = false,name="EMAIL_ID",length=100)
 	@NotNull(message="error.email.mandatory")
 	private String emailId;
 
@@ -62,7 +62,7 @@ public class User implements Serializable,Cloneable {
 	@NotNull(message="error.password.mandatory")
 	private String password;
 	
-	@Column(nullable=false,name="IS_ENABLED")
+	@Column(nullable=false,name="IS_ENABLED",length=5)
 	@XmlTransient
 	@JsonIgnore
 	private Boolean isEnabled;

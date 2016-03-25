@@ -333,7 +333,7 @@ public class UserSecuredController extends BaseController implements Constants{
 	 *  @apiName Get User friends
 	 *  @apiGroup Users
 	 *  @apiHeader {String} accept application/json
-	 *  
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
 	 *  @apiHeader {String} Authorization Authentication Token
 	 *	@apiSuccess (Success 200) {Object}  response  Response.
 	 *  @apiSuccess (Success 200) {String}  response.status   Eg.Success.

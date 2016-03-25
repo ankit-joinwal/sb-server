@@ -12,9 +12,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
+import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.response.EventOrganizerProfile;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EventOrganizerService;
+import com.bitlogic.sociallbox.service.transformers.Transformer;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
 
 @RestController
 @RequestMapping("/api/public/users/organizers")
@@ -37,9 +41,12 @@ public class EventOrganizerPublicController extends BaseController implements Co
 	public SingleEntityResponse<EventOrganizerProfile> getOrganizerProfile(@PathVariable String id){
 		logRequestStart(GET_ORGANIZER_PROFILE_API, PUBLIC_REQUEST_START_LOG, GET_ORGANIZER_PROFILE_API);
 		logInfo(GET_ORGANIZER_PROFILE_API, "Organizer Profile Id = {}", id);
-		EventOrganizerProfile eventOrganizerResponse = this.eventOrganizerService.get(id);
-		SingleEntityResponse<EventOrganizerProfile> entityResponse = new SingleEntityResponse<>();
-		entityResponse.setData(eventOrganizerResponse);
+		EventOrganizer eventOrganizerResponse = this.eventOrganizerService.getOrganizerDetails(id);
+		Transformer<EventOrganizerProfile, EventOrganizer> responseTransformer = 
+				(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER);
+		EventOrganizerProfile eventOrganizerProfile = responseTransformer.transform(eventOrganizerResponse);
+ 		SingleEntityResponse<EventOrganizerProfile> entityResponse = new SingleEntityResponse<>();
+		entityResponse.setData(eventOrganizerProfile);
 		entityResponse.setStatus(SUCCESS_STATUS);
 		logRequestEnd(GET_ORGANIZER_PROFILE_API, GET_ORGANIZER_PROFILE_API);
 		return entityResponse;

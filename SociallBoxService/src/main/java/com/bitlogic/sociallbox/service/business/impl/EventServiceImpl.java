@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,14 +24,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.AddressComponentType;
+import com.bitlogic.sociallbox.data.model.EOAdminStatus;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventAddressInfo;
+import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.EventDetails;
 import com.bitlogic.sociallbox.data.model.EventImage;
-import com.bitlogic.sociallbox.data.model.EventOrganizer;
+import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
 import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
+import com.bitlogic.sociallbox.data.model.MeetupAttendee;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace.Result.AddressComponent;
@@ -43,22 +47,30 @@ import com.bitlogic.sociallbox.service.dao.EventOrganizerDAO;
 import com.bitlogic.sociallbox.service.dao.EventTagDAO;
 import com.bitlogic.sociallbox.service.dao.EventTypeDAO;
 import com.bitlogic.sociallbox.service.dao.MeetupDAO;
+import com.bitlogic.sociallbox.service.dao.SmartDeviceDAO;
 import com.bitlogic.sociallbox.service.dao.UserDAO;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.EntityNotFoundException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
+import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
 import com.bitlogic.sociallbox.service.utils.GeoUtils;
 import com.bitlogic.sociallbox.service.utils.ImageUtils;
+import com.bitlogic.sociallbox.service.utils.LoggingService;
 
 @Service
 @Transactional
-public class EventServiceImpl implements EventService ,Constants{
+public class EventServiceImpl extends LoggingService implements EventService ,Constants{
 
 	private static final Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
+	
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
 	
 	@Autowired
 	private UserDAO userDAO;
@@ -76,17 +88,34 @@ public class EventServiceImpl implements EventService ,Constants{
 	private MeetupDAO meetupDAO;
 	
 	@Autowired
+	private SmartDeviceDAO smartDeviceDAO;
+	
+	@Autowired
 	private EventOrganizerDAO eventOrganizerDAO;
 	
 	@Override
-	public Event create(CreateEventRequest createEventRequest) {
-		logger.info("### Inside CreateEventRequest.create ###");
+	public Event create(String userEmail,CreateEventRequest createEventRequest) {
+		String LOG_PREFIX = "EventServiceImpl-create";
+		
 		Event event = new Event();
 		MockEventDetails mockEventDetails = createEventRequest.getEventDetails();
+
+		EventOrganizerAdmin organizer = this.eventOrganizerDAO.getEOAdminProfileById(createEventRequest.getOrganizerProfileId()); 
+		logInfo(LOG_PREFIX,"Found organizer details {}",organizer);
 		
+		User organizerAdmin = this.userDAO.getUserByEmailId(userEmail, false);
+		if(organizerAdmin == null){
+			throw new ClientException(RestErrorCodes.ERR_002,ERROR_USER_INVALID);
+		}
+		if(!organizerAdmin.getEmailId().equals(organizer.getUser().getEmailId())){
+			logError(LOG_PREFIX, "Organizer Profile Id in request does not match User who made request", organizerAdmin.getEmailId());
+			throw new ClientException(RestErrorCodes.ERR_002,ERROR_USER_INVALID);
+		}
 		
-		EventOrganizer organizer = this.eventOrganizerDAO.getOrganizerDetails(createEventRequest.getOrganizerId()); 
-		logger.info("   Found organizer details in DB for {} : Id {}",organizer);
+		if(organizer.getStatus()!= EOAdminStatus.APPROVED){
+			logError(LOG_PREFIX, "User not authorized yet to create events", organizer.getUser().getName());
+			throw new ClientException(RestErrorCodes.ERR_002,ERROR_EO_ADMIN_UNAPPROVED);
+		}
 		
 		Set<EventTag> tags = createEventRequest.getTags();
 		if(tags!=null && !tags.isEmpty()){
@@ -96,6 +125,9 @@ public class EventServiceImpl implements EventService ,Constants{
 			}
 			List<EventTag> tagsInDB = eventTagDAO.getTagsByNames(tagNames);
 			event.setTags(new HashSet<>(tagsInDB));
+		}else{
+			logError(LOG_PREFIX, "Tags not found in request ");
+			throw new ClientException(RestErrorCodes.ERR_002, ERROR_TAGS_MANDATORY);
 		}
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MEETUP_DATE_FORMAT);
@@ -103,21 +135,30 @@ public class EventServiceImpl implements EventService ,Constants{
 			event.setStartDate(dateFormat.parse(createEventRequest.getStartDate()));
 			event.setEndDate(dateFormat.parse(createEventRequest.getEndDate()));
 		} catch (ParseException e) {
-
+			logError(LOG_PREFIX, "Error while parsing event dates {}", createEventRequest);
 			throw new ClientException(RestErrorCodes.ERR_001, ERROR_DATE_INVALID_FORMAT);
 		}
 		
-		EventDetails eventDetails = new EventDetails();
-		eventDetails.setLocation(mockEventDetails.getLocation());
-		eventDetails.setOrganizer(organizer);
+		Date now = new Date();
+		
 		event.setTitle(createEventRequest.getTitle());
 		event.setDescription(createEventRequest.getDescription());
-		event.setEventDetails(eventDetails);
 		event.setEventStatus(EventStatus.CREATED);
+		event.setIsAllowedEventToGoLive(Boolean.FALSE);
+
+		EventDetails eventDetails = new EventDetails();
+		eventDetails.setLocation(mockEventDetails.getLocation());
+		eventDetails.setOrganizerAdmin(organizer);
 		eventDetails.setEvent(event);
+		eventDetails.setCreateDt(now);
+		
+		event.setEventDetails(eventDetails);
+		
 		Event created = this.eventDAO.create(event);
-		created.getEventDetails().setAddressComponents(this.getEventAddressInfo(eventDetails,mockEventDetails.getAddressComponents()));
-		this.eventDAO.saveEvent(created);
+		
+		//TODO : Address components
+		/*created.getEventDetails().setAddressComponents(this.getEventAddressInfo(eventDetails,mockEventDetails.getAddressComponents()));
+		this.eventDAO.saveEvent(created);*/
 		return created;
 	}
 	
@@ -156,8 +197,11 @@ public class EventServiceImpl implements EventService ,Constants{
 	
 	@Override
 	public Event get(String uuid) {
+		String LOG_PREFIX = "EventServiceImpl-get";
+		
 		Event event = this.eventDAO.getEvent(uuid);
 		if(event == null){
+			logError(LOG_PREFIX, "Event not found with uuid {}", uuid);
 			throw new EntityNotFoundException(uuid,RestErrorCodes.ERR_020,ERROR_INVALID_EVENT_IN_REQUEST);
 		}
 		return event;
@@ -165,12 +209,18 @@ public class EventServiceImpl implements EventService ,Constants{
 	
 	@Override
 	public void makeEventLive(String eventId) {
-		logger.info("### Inside Make vent Live ###");
+		String LOG_PREFIX = "EventServiceImpl-makeEventLive";
+		
 		Event event = this.eventDAO.getEvent(eventId);
 		if(event == null){
+			logError(LOG_PREFIX, "Event not found with uuid {}", eventId);
 			throw new ClientException(RestErrorCodes.ERR_020,ERROR_INVALID_EVENT_IN_REQUEST);
 		}
-		this.eventDAO.makeEventLive(event);
+		Date now = new Date();
+		event.setEventStatus(EventStatus.LIVE);
+		event.getEventDetails().setUpdateDt(now);
+		logInfo(LOG_PREFIX, "Successfully made event live {}", eventId);
+		
 	}
 	
 	@Override
@@ -259,8 +309,60 @@ public class EventServiceImpl implements EventService ,Constants{
 	@Override
 	public List<EventImage> getEventImages(String eventId) {
 		List<EventImage> eventImages = this.eventDAO.getEventImages(eventId);
-		
 		return eventImages;
 	}
 	
+	@Override
+	public List<EventResponse> getEventsPendingForApproval() {
+		String LOG_PREFIX = "EventServiceImpl-getEventsPendingForApproval";
+		List<EventResponse> pendingEvents = this.eventDAO.getPendingEvents();
+		logInfo(LOG_PREFIX, "Total Events Pending = {}", pendingEvents.size());
+		return pendingEvents;
+	}
+	
+	@Override
+	public void approveEvents(List<String> eventIds) {
+
+		String LOG_PREFIX = "EventServiceImpl-approveEvents";
+		List<Event> events = this.eventDAO.getEventsByIds(eventIds);
+		List<String> eventNames = new ArrayList<String>();
+		if(events !=null){
+			for(Event event : events){
+				eventNames.add(event.getTitle());
+				event.setIsAllowedEventToGoLive(Boolean.TRUE);
+				event.setEventStatus(EventStatus.READY_TO_GO_LIVE);
+			}
+		}
+		logInfo(LOG_PREFIX, "Following events approved : {}", eventNames);
+	}
+	
+	@Override
+	public EventAttendee registerForEvent(String eventId, String deviceId) {
+		String LOG_PREFIX = "EventServiceImpl-registerForEvent";
+		
+		logInfo(LOG_PREFIX, "Getting user info from device id : {}",deviceId);
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
+		if(user == null){
+			logError(LOG_PREFIX, "No user exists fro given device Id {}", deviceId);
+			throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_LOGIN_USER_UNAUTHORIZED);
+		}
+		
+		EventAttendee eventAttendee = this.eventDAO.getAttendee(eventId, user.getId());
+		if(eventAttendee!=null){
+			logInfo(LOG_PREFIX, "Event attendee exists already ");
+			return eventAttendee;
+		}
+		Event event = this.eventDAO.getEvent(eventId);
+		if(event==null){
+			logInfo(LOG_PREFIX, "Event not found for id = {}", eventId);
+			throw new ClientException(RestErrorCodes.ERR_002,ERROR_INVALID_EVENT_IN_REQUEST);
+		}
+		EventAttendee newAttendee = new EventAttendee();
+		newAttendee.setEvent(event);
+		newAttendee.setUser(user);
+		
+		EventAttendee registeredAttendee = this.eventDAO.saveAttendee(newAttendee);
+		logInfo(LOG_PREFIX, "User {} Registered for Event {} succesfully", user.getName(),event.getTitle());
+		return registeredAttendee;
+	}
 }

@@ -2,7 +2,6 @@ package com.bitlogic.sociallbox.data.model.requests;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.bitlogic.sociallbox.data.model.Address;
@@ -16,15 +15,12 @@ public class CreateEventOrganizerRequest implements Serializable{
 	@JsonProperty("id")
 	private String uuid;
 	
-	@NotNull(message="error.name.mandatory")
 	@JsonProperty("name")
 	private String name;
 	
-	@NotNull(message="error.address.mandatory")
 	@JsonProperty("address")
 	private Address address;
 
-	@NotNull(message="error.phone.mandatory")
 	@JsonProperty("phone1")
 	private String phone1;
 	
@@ -34,9 +30,20 @@ public class CreateEventOrganizerRequest implements Serializable{
 	@JsonProperty("phone3")
 	private String phone3;
 	
-	@NotNull(message="error.email.mandatory")
 	@JsonProperty("email_id")
 	private String emailId;
+	
+	@JsonProperty("website")
+	private String website;
+	
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
 
 	public String getUuid() {
 		return uuid;
@@ -96,6 +103,6 @@ public class CreateEventOrganizerRequest implements Serializable{
 	
 	@Override
 	public String toString() {
-		return "CreateEventOrganizerRequest [name="+this.name+" , email= "+this.emailId+ " ]";
+		return "CreateEventOrganizerRequest [id="+this.uuid+" , name="+this.name+" , email= "+this.emailId+ " ]";
 	}
 }

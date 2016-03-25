@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.dao;
+package com.bitlogic.sociallbox.service.dao.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +17,9 @@ import org.springframework.stereotype.Repository;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.service.dao.AbstractDAO;
+import com.bitlogic.sociallbox.service.dao.EventTagDAO;
+import com.bitlogic.sociallbox.service.dao.EventTypeDAO;
 
 @Repository("eventTagDAO")
 public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {

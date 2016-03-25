@@ -37,14 +37,14 @@ public class MeetupMessage implements Serializable {
 	private String message;
 
 	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "SENDER_ID")
+	@JoinColumn(name = "SENDER_ID",nullable=false)
 	@JsonProperty
 	private MeetupAttendeeEntity meetupAttendee;
 
 	@ManyToOne
 	@JsonIgnore
 	@XmlTransient
-	@JoinColumn(name = "MEETUP_ID")
+	@JoinColumn(name = "MEETUP_ID",nullable=false)
 	private Meetup meetup;
 
 	@XmlTransient

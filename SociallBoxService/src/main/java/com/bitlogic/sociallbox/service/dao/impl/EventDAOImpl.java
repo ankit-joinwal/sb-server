@@ -1,12 +1,13 @@
-package com.bitlogic.sociallbox.service.dao;
+package com.bitlogic.sociallbox.service.dao.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -15,9 +16,13 @@ import org.springframework.stereotype.Repository;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
+import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.service.dao.AbstractDAO;
+import com.bitlogic.sociallbox.service.dao.EventDAO;
+import com.bitlogic.sociallbox.service.transformers.EventTransformer;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
@@ -30,8 +35,6 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 	@Override
 	public Event create(Event event) {
 
-		Date now = new Date();
-		event.getEventDetails().setCreateDt(now);
 		String eventId = (String) getSession().save(event);
 		Event eventInDb = getEventWithoutImage(eventId);
 		return eventInDb;
@@ -102,9 +105,12 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 	}
 	
 	@Override
-	public List<EventResponse> getEventsByFilter(Map<String,Double> cordinatesMap , 
-			List<Long> tagIds,
-			String city, String country,Integer page) {
+	public List<EventResponse> getEventsByFilter(
+						Map<String,Double> cordinatesMap , 
+						List<Long> tagIds,
+						String city, 
+						String country,
+						Integer page) {
 		 Criteria criteria = getSession().createCriteria(Event.class,"event")
 					.setFetchMode("event.eventDetails.organizer", FetchMode.JOIN)
 					.setFetchMode("event.tags", FetchMode.JOIN)
@@ -153,4 +159,79 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 		return eventsResponse;
 	}
 	
+	@Override
+	public List<EventResponse> getPendingEvents() {
+		Criteria criteria = getSession().createCriteria(Event.class, "event")
+				.setFetchMode("event.eventDetails.organizer", FetchMode.JOIN)
+				.setFetchMode("event.tags", FetchMode.JOIN)
+				.createAlias("event.eventDetails", "ed")
+				.createAlias("event.tags", "eventTag")
+				.setFetchMode("event.eventImages", FetchMode.JOIN)
+				.createAlias("event.eventImages", "image")
+				.add(Restrictions.eq("image.displayOrder", 1))
+				.add(Restrictions.eq("event.eventStatus", EventStatus.CREATED))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		List<Event> events = criteria.list();
+		List<EventResponse> eventsResponse = new ArrayList<EventResponse>();
+		if (events != null && !events.isEmpty()) {
+			logger.info("Found : {} events", events.size());
+
+
+			EventTransformer transformer = (EventTransformer) TransformerFactory
+					.getTransformer(Transformer_Types.EVENT_TRANS);
+			EventResponse eventInCity = null;
+			for (Event event : events) {
+				// TODO: This is done to lazy load the tags.
+				event.getTags().size();
+				if (event.getEventImages() != null) {
+					// To Load images
+					event.getEventImages().size();
+				}
+
+				eventInCity = transformer.transform(event);
+				eventsResponse.add(eventInCity);
+			}
+		}
+		return eventsResponse;
+	}
+	
+	@Override
+	public List<Event> getEventsByIds(List<String> eventIds) {
+		Criteria criteria = getSession().createCriteria(Event.class)
+							.add(Restrictions.in("uuid", eventIds))
+							.add(Restrictions.eq("eventStatus", EventStatus.CREATED));
+		
+		return criteria.list();
+	}
+	
+	@Override
+	public EventAttendee saveAttendee(EventAttendee attendee) {
+		Long id = (Long)getSession().save(attendee);
+		return getAttendeeById(id);
+	}
+	
+	@Override
+	public EventAttendee getAttendee(String eventId, Long userId) {
+		String sql = "SELECT * FROM EVENT_ATTENDEES WHERE USER_ID = :userId AND EVENT_ID = :eventId";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.addEntity(EventAttendee.class);
+		query.setParameter("userId", userId);
+		query.setParameter("eventId", eventId);
+		
+		List attendees = query.list();
+		EventAttendee eventAttendee = null;
+		for(Iterator iterator = attendees.iterator(); iterator.hasNext();){
+			eventAttendee =  (EventAttendee) iterator.next();
+			break;
+		}
+		
+		return eventAttendee;
+	}
+	
+	@Override
+	public EventAttendee getAttendeeById(Long attendeeId) {
+		Criteria criteria = getSession().createCriteria(EventAttendee.class)
+				.add(Restrictions.eq("id", attendeeId));
+		return (EventAttendee) criteria.uniqueResult();
+	}
 }

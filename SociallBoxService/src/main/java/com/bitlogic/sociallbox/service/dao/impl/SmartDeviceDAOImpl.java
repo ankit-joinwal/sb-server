@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.dao;
+package com.bitlogic.sociallbox.service.dao.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.service.dao.AbstractDAO;
+import com.bitlogic.sociallbox.service.dao.SmartDeviceDAO;
 
 @Repository("smartDeviceDAO")
 public class SmartDeviceDAOImpl extends AbstractDAO implements SmartDeviceDAO {

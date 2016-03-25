@@ -40,12 +40,12 @@ public class UserSocialDetail implements Serializable,Cloneable{
 	@XmlTransient
 	@JsonIgnore
 	@ManyToOne
-    @JoinColumn(name="USER_ID")
+    @JoinColumn(name="USER_ID",nullable=false)
     private User user;
 
 	@XmlElement(name="system")
 	@JsonProperty(value="system")
-	@Column(nullable=false,name="SOCIAL_SYSTEM")
+	@Column(nullable=false,name="SOCIAL_SYSTEM",length=20)
 	@Enumerated(EnumType.STRING)
 	private SocialSystem socialSystem;
 	
@@ -56,7 +56,7 @@ public class UserSocialDetail implements Serializable,Cloneable{
 	
 	@XmlElement(name="detailType")
 	@JsonProperty(value="detailType")
-	@Column(nullable=false,name="DETAIL_TYPE")
+	@Column(nullable=false,name="DETAIL_TYPE",length=30)
 	@Enumerated(EnumType.STRING)
 	private SocialDetailType socialDetailType;
 

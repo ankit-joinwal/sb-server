@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @XmlRootElement(name="event_details")
 public class EventDetailsResponse {
 
+	
 	public EventDetailsResponse() {
 		super();
 	}
@@ -23,10 +24,8 @@ public class EventDetailsResponse {
 		super();
 		this.location = eventDetails.getLocation();
 		this.addressComponents = eventDetails.getAddressComponents();
-		this.organizer = new EventOrganizerProfile(eventDetails.getOrganizer());
-		
-				
 	}
+	
 	@XmlElement
 	@JsonProperty
 	private Location location;

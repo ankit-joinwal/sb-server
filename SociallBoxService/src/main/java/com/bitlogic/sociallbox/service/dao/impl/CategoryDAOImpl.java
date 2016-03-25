@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.dao;
+package com.bitlogic.sociallbox.service.dao.impl;
 
 import java.util.List;
 
@@ -9,6 +9,8 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
 import com.bitlogic.sociallbox.data.model.Category;
+import com.bitlogic.sociallbox.service.dao.AbstractDAO;
+import com.bitlogic.sociallbox.service.dao.CategoryDAO;
 
 @Repository("categoryDAO")
 public class CategoryDAOImpl extends AbstractDAO implements CategoryDAO{

@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.dao;
+package com.bitlogic.sociallbox.service.dao.impl;
 
 
 import java.util.Date;
@@ -18,6 +18,8 @@ import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
+import com.bitlogic.sociallbox.service.dao.AbstractDAO;
+import com.bitlogic.sociallbox.service.dao.MeetupDAO;
 
 @Repository("meetupDAO")
 public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{

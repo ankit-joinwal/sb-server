@@ -8,5 +8,7 @@ public interface PlaceDAO {
 
 	public void saveUserLikeForPlace(UserAndPlaceMapping mapping);
 	
+	public Boolean checkIfUserLikesPlace(UserAndPlaceMapping mapping);
+	
 	public List<Long> getUsersWhoLikePlace(String placeId);
 }

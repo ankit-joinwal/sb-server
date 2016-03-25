@@ -13,17 +13,6 @@ public class EventOrganizerProfile {
 		super();
 	}
 	
-	public EventOrganizerProfile(EventOrganizer eventOrganizer){
-		super();
-		this.address = eventOrganizer.getAddress();
-		this.emailId = eventOrganizer.getEmailId();
-		this.name = eventOrganizer.getName();
-		this.phone1 = eventOrganizer.getPhone1();
-		this.phone2 = eventOrganizer.getPhone2();
-		this.phone3 = eventOrganizer.getPhone3();
-		this.uuid = eventOrganizer.getUuid();
-	}
-	
 	@JsonProperty("id")
 	private String uuid;
 
@@ -45,7 +34,38 @@ public class EventOrganizerProfile {
 	@JsonProperty("email_id")
 	private String emailId;
 	
+	@JsonProperty("profile_pic")
+	private String profilePic;
 	
+	@JsonProperty("cover_pic")
+	private String coverPic;
+	
+	@JsonProperty("website")
+	private String website;
+	
+	public String getProfilePic() {
+		return profilePic;
+	}
+
+	public void setProfilePic(String profilePic) {
+		this.profilePic = profilePic;
+	}
+
+	public String getCoverPic() {
+		return coverPic;
+	}
+
+	public void setCoverPic(String coverPic) {
+		this.coverPic = coverPic;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
 
 	public String getUuid() {
 		return uuid;

@@ -15,27 +15,27 @@ public class Address implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name="STREET")
+	@Column(name="STREET",nullable=false,length=100)
 	@JsonProperty
 	@NotNull(message="error.street.mandatory")
 	private String street;
 	
-	@Column(name="CITY")
+	@Column(name="CITY",nullable=false,length=50)
 	@JsonProperty
 	@NotNull(message="error.city.mandatory")
 	private String city;
 	
-	@Column(name="STATE")
+	@Column(name="STATE",nullable=false,length=50)
 	@JsonProperty
 	@NotNull(message="error.state.mandatory")
 	private String state;
 	
-	@Column(name="COUNTRY")
+	@Column(name="COUNTRY",nullable=false,length=50)
 	@JsonProperty
 	@NotNull(message="error.country.mandatory")
 	private String country;
 	
-	@Column(name="ZIP_CODE")
+	@Column(name="ZIP_CODE",nullable=false,length=20)
 	@JsonProperty("zip_code")
 	@NotNull(message="error.zipcode.mandatory")
 	private String zipcode;

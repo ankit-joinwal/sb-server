@@ -59,7 +59,7 @@ public class Event {
 	@Enumerated(EnumType.STRING)
 	private EventStatus eventStatus;
 	
-	@Column(name="ALLOW_EVENT_TO_GO_LIVE",length=5)
+	@Column(name="ALLOW_EVENT_TO_GO_LIVE",length=5,nullable=false)
 	private Boolean isAllowedEventToGoLive;
 	
 	@Column(name="START_DT",nullable=false)
@@ -165,7 +165,7 @@ public class Event {
 	
 	@Override
 	public String toString() {
-		return "Event [title="+this.title+" , organizer="+this.eventDetails.getOrganizer().getUuid()+" ]";
+		return "Event [title="+this.title+" , organizer="+this.eventDetails.getOrganizerAdmin()+" ]";
 	}
 
 }

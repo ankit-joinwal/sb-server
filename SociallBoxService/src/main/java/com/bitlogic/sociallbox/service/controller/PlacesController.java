@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,7 +28,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.GAPIConfig;
-import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.ext.Place;
 import com.bitlogic.sociallbox.data.model.ext.Places;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlaces;
@@ -43,12 +40,10 @@ import com.bitlogic.sociallbox.data.model.requests.PlaceDetailsRequest;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.PlacesEntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
-import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.service.business.PlacesService;
 import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
-import com.bitlogic.sociallbox.service.utils.LoginUtil;
 
 @RestController
 @RequestMapping("/api/public/places")
@@ -57,8 +52,6 @@ public class PlacesController extends BaseController implements Constants{
 	private static final Logger LOGGER = LoggerFactory.getLogger(PlacesController.class);
 	private static final String NEARBY_PLACES_REQUEST = "NearbyPlacesRequest API";
 	private static final String PLACE_DETAILS_REQUEST_API = "PlaceDetailsRequest API";
-	private static final String LIKE_PLACE_REQUEST = "LikePlace API";
-	private static final String GET_FRIENDS_WHO_LIKE_PLACE_API = "GetFriendsWhoLikePlace API";
 	
 	@Autowired
 	private UserService userService;
@@ -1082,57 +1075,9 @@ public class PlacesController extends BaseController implements Constants{
 		    }
 	}
 	
-	@RequestMapping(value="/place/{placeId}/like",method=RequestMethod.PUT,produces = { MediaType.APPLICATION_JSON_VALUE },consumes = { MediaType.APPLICATION_JSON_VALUE })
-	@ResponseStatus(HttpStatus.CREATED)
-	public void saveLikeActionForUser(@PathVariable("placeId") String placeId,@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String authHeader){
-		final String LOG_PREFIX = LIKE_PLACE_REQUEST;
-
-		logRequestStart(LOG_PREFIX, SECURED_REQUEST_START_LOG_MESSAGE, LIKE_PLACE_REQUEST );
-		logInfo(LOG_PREFIX, "Authorization {}", authHeader);
-		String userName = LoginUtil.getUserNameFromHeader(authHeader);
-		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
-		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
-			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
-			logInfo(LOG_PREFIX, " Device Id {} ", deviceId);
-			this.placesService.saveUserPlaceLike(deviceId, placeId);
-			logInfo(LOG_PREFIX,"User place like mapping saved successfully");
-		}else{
-			
-			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
-		}
-		
-		logRequestEnd(LOG_PREFIX,LIKE_PLACE_REQUEST);
-	}
 	
-	@RequestMapping(value="/place/{placeId}/likes",method=RequestMethod.GET,produces = { MediaType.APPLICATION_JSON_VALUE },consumes = { MediaType.APPLICATION_JSON_VALUE })
-	@ResponseStatus(HttpStatus.OK)
-	public EntityCollectionResponse<UserFriend> getFriendsWhoLikePlace(@PathVariable("placeId") String placeId,
-								@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String authHeader){
-		String LOG_PREFIX = GET_FRIENDS_WHO_LIKE_PLACE_API;
-		logRequestStart(LOG_PREFIX, SECURED_REQUEST_START_LOG_MESSAGE, GET_FRIENDS_WHO_LIKE_PLACE_API);
-		logInfo(LOG_PREFIX, "Auth header = {}", authHeader);
-		logInfo(LOG_PREFIX, "Place Id = {} ", placeId);
-		String userName = LoginUtil.getUserNameFromHeader(authHeader);
-		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
-		List<UserFriend> friendsWhoLikeThisPlace = null;
-		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
-			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
-			logInfo(LOG_PREFIX, " Device Id {} ", deviceId);
-			friendsWhoLikeThisPlace = this.placesService.getFriendsWhoLikePlace(deviceId, placeId);
-			
-		}else{
-			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
-		}
-		
-		EntityCollectionResponse<UserFriend> collectionResponse = new EntityCollectionResponse<UserFriend>();
-		collectionResponse.setData(friendsWhoLikeThisPlace);
-		collectionResponse.setPage(1);
-		collectionResponse.setTotalRecords(friendsWhoLikeThisPlace.size());
-		collectionResponse.setStatus(SUCCESS_STATUS);
-		
-		logRequestEnd(LOG_PREFIX, GET_FRIENDS_WHO_LIKE_PLACE_API);
-		return collectionResponse;
-	}
+	
+	
 	
 	private NearbySearchRequest validateNearbyRequest(String radius,Long categoryId,
 														String page,

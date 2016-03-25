@@ -42,22 +42,22 @@ public class SmartDevice implements Serializable{
 	@Column(name="ID")
 	private Long id;
 	
-	@Column(nullable=false,name="UNIQUE_ID")
+	@Column(nullable=false,name="UNIQUE_ID",length=100)
 	@XmlElement
 	@NotNull(message="error.uniqueid.mandatory")
 	private String uniqueId;
 	
-	@Column(nullable=false,name="BUILD_VERSION")
+	@Column(nullable=false,name="BUILD_VERSION",length=20)
 	@XmlElement
 	@NotNull(message="error.build.version.mandatory")
 	private String buildVersion;
 	
-	@Column(nullable=false,name="OS_VERSION")
+	@Column(nullable=false,name="OS_VERSION",length=20)
 	@XmlElement
 	@NotNull(message="error.osversion.mandatory")
 	private String osVersion;
 	
-	@Column(nullable=false,name="DEVICE_TYPE")
+	@Column(nullable=false,name="DEVICE_TYPE",length=20)
 	@XmlElement
 	@NotNull(message="error.device.type.mandatory")
 	@Enumerated(EnumType.STRING)
@@ -72,10 +72,10 @@ public class SmartDevice implements Serializable{
 	 @ManyToOne
 	 @JsonIgnore
 	 @XmlTransient
-	 @JoinColumn(name="USER_ID")
+	 @JoinColumn(name="USER_ID",nullable=false)
 	private User user;
 	
-	@Column(nullable=false,name="IS_ENABLED")
+	@Column(nullable=false,name="IS_ENABLED",length=5)
 	@XmlTransient
 	@JsonIgnore
 	private Boolean isEnabled;
@@ -87,7 +87,7 @@ public class SmartDevice implements Serializable{
 	
 	@XmlTransient
 	@JsonIgnore
-	@Column(nullable=false,name="PRIVATE_KEY")
+	@Column(nullable=false,name="PRIVATE_KEY",length=50)
 	private String privateKey;
 	
 	@JsonProperty

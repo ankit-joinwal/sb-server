@@ -1,8 +1,11 @@
 package com.bitlogic.sociallbox.data.model;
 
 public enum EventStatus {
-
-	CREATED,READY_TO_GO_LIVE,LIVE,CANCELLED,OFFLINE;
+	CREATED,
+	READY_TO_GO_LIVE,
+	LIVE,
+	OFFLINE,
+	CANCELLED;
 	
 	
 }

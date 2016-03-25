@@ -29,12 +29,12 @@ import org.hibernate.annotations.Parameter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "EVENT_DETAILS",indexes = { @Index(name = "IDX_EVENT_DETAILS", columnList = "ORGANIZER_ID") })
+@Table(name = "EVENT_DETAILS",indexes = { @Index(name = "IDX_EVENT_DETAILS", columnList = "ORGANIZER_ADMIN_ID") })
 @XmlRootElement(name="event_details")
 public class EventDetails {
 
 	@Id
-	@Column(name = "EVENT_ID")
+	@Column(name = "EVENT_ID",length=50)
 	@GeneratedValue(generator = "gen")
 	@GenericGenerator(name = "gen", strategy = "foreign", parameters = @Parameter(name = "property", value = "event"))
 	private String id;
@@ -50,8 +50,8 @@ public class EventDetails {
 	private Location location;
 
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="ORGANIZER_ID",nullable=false)
-	private EventOrganizer organizer;
+	@JoinColumn(name="ORGANIZER_ADMIN_ID")
+	private EventOrganizerAdmin organizerAdmin;
 	
 	@OneToMany(mappedBy="eventDetails",fetch=FetchType.LAZY)
 	@Cascade(value=CascadeType.ALL)
@@ -108,14 +108,12 @@ public class EventDetails {
 		this.location = location;
 	}
 
-	
-
-	public EventOrganizer getOrganizer() {
-		return organizer;
+	public EventOrganizerAdmin getOrganizerAdmin() {
+		return organizerAdmin;
 	}
 
-	public void setOrganizer(EventOrganizer organizer) {
-		this.organizer = organizer;
+	public void setOrganizerAdmin(EventOrganizerAdmin organizer) {
+		this.organizerAdmin = organizer;
 	}
 
 	public Date getCreateDt() {
@@ -128,7 +126,7 @@ public class EventDetails {
 	
 	@Override
 	public String toString() {
-		return "EventDetails [location="+this.location+ " , organizer="+this.organizer+" ]";
+		return "EventDetails [location="+this.location+ " , organizer="+this.organizerAdmin+" ]";
 	}
 
 }

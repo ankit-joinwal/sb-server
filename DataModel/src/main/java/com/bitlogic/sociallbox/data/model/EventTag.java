@@ -31,10 +31,10 @@ public class EventTag {
 	@Column(name="ID")
 	private Long id;
 	
-	@Column(name="NAME",length=20)
+	@Column(name="NAME",length=20,nullable=false)
 	private String name;
 	
-	@Column(name="DESCRIPTION",length=50)
+	@Column(name="DESCRIPTION",length=50,nullable=false)
 	private String description;
 	
 	@JsonIgnore

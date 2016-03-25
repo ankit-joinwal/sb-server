@@ -1,4 +1,4 @@
-package com.bitlogic.sociallbox.service.dao;
+package com.bitlogic.sociallbox.service.dao.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,6 +15,9 @@ import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Category;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.service.dao.AbstractDAO;
+import com.bitlogic.sociallbox.service.dao.CategoryDAO;
+import com.bitlogic.sociallbox.service.dao.EventTypeDAO;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 

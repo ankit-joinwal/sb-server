@@ -36,7 +36,10 @@ public class EOToEOResponseTransformer implements Transformer<EventOrganizerProf
 		eventOrganizerResp.setPhone1(eventOrganizer.getPhone1());
 		eventOrganizerResp.setPhone2(eventOrganizer.getPhone2());
 		eventOrganizerResp.setPhone3(eventOrganizer.getPhone3());
-
+		eventOrganizerResp.setWebsite(eventOrganizer.getWebsite());
+		eventOrganizerResp.setCoverPic(eventOrganizer.getCoverPic());
+		eventOrganizerResp.setProfilePic(eventOrganizer.getProfilePic());
+		
 		return eventOrganizerResp;
 	}
 }

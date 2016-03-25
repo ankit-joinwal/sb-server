@@ -10,8 +10,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -20,52 +19,76 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name="EVENT_ORGANIZER")
+@Table(name="EVENT_ORGANIZER",indexes = { @Index(name = "IDX_EVENT_ORG", columnList = "NAME") })
 public class EventOrganizer {
 	
 	@Id
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name = "ID", unique = true)
+	@Column(name = "ID", unique = true,length=50)
 	private String uuid;
 	
-	@Column(name="NAME",nullable=false)
+	@Column(name="NAME",nullable=false,length=100)
 	private String name;
+	
+	@Column(name="WEBSITE")
+	private String website;
+	
+	@Column(name="PROFILE_PIC_URL")
+	private String profilePic;
+	
+	@Column(name="COVER_PIC_URL")
+	private String coverPic;
 	
 	@Embedded
 	@Column(name="ADDRESS",nullable=false)
 	private Address address;
 	
-	@Column(name="PHONE1",nullable=false)
+	@Column(name="PHONE1",nullable=false,length=20)
 	private String phone1;
 	
-	@Column(name="PHONE2")
+	@Column(name="PHONE2",length=20)
 	private String phone2;
 	
-	@Column(name="PHONE3")
+	@Column(name="PHONE3",length=20)
 	private String phone3;
 	
-	@Column(name="EMAIL_ID",nullable=false)
+	@Column(name="EMAIL_ID",nullable=false,length=50)
 	private String emailId;
 	
 	@Column(name="CREATE_DT",nullable=false)
 	private Date createDt;
 	
-	@Column(name="IS_ENABLED",nullable=false)
+	@Column(name="IS_ENABLED",nullable=false,length=5)
 	private Boolean isEnabled;
 	
-	@OneToMany(mappedBy="organizer",cascade=CascadeType.ALL)
+	@OneToMany(cascade=CascadeType.ALL,mappedBy="organizer")
 	@JsonIgnore
-	private Set<EventDetails> events = new HashSet<EventDetails>();
+	private Set<EventOrganizerAdmin> organizerAdmins = new HashSet<EventOrganizerAdmin>();
+	
+	public String getWebsite() {
+		return website;
+	}
 
-	@OneToMany(cascade=CascadeType.ALL)
-	@JoinTable(
-	            name="ORGANIZER_ADMINS",
-	            joinColumns = @JoinColumn( name="ORGANIZER_ID"),
-	            inverseJoinColumns = @JoinColumn( name="USER_ID")
-	    )
-	@JsonIgnore
-	private Set<User> organizerAdmins = new HashSet<>();
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	public String getProfilePic() {
+		return profilePic;
+	}
+
+	public void setProfilePic(String profilePic) {
+		this.profilePic = profilePic;
+	}
+
+	public String getCoverPic() {
+		return coverPic;
+	}
+
+	public void setCoverPic(String coverPic) {
+		this.coverPic = coverPic;
+	}
 
 	public String getUuid() {
 		return uuid;
@@ -139,22 +162,19 @@ public class EventOrganizer {
 		this.isEnabled = isEnabled;
 	}
 
-	public Set<EventDetails> getEvents() {
-		return events;
-	}
 
-	public void setEvents(Set<EventDetails> events) {
-		this.events = events;
-	}
-
-	public Set<User> getOrganizerAdmins() {
+	public Set<EventOrganizerAdmin> getOrganizerAdmins() {
 		return organizerAdmins;
 	}
 
-	public void setOrganizerAdmins(Set<User> organizerAdmins) {
+	public void setOrganizerAdmins(Set<EventOrganizerAdmin> organizerAdmins) {
 		this.organizerAdmins = organizerAdmins;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "EventOrganizer = [id = "+this.uuid+ " , name = "+this.name+ " ]";
+	}
 	
 	
 }

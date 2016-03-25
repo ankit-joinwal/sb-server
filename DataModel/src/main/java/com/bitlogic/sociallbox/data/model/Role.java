@@ -16,7 +16,7 @@ public class Role {
 	@GeneratedValue
 	private Long id;
 	
-	@Column(name="ROLE_TYPE")
+	@Column(name="ROLE_TYPE",length=20)
 	@Enumerated(EnumType.STRING)
 	private UserRoleType userRoleType ;
 	

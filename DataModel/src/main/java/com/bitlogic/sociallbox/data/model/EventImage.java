@@ -25,16 +25,16 @@ public class EventImage {
 	@JsonIgnore
 	private Event event;
 
-	@Column(name="NAME")
+	@Column(name="NAME",length=100,nullable=false)
 	private String name;
 
-	@Column(name="URL")
+	@Column(name="URL",nullable=false)
 	private String url;
 
-	@Column(name="DISPLAY_ORDER")
+	@Column(name="DISPLAY_ORDER",nullable=false)
 	private Integer displayOrder;
 	
-	@Column(name="MIME_TYPE")
+	@Column(name="MIME_TYPE",length=50)
 	private String mimeType;
 	
 	

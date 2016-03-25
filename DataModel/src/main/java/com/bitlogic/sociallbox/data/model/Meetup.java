@@ -41,14 +41,14 @@ public class Meetup implements Serializable {
 	@Id
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name = "ID", unique = true)
+	@Column(name = "ID", unique = true,length=50)
 	private String uuid;
 
-	@Column(name="TITLE",nullable=false)
+	@Column(name="TITLE",nullable=false,length=100)
 	@XmlElement
 	private String title;
 
-	@Column(length=500,name="DESCRIPTION",nullable=false)
+	@Column(length=1000,name="DESCRIPTION",nullable=false)
 	@XmlElement
 	private String description;
 
@@ -63,8 +63,8 @@ public class Meetup implements Serializable {
 	@Column(name="END_DT",nullable=false)
 	private Date endDate;
 	
-	@Column(name="IS_PUBLIC",nullable=false)
-	private String isPublic;
+	@Column(name="IS_PUBLIC",nullable=false,length=5)
+	private Boolean isPublic;
 	
 	@OneToOne
 	@JoinColumn(name="ORGANIZER_ID",nullable=false)
@@ -103,11 +103,11 @@ public class Meetup implements Serializable {
 		this.createdDt = createdDt;
 	}
 
-	public String getIsPublic() {
+	public Boolean getIsPublic() {
 		return isPublic;
 	}
 
-	public void setIsPublic(String isPublic) {
+	public void setIsPublic(Boolean isPublic) {
 		this.isPublic = isPublic;
 	}
 
