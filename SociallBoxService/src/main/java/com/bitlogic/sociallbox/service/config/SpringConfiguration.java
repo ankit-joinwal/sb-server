@@ -1,5 +1,7 @@
 package com.bitlogic.sociallbox.service.config;
 
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.GAPIConfig;
 import com.bitlogic.sociallbox.data.model.ZomatoAPIConfig;
+import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -67,13 +70,14 @@ public class SpringConfiguration extends LoggingService {
 		String placePhotoGetAPI = environment.getRequiredProperty(Constants.PLACES_PHOTOS_GET_API_BASE_PATH_KEY);
 		String placePhotoGoogleAPI = environment.getRequiredProperty(Constants.G_PLACE_PHOTOS_URL_KEY);
 		
+		logger.info("###           Google Config       ###");
 		logInfo(LOG_PREFIX, "G_NEARBY_PLACES_URL : {} "+nearbySearchURL);
 		logInfo(LOG_PREFIX,"G_TSEARCH_URL : {} "+textSearchURL);
 		logInfo(LOG_PREFIX,"G_PLACE_DETAIL_URL : {}"+placeDetailsURL);
 		logInfo(LOG_PREFIX,"DEFAULT_GAPI_DATA_EXCHANGE_FMT : {}"+gapiDataFormat);
 		logInfo(LOG_PREFIX, "PLACES_PHOTOS_GET_API_BASE_PATH : {}", placePhotoGetAPI);
 		logInfo(LOG_PREFIX, "G_PLACE_PHOTOS_URL : {}", placePhotoGoogleAPI);
-		
+		logger.info("###########################################");
 		gConfig.setNearBySearchURL(nearbySearchURL);
 		gConfig.setDataExchangeFormat(gapiDataFormat);
 		gConfig.setGapiKey(gapiKey);
@@ -119,5 +123,17 @@ public class SpringConfiguration extends LoggingService {
 		return new CommonsMultipartResolver();
 	}
   
+	@Bean(name="fileService")
+	public ImageService getImageService(){
+		ImageService imageService = new ImageService();
+		Properties s3Properties = new Properties();
+		s3Properties.put(Constants.AWS_BUCKET_NAME_KEY, environment.getRequiredProperty(Constants.AWS_BUCKET_NAME_KEY));
+		s3Properties.put(Constants.AWS_EVENTS_ROOT_FOLDER_KEY, environment.getRequiredProperty(Constants.AWS_EVENTS_ROOT_FOLDER_KEY));
+		s3Properties.put(Constants.AWS_IMAGES_BASE_URL_KEY, environment.getRequiredProperty(Constants.AWS_IMAGES_BASE_URL_KEY));
+		
+		imageService.setConfigProperties(s3Properties);
+		
+		return imageService;
+	}
 	
 }

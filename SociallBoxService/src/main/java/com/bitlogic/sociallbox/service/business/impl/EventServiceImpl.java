@@ -1,9 +1,7 @@
 package com.bitlogic.sociallbox.service.business.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,13 +32,13 @@ import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
 import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
-import com.bitlogic.sociallbox.data.model.MeetupAttendee;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace.Result.AddressComponent;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest.MockEventDetails;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.business.EventService;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
 import com.bitlogic.sociallbox.service.dao.EventOrganizerDAO;
@@ -54,93 +52,114 @@ import com.bitlogic.sociallbox.service.exception.EntityNotFoundException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
+import com.bitlogic.sociallbox.service.transformers.MultipartToEventImageTransformer;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
 import com.bitlogic.sociallbox.service.utils.GeoUtils;
-import com.bitlogic.sociallbox.service.utils.ImageUtils;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 
 @Service
 @Transactional
-public class EventServiceImpl extends LoggingService implements EventService ,Constants{
+public class EventServiceImpl extends LoggingService implements EventService,
+		Constants {
 
-	private static final Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
-	
+	private static final Logger logger = LoggerFactory
+			.getLogger(EventServiceImpl.class);
+
 	@Override
 	public Logger getLogger() {
 		return logger;
 	}
-	
+
 	@Autowired
 	private UserDAO userDAO;
-	
+
 	@Autowired
 	private EventDAO eventDAO;
-	
+
 	@Autowired
 	private EventTagDAO eventTagDAO;
-	
+
 	@Autowired
 	private EventTypeDAO eventTypeDAO;
-	
+
 	@Autowired
 	private MeetupDAO meetupDAO;
-	
+
 	@Autowired
 	private SmartDeviceDAO smartDeviceDAO;
-	
+
 	@Autowired
 	private EventOrganizerDAO eventOrganizerDAO;
-	
-	@Override
-	public Event create(String userEmail,CreateEventRequest createEventRequest) {
-		String LOG_PREFIX = "EventServiceImpl-create";
-		
-		Event event = new Event();
-		MockEventDetails mockEventDetails = createEventRequest.getEventDetails();
 
-		EventOrganizerAdmin organizer = this.eventOrganizerDAO.getEOAdminProfileById(createEventRequest.getOrganizerProfileId()); 
-		logInfo(LOG_PREFIX,"Found organizer details {}",organizer);
-		
+	@Autowired
+	private ImageService imageService;
+
+	@Override
+	public Event create(String userEmail, CreateEventRequest createEventRequest) {
+		String LOG_PREFIX = "EventServiceImpl-create";
+
+		Event event = new Event();
+		MockEventDetails mockEventDetails = createEventRequest
+				.getEventDetails();
+
+		EventOrganizerAdmin organizer = this.eventOrganizerDAO
+				.getEOAdminProfileById(createEventRequest
+						.getOrganizerProfileId());
+		logInfo(LOG_PREFIX, "Found organizer details {}", organizer);
+
 		User organizerAdmin = this.userDAO.getUserByEmailId(userEmail, false);
-		if(organizerAdmin == null){
-			throw new ClientException(RestErrorCodes.ERR_002,ERROR_USER_INVALID);
+		if (organizerAdmin == null) {
+			throw new ClientException(RestErrorCodes.ERR_002,
+					ERROR_USER_INVALID);
 		}
-		if(!organizerAdmin.getEmailId().equals(organizer.getUser().getEmailId())){
-			logError(LOG_PREFIX, "Organizer Profile Id in request does not match User who made request", organizerAdmin.getEmailId());
-			throw new ClientException(RestErrorCodes.ERR_002,ERROR_USER_INVALID);
+		if (!organizerAdmin.getEmailId().equals(
+				organizer.getUser().getEmailId())) {
+			logError(
+					LOG_PREFIX,
+					"Organizer Profile Id in request does not match User who made request",
+					organizerAdmin.getEmailId());
+			throw new ClientException(RestErrorCodes.ERR_002,
+					ERROR_USER_INVALID);
 		}
-		
-		if(organizer.getStatus()!= EOAdminStatus.APPROVED){
-			logError(LOG_PREFIX, "User not authorized yet to create events", organizer.getUser().getName());
-			throw new ClientException(RestErrorCodes.ERR_002,ERROR_EO_ADMIN_UNAPPROVED);
+
+		if (organizer.getStatus() != EOAdminStatus.APPROVED) {
+			logError(LOG_PREFIX, "User not authorized yet to create events",
+					organizer.getUser().getName());
+			throw new ClientException(RestErrorCodes.ERR_002,
+					ERROR_EO_ADMIN_UNAPPROVED);
 		}
-		
+
 		Set<EventTag> tags = createEventRequest.getTags();
-		if(tags!=null && !tags.isEmpty()){
+		if (tags != null && !tags.isEmpty()) {
 			List<String> tagNames = new ArrayList<>();
-			for(EventTag eventTag : tags){
+			for (EventTag eventTag : tags) {
 				tagNames.add(eventTag.getName());
 			}
 			List<EventTag> tagsInDB = eventTagDAO.getTagsByNames(tagNames);
 			event.setTags(new HashSet<>(tagsInDB));
-		}else{
+		} else {
 			logError(LOG_PREFIX, "Tags not found in request ");
-			throw new ClientException(RestErrorCodes.ERR_002, ERROR_TAGS_MANDATORY);
+			throw new ClientException(RestErrorCodes.ERR_002,
+					ERROR_TAGS_MANDATORY);
 		}
-		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MEETUP_DATE_FORMAT);
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				Constants.MEETUP_DATE_FORMAT);
 		try {
-			event.setStartDate(dateFormat.parse(createEventRequest.getStartDate()));
+			event.setStartDate(dateFormat.parse(createEventRequest
+					.getStartDate()));
 			event.setEndDate(dateFormat.parse(createEventRequest.getEndDate()));
 		} catch (ParseException e) {
-			logError(LOG_PREFIX, "Error while parsing event dates {}", createEventRequest);
-			throw new ClientException(RestErrorCodes.ERR_001, ERROR_DATE_INVALID_FORMAT);
+			logError(LOG_PREFIX, "Error while parsing event dates {}",
+					createEventRequest);
+			throw new ClientException(RestErrorCodes.ERR_001,
+					ERROR_DATE_INVALID_FORMAT);
 		}
-		
+
 		Date now = new Date();
-		
+
 		event.setTitle(createEventRequest.getTitle());
 		event.setDescription(createEventRequest.getDescription());
 		event.setEventStatus(EventStatus.CREATED);
@@ -151,167 +170,206 @@ public class EventServiceImpl extends LoggingService implements EventService ,Co
 		eventDetails.setOrganizerAdmin(organizer);
 		eventDetails.setEvent(event);
 		eventDetails.setCreateDt(now);
-		
+
 		event.setEventDetails(eventDetails);
-		
+
 		Event created = this.eventDAO.create(event);
-		
-		//TODO : Address components
-		/*created.getEventDetails().setAddressComponents(this.getEventAddressInfo(eventDetails,mockEventDetails.getAddressComponents()));
-		this.eventDAO.saveEvent(created);*/
+
+		// TODO : Address components
+		/*
+		 * created.getEventDetails().setAddressComponents(this.getEventAddressInfo
+		 * (eventDetails,mockEventDetails.getAddressComponents()));
+		 * this.eventDAO.saveEvent(created);
+		 */
 		return created;
 	}
-	
-	private Set<EventAddressInfo> getEventAddressInfo(EventDetails eventDetails,Set<GooglePlace.Result.AddressComponent> addressComponents){
-		List<AddressComponentType> addressComponentTypes = this.meetupDAO.getAddressTypes();
-		logger.info("Inside getEventAddressInfo. addressComponentTypes : {}  ",addressComponentTypes);
-		Map<String,AddressComponentType> addressComponentTypesMap = new HashMap<>();
-		for(AddressComponentType addressComponentType: addressComponentTypes){
-			addressComponentTypesMap.put(addressComponentType.getName(), addressComponentType);
+
+	private Set<EventAddressInfo> getEventAddressInfo(
+			EventDetails eventDetails,
+			Set<GooglePlace.Result.AddressComponent> addressComponents) {
+		List<AddressComponentType> addressComponentTypes = this.meetupDAO
+				.getAddressTypes();
+		logger.info("Inside getEventAddressInfo. addressComponentTypes : {}  ",
+				addressComponentTypes);
+		Map<String, AddressComponentType> addressComponentTypesMap = new HashMap<>();
+		for (AddressComponentType addressComponentType : addressComponentTypes) {
+			addressComponentTypesMap.put(addressComponentType.getName(),
+					addressComponentType);
 		}
 		Set<EventAddressInfo> eventAddresses = new HashSet<>();
-		for(AddressComponent addressComponent : addressComponents){
-			logger.info("Address Component {} "+addressComponent.getLongName());
+		for (AddressComponent addressComponent : addressComponents) {
+			logger.info("Address Component {} "
+					+ addressComponent.getLongName());
 			List<String> types = addressComponent.getTypes();
-			logger.info("Types : {} ",types);
-			for(String type : types){
-				if(addressComponentTypes.contains(new AddressComponentType(type))){
-					logger.info("Address component type found : {}",type);
-					
-					AddressComponentType addressComponentType = addressComponentTypesMap.get(type);
-					EventAddressInfo eventAddressInfo  = new EventAddressInfo();
-					eventAddressInfo.setAddressComponentType(addressComponentType);
+			logger.info("Types : {} ", types);
+			for (String type : types) {
+				if (addressComponentTypes.contains(new AddressComponentType(
+						type))) {
+					logger.info("Address component type found : {}", type);
+
+					AddressComponentType addressComponentType = addressComponentTypesMap
+							.get(type);
+					EventAddressInfo eventAddressInfo = new EventAddressInfo();
+					eventAddressInfo
+							.setAddressComponentType(addressComponentType);
 					eventAddressInfo.setValue(addressComponent.getLongName());
 					eventAddressInfo.setEventDetails(eventDetails);
 					eventAddresses.add(eventAddressInfo);
-				
+
 					continue;
 				}
 			}
 		}
-		
+
 		logger.info("Event Address Components : " + eventAddresses);
-		
+
 		return eventAddresses;
 	}
-	
+
 	@Override
 	public Event get(String uuid) {
 		String LOG_PREFIX = "EventServiceImpl-get";
-		
+
 		Event event = this.eventDAO.getEvent(uuid);
-		if(event == null){
+		if (event == null) {
 			logError(LOG_PREFIX, "Event not found with uuid {}", uuid);
-			throw new EntityNotFoundException(uuid,RestErrorCodes.ERR_020,ERROR_INVALID_EVENT_IN_REQUEST);
+			throw new EntityNotFoundException(uuid, RestErrorCodes.ERR_020,
+					ERROR_INVALID_EVENT_IN_REQUEST);
 		}
 		return event;
 	}
-	
+
 	@Override
 	public void makeEventLive(String eventId) {
 		String LOG_PREFIX = "EventServiceImpl-makeEventLive";
-		
+
 		Event event = this.eventDAO.getEvent(eventId);
-		if(event == null){
+		if (event == null) {
 			logError(LOG_PREFIX, "Event not found with uuid {}", eventId);
-			throw new ClientException(RestErrorCodes.ERR_020,ERROR_INVALID_EVENT_IN_REQUEST);
+			throw new ClientException(RestErrorCodes.ERR_020,
+					ERROR_INVALID_EVENT_IN_REQUEST);
 		}
 		Date now = new Date();
 		event.setEventStatus(EventStatus.LIVE);
 		event.getEventDetails().setUpdateDt(now);
 		logInfo(LOG_PREFIX, "Successfully made event live {}", eventId);
-		
+
 	}
-	
+
 	@Override
-	public List<EventResponse> getEventsForUser(String userLocation,Long userId,String city, String country,Integer page) {
+	public List<EventResponse> getEventsForUser(String userLocation,
+			Long userId, String city, String country, Integer page) {
 		logger.info("### Inside getEventsForUser . ###");
-		
-		//Parse Location is Format Lattitude,Longitude
-		Map<String,Double> cordinatesMap = GeoUtils.getCoordinatesFromLocation(userLocation);
-		
+
+		// Parse Location is Format Lattitude,Longitude
+		Map<String, Double> cordinatesMap = GeoUtils
+				.getCoordinatesFromLocation(userLocation);
+
 		List<Long> userTags = null;
-		if(userId!=null){
+		if (userId != null) {
 			userTags = this.eventTagDAO.getUserTagIds(userId);
-		}else{
+		} else {
 			userTags = this.eventTagDAO.getAllTagIds();
 		}
-		return this.eventDAO.getEventsByFilter(cordinatesMap,userTags, city, country,page);
-		
-	}
-	
-	@Override
-	public List<EventResponse> getEventsByType(String userLocation,String eventTypeName, String city,
-			String country,Integer page){
+		return this.eventDAO.getEventsByFilter(cordinatesMap, userTags, city,
+				country, page);
 
-		//Parse Location is Format Lattitude,Longitude
-		Map<String,Double> cordinatesMap = GeoUtils.getCoordinatesFromLocation(userLocation);
-	
-		logger.info("### Inside getEventsByType .Type {}, City {} , Country {} ###",eventTypeName,city,country);
-		EventType eventType = this.eventTypeDAO.getEventTypeByName(eventTypeName);
-		if(eventType==null){
-			throw new ClientException(RestErrorCodes.ERR_003, ERROR_EVENT_TYPE_INVALID);
+	}
+
+	@Override
+	public List<EventResponse> getEventsByType(String userLocation,
+			String eventTypeName, String city, String country, Integer page) {
+
+		// Parse Location is Format Lattitude,Longitude
+		Map<String, Double> cordinatesMap = GeoUtils
+				.getCoordinatesFromLocation(userLocation);
+
+		logger.info(
+				"### Inside getEventsByType .Type {}, City {} , Country {} ###",
+				eventTypeName, city, country);
+		EventType eventType = this.eventTypeDAO
+				.getEventTypeByName(eventTypeName);
+		if (eventType == null) {
+			throw new ClientException(RestErrorCodes.ERR_003,
+					ERROR_EVENT_TYPE_INVALID);
 		}
-	
-		logger.info("Found Event Type by name {}",eventTypeName);
+
+		logger.info("Found Event Type by name {}", eventTypeName);
 		Set<EventTag> tags = eventType.getRelatedTags();
-		
+
 		List<Long> tagIds = new ArrayList<Long>(tags.size());
-		for(EventTag eventTag : tags){
+		for (EventTag eventTag : tags) {
 			tagIds.add(eventTag.getId());
 		}
 
-		return this.eventDAO.getEventsByFilter(cordinatesMap,tagIds, city, country,page);
+		return this.eventDAO.getEventsByFilter(cordinatesMap, tagIds, city,
+				country, page);
 	}
-	
+
 	@Override
-	public void storeEventImages(String imagesURL,List<MultipartFile> images, String eventId){
-		logger.info("### Inside EventServiceImpl.storeEventImages ###");
-		 List<EventImage> imagesToSave = new ArrayList<>();
-		 Event event = this.eventDAO.getEventWithoutImage(eventId);
-		 if(event==null){
-			 throw new ClientException(RestErrorCodes.ERR_003,ERROR_INVALID_EVENT_IN_REQUEST);
-		 }
-		 int displayOrder = 1;
-		 String eventImagesPath = Constants.EVENT_IMAGE_STORE_PATH+File.separator+eventId;
-		 String imagesPublicURL = imagesURL.replaceAll("secured", "public");
-		 logger.info("Event images path : {}",eventImagesPath);
-         for(MultipartFile multipartFile : images){
-        	 
-      	   logger.info("File to process : {} ",multipartFile.getOriginalFilename());
-      	   logger.info("File size : {} ", multipartFile.getSize());
-      	   Transformer<EventImage, MultipartFile> transformer = 
-      			   (Transformer<EventImage, MultipartFile>)TransformerFactory.getTransformer(Transformer_Types.MULTIPART_TO_EVENT_IMAGE_TRANFORMER);
-      	   try{
-      		   File created = ImageUtils.storeImageOnServer(eventImagesPath, multipartFile);
-      		   
-      		   String imageURL = imagesPublicURL +File.separator+ multipartFile.getOriginalFilename();
-      		   EventImage eventImage = transformer.transform(multipartFile);
-      		   eventImage.setEvent(event);
-      		   eventImage.setDisplayOrder(displayOrder);
-      		   eventImage.setUrl(imageURL);
-      		   Path source = Paths.get(created.getAbsolutePath());
-      		   eventImage.setMimeType(Files.probeContentType(source));
-      		   imagesToSave.add(eventImage);
-      		   displayOrder = displayOrder+1;
-      	   }catch(ServiceException serviceException){
-      		   logger.error("Error occurred while processing event image",serviceException);
-      	   }catch(Exception ex){
-      		 logger.error("Error occurred while processing event image",ex);
-      	   }
-         }
-         
-         if(!imagesToSave.isEmpty()){
-        	 this.eventDAO.saveEventImages(imagesToSave);
-         }
+	public void storeEventImages(String imagesURL, List<MultipartFile> images,
+			String eventId) {
+		String LOG_PREFIX = "EventServiceImpl-storeEventImages";
+		List<EventImage> imagesToSave = new ArrayList<>();
+		
+		Event event = this.eventDAO.getEventWithoutImage(eventId);
+		if (event == null) {
+			logError(LOG_PREFIX, "Event not found with id {}", eventId);
+			throw new ClientException(RestErrorCodes.ERR_003,
+					ERROR_INVALID_EVENT_IN_REQUEST);
+		}
+		int displayOrder = 1;
+		for (MultipartFile multipartFile : images) {
+			String fileName = multipartFile.getOriginalFilename();
+			logger.info("File to process : {} ", fileName);
+			logger.info("File size : {} ", multipartFile.getSize());
+			MultipartToEventImageTransformer transformer = (MultipartToEventImageTransformer) TransformerFactory
+					.getTransformer(Transformer_Types.MULTIPART_TO_EVENT_IMAGE_TRANFORMER);
+			try {
+				ByteArrayInputStream imageStream = new ByteArrayInputStream(
+						multipartFile.getBytes());
+				Map<String, ?> uploadedImageInfo = ImageService.uploadImageToEvent(eventId, 
+								imageStream,
+								multipartFile.getContentType(),
+								multipartFile.getBytes().length, 
+								fileName);
+				
+				if (uploadedImageInfo == null
+						|| !uploadedImageInfo
+								.containsKey(Constants.IMAGE_URL_KEY)) {
+					throw new ServiceException(IMAGE_SERVICE_NAME,
+							RestErrorCodes.ERR_052,
+							"Unable to upload image.Please try later");
+				}
+				String imageURL = (String) uploadedImageInfo
+						.get(Constants.IMAGE_URL_KEY);
+
+				EventImage eventImage = transformer.transform(multipartFile);
+				eventImage.setEvent(event);
+				eventImage.setDisplayOrder(displayOrder);
+				eventImage.setUrl(imageURL);
+
+				imagesToSave.add(eventImage);
+				displayOrder = displayOrder + 1;
+			} catch (ServiceException serviceException) {
+				logger.error("Error occurred while processing event image",
+						serviceException);
+			} catch (Exception ex) {
+				logger.error("Error occurred while processing event image", ex);
+			}
+		}
+
+		if (!imagesToSave.isEmpty()) {
+			this.eventDAO.saveEventImages(imagesToSave);
+		}
 	}
-	
+
 	@Override
 	public List<EventImage> getEventImages(String eventId) {
 		List<EventImage> eventImages = this.eventDAO.getEventImages(eventId);
 		return eventImages;
 	}
-	
+
 	@Override
 	public List<EventResponse> getEventsPendingForApproval() {
 		String LOG_PREFIX = "EventServiceImpl-getEventsPendingForApproval";
@@ -319,15 +377,15 @@ public class EventServiceImpl extends LoggingService implements EventService ,Co
 		logInfo(LOG_PREFIX, "Total Events Pending = {}", pendingEvents.size());
 		return pendingEvents;
 	}
-	
+
 	@Override
 	public void approveEvents(List<String> eventIds) {
 
 		String LOG_PREFIX = "EventServiceImpl-approveEvents";
 		List<Event> events = this.eventDAO.getEventsByIds(eventIds);
 		List<String> eventNames = new ArrayList<String>();
-		if(events !=null){
-			for(Event event : events){
+		if (events != null) {
+			for (Event event : events) {
 				eventNames.add(event.getTitle());
 				event.setIsAllowedEventToGoLive(Boolean.TRUE);
 				event.setEventStatus(EventStatus.READY_TO_GO_LIVE);
@@ -335,34 +393,40 @@ public class EventServiceImpl extends LoggingService implements EventService ,Co
 		}
 		logInfo(LOG_PREFIX, "Following events approved : {}", eventNames);
 	}
-	
+
 	@Override
 	public EventAttendee registerForEvent(String eventId, String deviceId) {
 		String LOG_PREFIX = "EventServiceImpl-registerForEvent";
-		
-		logInfo(LOG_PREFIX, "Getting user info from device id : {}",deviceId);
+
+		logInfo(LOG_PREFIX, "Getting user info from device id : {}", deviceId);
 		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
-		if(user == null){
-			logError(LOG_PREFIX, "No user exists fro given device Id {}", deviceId);
-			throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_LOGIN_USER_UNAUTHORIZED);
+		if (user == null) {
+			logError(LOG_PREFIX, "No user exists fro given device Id {}",
+					deviceId);
+			throw new UnauthorizedException(RestErrorCodes.ERR_002,
+					ERROR_LOGIN_USER_UNAUTHORIZED);
 		}
-		
-		EventAttendee eventAttendee = this.eventDAO.getAttendee(eventId, user.getId());
-		if(eventAttendee!=null){
+
+		EventAttendee eventAttendee = this.eventDAO.getAttendee(eventId,
+				user.getId());
+		if (eventAttendee != null) {
 			logInfo(LOG_PREFIX, "Event attendee exists already ");
 			return eventAttendee;
 		}
 		Event event = this.eventDAO.getEvent(eventId);
-		if(event==null){
+		if (event == null) {
 			logInfo(LOG_PREFIX, "Event not found for id = {}", eventId);
-			throw new ClientException(RestErrorCodes.ERR_002,ERROR_INVALID_EVENT_IN_REQUEST);
+			throw new ClientException(RestErrorCodes.ERR_002,
+					ERROR_INVALID_EVENT_IN_REQUEST);
 		}
 		EventAttendee newAttendee = new EventAttendee();
 		newAttendee.setEvent(event);
 		newAttendee.setUser(user);
-		
-		EventAttendee registeredAttendee = this.eventDAO.saveAttendee(newAttendee);
-		logInfo(LOG_PREFIX, "User {} Registered for Event {} succesfully", user.getName(),event.getTitle());
+
+		EventAttendee registeredAttendee = this.eventDAO
+				.saveAttendee(newAttendee);
+		logInfo(LOG_PREFIX, "User {} Registered for Event {} succesfully",
+				user.getName(), event.getTitle());
 		return registeredAttendee;
 	}
 }

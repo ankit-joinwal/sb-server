@@ -7,6 +7,6 @@ public enum RestErrorCodes {
 	ERR_010 , //Google API Errors
 	ERR_020, //Entity Not Found
 	ERR_050, //Server Error in service,
-	ERR_051 //SQL Exceptions & DataAccessAcceptions
-	
+	ERR_051, //SQL Exceptions & DataAccessAcceptions
+	ERR_052 //Unable to upload image
 }

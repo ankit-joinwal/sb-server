@@ -59,7 +59,8 @@ public interface Constants {
 	String EVENT_RESPONSE_DATE_FORMAT = "d MMM yyyy";
 	String MEETUP_RESPONSE_DATE_FORMAT = "d MMM yyyy";
 	String TRUE = "true";
-	String GEO_SERVICE_NAME = "GeoService";
+	String GEO_SERVICE_NAME = "SociallBoxService";
+	String IMAGE_SERVICE_NAME = "ImageService";
 	String LATTITUDE_KEY = "LATTITUDE";
 	String LONGITUDE_KEY = "LONGITUDE";
 	String KILOMETRES = " Kms";
@@ -73,6 +74,14 @@ public interface Constants {
 	String SECURED_REQUEST_START_LOG_MESSAGE = "Request Recieved | {} ";
 	//Pass Request Name
 	String PUBLIC_REQUEST_START_LOG = "Request Recieved | {} ";
+	
+	//S3 Config Properties
+	String AWS_EVENTS_ROOT_FOLDER_KEY = "aws.s3.events.root.path";
+	String AWS_BUCKET_NAME_KEY = "aws.s3.bucket.name";
+	String AWS_IMAGES_BASE_URL_KEY = "aws.s3.images.bas.url";
+	
+	//Image Service Constants
+	String IMAGE_URL_KEY = "IMAGE_URL_KEY";
 	
 	String EVENT_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"events";
 	String MEETUP_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"meetups";
