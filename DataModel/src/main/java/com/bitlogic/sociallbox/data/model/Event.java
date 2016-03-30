@@ -62,12 +62,22 @@ public class Event {
 	@Column(name="ALLOW_EVENT_TO_GO_LIVE",length=5,nullable=false)
 	private Boolean isAllowedEventToGoLive;
 	
+	@Column(name="IS_FREE_EVENT",length=5)
+	private Boolean isFreeEvent;
+	
 	@Column(name="START_DT",nullable=false)
 	private Date startDate;
 
 	@Column(name="END_DT",nullable=false)
 	private Date endDate;
 
+	public Boolean getIsFreeEvent() {
+		return isFreeEvent;
+	}
+
+	public void setIsFreeEvent(Boolean isFreeEvent) {
+		this.isFreeEvent = isFreeEvent;
+	}
 
 	public EventStatus getEventStatus() {
 		return eventStatus;

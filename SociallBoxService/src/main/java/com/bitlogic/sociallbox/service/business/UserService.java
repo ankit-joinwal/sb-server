@@ -11,6 +11,7 @@ import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
+import com.bitlogic.sociallbox.data.model.response.UserEventInterest;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
 
 public interface UserService {
@@ -22,9 +23,9 @@ public interface UserService {
 	
 	public User signupOrSignin(User user,UserTypeBasedOnDevice userTypeBasedOnDevice) ;
 	
-	public List<EventType> getUserEventInterests(Long id);
+	public List<UserEventInterest> getUserEventInterests(Long id);
 	
-	public List<EventType> saveUserEventInterests(Long id,List<EventType> types);
+	public List<UserEventInterest> saveUserEventInterests(Long id,List<UserEventInterest> types);
 	
 	public SmartDevice getSmartDeviceDetails(String uniqueId) ;
 	

@@ -1,6 +1,9 @@
 package com.bitlogic.sociallbox.test.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -10,21 +13,18 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.transform.ResultTransformer;
 
-import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Category;
 import com.bitlogic.sociallbox.data.model.Event;
+import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.PushNotificationSettingMaster;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SourceSystemForPlaces;
-import com.bitlogic.sociallbox.data.model.User;
-import com.bitlogic.sociallbox.data.model.UserAndPlaceMapping;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
-import com.bitlogic.sociallbox.data.model.UserSetting;
 
 public class DBSetup {
 	private static Session session = null;
@@ -42,20 +42,21 @@ public class DBSetup {
 		// setupRoleData();
 		// setupCategories();
 		// setupPushSettingTypes();
-		
-		Criteria criteria = session.createCriteria(UserAndPlaceMapping.class)
-				.add(Restrictions.eq("placeId", "ChIJq11ZZh3jDDkR6wx3ISmietM"))
-				.setProjection(Projections.property("userId"));
-		List<Long> usersIds = criteria.list();
-		System.out.println(usersIds);
-		
-		Criteria criteria1 = session.createCriteria(User.class)
-				.createAlias("friends", "friend")
-				.setFetchMode("friend", FetchMode.JOIN)
-				.add(Restrictions.eq("id", 5L))
-				.add(Restrictions.in("friend.id", usersIds));
-		User userWithFriends = (User)criteria1.uniqueResult();
-		System.out.println(userWithFriends.getFriends());
+		Criteria criteria = session.createCriteria(Event.class, "event")
+				.setFetchMode("event.eventDetails.organizer", FetchMode.JOIN)
+				.setFetchMode("event.tags", FetchMode.JOIN)
+				.createAlias("event.eventDetails", "ed")
+				.createAlias("event.tags", "eventTag")
+				.setFetchMode("event.eventImages", FetchMode.JOIN)
+				.createAlias("event.eventImages", "image")
+				.add(Restrictions.eq("image.displayOrder", 1))
+				.add(Restrictions.eq("event.eventStatus", EventStatus.CREATED))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		List<Event> events = criteria.list();
+	 for(Event event : events){
+		 System.out.println(event.getTitle());
+	 }
+		System.out.println(events);
 		session.getTransaction().commit();
 		session.close();
 		factory.close();

@@ -8,8 +8,10 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name="EVENT_ATTENDEES",indexes={ @Index(name = "IDX_EVENT_ATT", columnList = "EVENT_ID,USER_ID")} )
@@ -29,6 +31,36 @@ public class EventAttendee {
 	@JoinColumn(name = "USER_ID",nullable=false)
 	@JsonIgnore
 	private User user;
+	
+	@JsonProperty("user_id")
+	@Transient
+	private Long userId;
+	
+	@JsonProperty("event_id")
+	@Transient
+	private String eventId;
+	
+	public Long getUserId() {
+		if(user!=null){
+			return user.getId();
+		}
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getEventId() {
+		if(event!=null){
+			return event.getUuid();
+		}
+		return eventId;
+	}
+
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
+	}
 
 	public Long getId() {
 		return id;

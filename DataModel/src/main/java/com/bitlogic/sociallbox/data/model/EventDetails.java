@@ -48,7 +48,10 @@ public class EventDetails {
 	@Column(name="LOCATION")
 	@XmlElement
 	private Location location;
-
+	
+	@Column(name="BOOKING_URL")
+	private String bookingUrl;
+	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="ORGANIZER_ADMIN_ID")
 	private EventOrganizerAdmin organizerAdmin;
@@ -68,6 +71,14 @@ public class EventDetails {
 	@Column(name="UPD_DT")
 	private Date updateDt;
 	
+	public String getBookingUrl() {
+		return bookingUrl;
+	}
+
+	public void setBookingUrl(String bookingUrl) {
+		this.bookingUrl = bookingUrl;
+	}
+
 	public Date getUpdateDt() {
 		return updateDt;
 	}

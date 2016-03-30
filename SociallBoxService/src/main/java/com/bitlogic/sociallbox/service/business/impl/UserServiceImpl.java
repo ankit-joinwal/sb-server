@@ -23,11 +23,11 @@ import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.User;
-import com.bitlogic.sociallbox.data.model.UserAndPlaceMapping;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
+import com.bitlogic.sociallbox.data.model.response.UserEventInterest;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.dao.EventTagDAO;
@@ -321,24 +321,43 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 	}
 
 	@Override
-	public List<EventType> getUserEventInterests(Long id) {
+	public List<UserEventInterest> getUserEventInterests(Long id) {
 		String LOG_PREFIX = "getUserEventInterests";
 		logInfo(LOG_PREFIX, "Getting user event interests");
-		List<EventType> userInterests = this.eventTypeDAO.getUserInterests(id);
+		List<EventType> allEventTypesExceptShop = this.eventTypeDAO.getAllEventTypesExceptShop();
+		List<UserEventInterest> userEventInterests = new ArrayList<UserEventInterest>();
 		
-		return userInterests;
+		List<EventType> userInterests = this.eventTypeDAO.getUserInterests(id);
+		if(userInterests!=null){
+			for(EventType eventType : allEventTypesExceptShop){
+				UserEventInterest eventInterest = new UserEventInterest();
+				if(userInterests.contains(eventType)){
+					
+					eventInterest.setEventType(eventType);
+					eventInterest.setIsUserInterest(Boolean.TRUE);
+				}else{
+					eventInterest.setEventType(eventType);
+				}
+				userEventInterests.add(eventInterest);
+			}
+		}
+		return userEventInterests;
 	}
 
 	@Override
-	public List<EventType> saveUserEventInterests(Long id, List<EventType> types) {
+	public List<UserEventInterest> saveUserEventInterests(Long id, List<UserEventInterest> interests) {
 		String LOG_PREFIX = "saveUserEventInterests";
 		List<String> typeNames = new ArrayList<>();
-		for (EventType type : types) {
-			typeNames.add(type.getName());
+		for (UserEventInterest interest : interests) {
+			if(interest.getIsUserInterest()){
+				typeNames.add(interest.getEventType().getName());
+			}
 		}
 		logInfo(LOG_PREFIX, "Saving user interests for user {} | {} ", id,typeNames);
 		List<EventType> typesInDB = this.eventTypeDAO.getEventTypesByNames(typeNames);
-		return this.eventTypeDAO.saveUserEventInterests(typesInDB, id);
+		
+		this.eventTypeDAO.saveUserEventInterests(typesInDB, id);
+		return interests;
 	}
 
 	@Override

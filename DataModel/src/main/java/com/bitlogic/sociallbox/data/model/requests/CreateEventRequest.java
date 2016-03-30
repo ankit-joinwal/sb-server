@@ -37,9 +37,20 @@ public class CreateEventRequest implements Serializable{
 	public static final class MockEventDetails{
 
 		private Location location;
+		
+		@JsonProperty("booking_url")
+		private String bookingUrl;
 
 		private Set<GooglePlace.Result.AddressComponent> addressComponents = new HashSet<>();
 		
+		public String getBookingUrl() {
+			return bookingUrl;
+		}
+
+		public void setBookingUrl(String bookingUrl) {
+			this.bookingUrl = bookingUrl;
+		}
+
 		public Set<GooglePlace.Result.AddressComponent> getAddressComponents() {
 			return addressComponents;
 		}
@@ -70,6 +81,18 @@ public class CreateEventRequest implements Serializable{
 	@NotNull(message="error.event.organizer.mandatory")
 	@JsonProperty("profile_id")
 	private Long organizerProfileId;
+	
+	@JsonProperty("is_free")
+	private Boolean isFree = Boolean.FALSE;
+
+	
+	public Boolean getIsFree() {
+		return isFree;
+	}
+
+	public void setIsFree(Boolean isFree) {
+		this.isFree = isFree;
+	}
 
 	public Long getOrganizerProfileId() {
 		return organizerProfileId;

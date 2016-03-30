@@ -17,6 +17,7 @@ import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserAndPlaceMapping;
 import com.bitlogic.sociallbox.data.model.ext.Place;
 import com.bitlogic.sociallbox.data.model.ext.Places;
+import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
 import com.bitlogic.sociallbox.data.model.ext.zomato.ZomatoPlaces;
 import com.bitlogic.sociallbox.data.model.ext.zomato.ZomatoPlaces.Restaurant;
 import com.bitlogic.sociallbox.data.model.requests.NearbySearchRequest;
@@ -34,6 +35,7 @@ import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.UsersToFriendsTransformer;
 import com.bitlogic.sociallbox.service.utils.GeoUtils;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 
@@ -79,7 +81,7 @@ public class PlacesServiceImpl extends LoggingService implements PlacesService,C
 	
 	@Override
 	public Places searchNearby(NearbySearchRequest nearbySearchRequest) {
-		String LOG_PREFIX = "searchNearby"; 
+		String LOG_PREFIX = "PlacesServiceImpl-searchNearby"; 
 		/*
 		 * 	To determine source system for places search,
 		 *  search for input category and check SourceSystem in Category object
@@ -118,7 +120,7 @@ public class PlacesServiceImpl extends LoggingService implements PlacesService,C
 	 * @return List of places from zomato
 	 */
 	private Places searchPlacesFromZomato(NearbySearchRequest nearbySearchRequest){
-		String LOG_PREFIX = "searchPlacesFromZomato";
+		String LOG_PREFIX = "PlacesServiceImpl-searchPlacesFromZomato";
 		Places places = this.nearbySearchServiceZomato.search(nearbySearchRequest);
 		if(places instanceof ZomatoPlaces){
 			places.setSourceSystem(SourceSystemForPlaces.ZOMATO.toString());
@@ -178,7 +180,7 @@ public class PlacesServiceImpl extends LoggingService implements PlacesService,C
 	
 	@Override
 	public Place getPlaceDetails(PlaceDetailsRequest placeDetailsRequest) {
-		String LOG_PREFIX = "getPlaceDetails";
+		String LOG_PREFIX = "PlacesServiceImpl-getPlaceDetails";
 		logInfo(LOG_PREFIX, "PlaceDetailsRequest = {}", placeDetailsRequest);
 		String sourceSystem = placeDetailsRequest.getSourceSystem();
 		SourceSystemForPlaces systemForPlaces = null;
@@ -189,6 +191,16 @@ public class PlacesServiceImpl extends LoggingService implements PlacesService,C
 		}
 		if(systemForPlaces != null && systemForPlaces == SourceSystemForPlaces.GOOGLE){
 			Place place = placeDetailsServiceGoogle.getPlaceDetails(placeDetailsRequest);
+			
+			if(placeDetailsRequest.getUserId()!=null){
+				UserAndPlaceMapping mapping = new UserAndPlaceMapping();
+				mapping.setUserId(placeDetailsRequest.getUserId());
+				mapping.setPlaceId(placeDetailsRequest.getPlaceId());
+				Boolean isLikedByUser = placeDAO.checkIfUserLikesPlace(mapping);
+				GooglePlace googlePlace = (GooglePlace) place;
+				googlePlace.getResult().setIsLikedByuser(isLikedByUser);
+			}
+			
 			return place;
 		}else{
 			throw new ClientException(RestErrorCodes.ERR_001, ERROR_INVALID_SOURCE_SYSTEM);
@@ -199,8 +211,8 @@ public class PlacesServiceImpl extends LoggingService implements PlacesService,C
 	@Override
 	public List<UserFriend> getFriendsWhoLikePlace(String deviceId,String placeId) {
 		
-		List<UserFriend> userFriends = new ArrayList<UserFriend>(1);
-		String LOG_PREFIX = "getFriendsWhoLikePlace";
+		List<UserFriend> userFriends = new ArrayList<UserFriend>();
+		String LOG_PREFIX = "PlacesServiceImpl-getFriendsWhoLikePlace";
 		logInfo(LOG_PREFIX, "Getting user info from device id : {}",deviceId);
 		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
 		if(user == null){
@@ -210,21 +222,9 @@ public class PlacesServiceImpl extends LoggingService implements PlacesService,C
 		logInfo(LOG_PREFIX, "Getting friends list of user = {} who like place = {}", user.getId(),placeId);
 		List<Long> usersIds = this.placeDAO.getUsersWhoLikePlace(placeId);
 		if(usersIds!=null){
-			List<User> allFriends = this.userDAO.getUserFriends(user);
-			List<User> friendsWhoLikePlace = new ArrayList<User>();
-			if(allFriends!=null){
-				//TODO : Improve performance
-				for(User friend : allFriends){
-					
-					for(Long userId : usersIds){
-						if(friend.getId() == userId){
-							friendsWhoLikePlace.add(friend);
-						}
-					}
-				}
-			}
+			List<User> friendsWhoLikePlace = this.userDAO.getUserFriendsByIds(user, usersIds);
 			if(friendsWhoLikePlace!=null){
-				Transformer<List<UserFriend>, List<User>> transformer = (Transformer<List<UserFriend>, List<User>>) TransformerFactory
+				UsersToFriendsTransformer transformer = (UsersToFriendsTransformer) TransformerFactory
 					.getTransformer(Transformer_Types.USER_TO_FRIEND_TRANSFORMER);
 				userFriends = transformer.transform(friendsWhoLikePlace);
 			}
@@ -239,7 +239,7 @@ public class PlacesServiceImpl extends LoggingService implements PlacesService,C
 	@Override
 	public void saveUserPlaceLike(String deviceId, String placeId) {
 
-		String LOG_PREFIX = "saveUserPlaceLike";
+		String LOG_PREFIX = "PlacesServiceImpl-saveUserPlaceLike";
 		logInfo(LOG_PREFIX, "Getting user info from device id : {}",deviceId);
 		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
 		if(user == null){

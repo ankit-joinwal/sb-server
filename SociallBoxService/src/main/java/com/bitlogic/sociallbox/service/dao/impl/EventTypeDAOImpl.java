@@ -60,8 +60,20 @@ public class EventTypeDAOImpl extends AbstractDAO implements EventTypeDAO {
 	}
 	
 	@Override
+	public List<EventType> getAllEventTypesExceptShop() {
+		
+		Criteria criteria = getSession().createCriteria(EventType.class)
+							.add(Restrictions.ne("name", Constants.SHOPPING_EVENT_TYPE_NAME));
+		List<EventType> typesExceptShop = criteria.list();
+		return typesExceptShop;
+	}
+	
+	@Override
 	public List<EventType> getEventTypesByNames(List<String> names) {
-		Criteria criteria = getSession().createCriteria(EventType.class).add(Restrictions.in("name", names)).setFetchMode("relatedTags", FetchMode.JOIN);
+		Criteria criteria = getSession().
+							createCriteria(EventType.class).add(Restrictions.in("name", names))
+							.setFetchMode("relatedTags", FetchMode.JOIN)
+							.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<EventType> eventTypes = (List<EventType>) criteria.list();
 		return eventTypes;
 	}

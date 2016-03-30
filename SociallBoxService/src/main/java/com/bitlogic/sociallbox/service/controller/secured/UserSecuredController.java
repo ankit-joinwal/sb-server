@@ -24,6 +24,7 @@ import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
+import com.bitlogic.sociallbox.data.model.response.UserEventInterest;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.controller.BaseController;
@@ -238,38 +239,284 @@ public class UserSecuredController extends BaseController implements Constants{
 		return users;
 	}
 	
+	/**
+	 *  @api {get} /api/secured/users/:userId/preferences/interests Get User Events Interests
+	 *  @apiName Get User Events Interests
+	 *  @apiGroup Events
+	 *  @apiParam {Number} userId Mandatory User id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiHeaderExample {json} Example Headers
+	 *  accept: application/json
+		Content-Type: application/json
+		X-Auth-Date: 1455988523724
+		Authorization: Basic U0R+U01BUlRfREVWSUNFXzI6NCtPU3JRN0tKMzZ2TW9iRmoxbmJEZG5ydVVJVTlwTWFVWmN1V0xxaUFaRT0=
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data User Event Interests
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+		  "status": "Success",
+		  "data": [
+		    {
+		      "type": {
+		        "id": 2,
+		        "name": "music",
+		        "description": "Music",
+		        "displayOrder": 2,
+		        "color": "#56bde8"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 3,
+		        "name": "nightlife",
+		        "description": "NightLife",
+		        "displayOrder": 3,
+		        "color": "#7ed321"
+		      },
+		      "is_interest": true
+		    },
+		    {
+		      "type": {
+		        "id": 4,
+		        "name": "foodanddrink",
+		        "description": "Food n Drinks",
+		        "displayOrder": 4,
+		        "color": "#f5a623"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 5,
+		        "name": "startup",
+		        "description": "Startup",
+		        "displayOrder": 5,
+		        "color": "#3b5998"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 6,
+		        "name": "education",
+		        "description": "Education",
+		        "displayOrder": 6,
+		        "color": "#f8e71c"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 7,
+		        "name": "travel",
+		        "description": "Travel",
+		        "displayOrder": 7,
+		        "color": "#8b572a"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 8,
+		        "name": "exhibition",
+		        "description": "Exhibition",
+		        "displayOrder": 9,
+		        "color": "#55acee"
+		      },
+		      "is_interest": true
+		    },
+		    {
+		      "type": {
+		        "id": 9,
+		        "name": "entertainment",
+		        "description": "Entertainment",
+		        "displayOrder": 8,
+		        "color": "#9013fe"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 10,
+		        "name": "sports",
+		        "description": "Sports",
+		        "displayOrder": 10,
+		        "color": "#429a0c"
+		      },
+		      "is_interest": true
+		    },
+		    {
+		      "type": {
+		        "id": 11,
+		        "name": "spiritual",
+		        "description": "Spirituality",
+		        "displayOrder": 11,
+		        "color": "#d0021b"
+		      },
+		      "is_interest": false
+		    }
+		  ],
+		  "page": 1,
+		  "nextPage": null,
+		  "total_records": 10
+		}
+	 */
 	@RequestMapping(value = "/{id}/preferences/interests", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public EntityCollectionResponse<EventType> getUserEventInterests(
+	public EntityCollectionResponse<UserEventInterest> getUserEventInterests(
 								@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth,
 								@PathVariable Long id){
 		logRequestStart(GET_USER_EVENTS_INTEREST_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE, GET_USER_EVENTS_INTEREST_REQUEST);
 		logInfo(GET_USER_EVENTS_INTEREST_REQUEST, "Auth header = {}", auth);
 		logInfo(GET_USER_EVENTS_INTEREST_REQUEST, "User id = {}", id);
-		List<EventType> userInterests = this.userService.getUserEventInterests(id);
-		EntityCollectionResponse<EventType> collectionResponse = new EntityCollectionResponse<>();
+		List<UserEventInterest> userInterests = this.userService.getUserEventInterests(id);
+		EntityCollectionResponse<UserEventInterest> collectionResponse = new EntityCollectionResponse<UserEventInterest>();
 		collectionResponse.setData(userInterests);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus("Success");
+		collectionResponse.setTotalRecords(userInterests.size());
 		logRequestEnd(GET_USER_EVENTS_INTEREST_REQUEST, GET_USER_EVENTS_INTEREST_REQUEST);
 		return collectionResponse;
 	}
 	
+	/**
+	 *  @api {post} /api/secured/users/:userId/preferences/interests Save User Event Interests
+	 *  @apiName Save User Event Interest
+	 *  @apiGroup Events
+	 *  @apiParam  {Number} userId Mandatory User Id 
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Message 
+	 * 	@apiParamExample {json} Request-Example:
+	 *   [
+		    {
+		      "type": {
+		        "id": 2,
+		        "name": "music",
+		        "description": "Music",
+		        "displayOrder": 2,
+		        "color": "#56bde8"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 3,
+		        "name": "nightlife",
+		        "description": "NightLife",
+		        "displayOrder": 3,
+		        "color": "#7ed321"
+		      },
+		      "is_interest": true
+		    },
+		    {
+		      "type": {
+		        "id": 4,
+		        "name": "foodanddrink",
+		        "description": "Food n Drinks",
+		        "displayOrder": 4,
+		        "color": "#f5a623"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 5,
+		        "name": "startup",
+		        "description": "Startup",
+		        "displayOrder": 5,
+		        "color": "#3b5998"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 6,
+		        "name": "education",
+		        "description": "Education",
+		        "displayOrder": 6,
+		        "color": "#f8e71c"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 7,
+		        "name": "travel",
+		        "description": "Travel",
+		        "displayOrder": 7,
+		        "color": "#8b572a"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 8,
+		        "name": "exhibition",
+		        "description": "Exhibition",
+		        "displayOrder": 9,
+		        "color": "#55acee"
+		      },
+		      "is_interest": true
+		    },
+		    {
+		      "type": {
+		        "id": 9,
+		        "name": "entertainment",
+		        "description": "Entertainment",
+		        "displayOrder": 8,
+		        "color": "#9013fe"
+		      },
+		      "is_interest": false
+		    },
+		    {
+		      "type": {
+		        "id": 10,
+		        "name": "sports",
+		        "description": "Sports",
+		        "displayOrder": 10,
+		        "color": "#429a0c"
+		      },
+		      "is_interest": true
+		    },
+		    {
+		      "type": {
+		        "id": 11,
+		        "name": "spiritual",
+		        "description": "Spirituality",
+		        "displayOrder": 11,
+		        "color": "#d0021b"
+		      },
+		      "is_interest": false
+		    }
+		  ]
+
+	 */
 	@RequestMapping(value = "/{id}/preferences/interests", method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
-	public EntityCollectionResponse<EventType> saveUserEventInterests(
+	public EntityCollectionResponse<UserEventInterest> saveUserEventInterests(
 			@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
-			@PathVariable Long id,@RequestBody List<EventType> types){
+			@PathVariable Long id,@RequestBody List<UserEventInterest> types){
 		logRequestStart(SAVE_USER_EVENTS_INTEREST_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE, SAVE_USER_EVENTS_INTEREST_REQUEST);
 		logInfo(SAVE_USER_EVENTS_INTEREST_REQUEST, "Auth Header = {}", auth);
 		logInfo(SAVE_USER_EVENTS_INTEREST_REQUEST, "User id {}", id);
-		List<EventType> eventTags = this.userService.saveUserEventInterests(id, types);
-		EntityCollectionResponse<EventType> collectionResponse = new EntityCollectionResponse<>();
+		List<UserEventInterest> eventTags = this.userService.saveUserEventInterests(id, types);
+		EntityCollectionResponse<UserEventInterest> collectionResponse = new EntityCollectionResponse<UserEventInterest>();
 		collectionResponse.setData(eventTags);
 		collectionResponse.setPage(1);
 		collectionResponse.setStatus(SUCCESS_STATUS);
+		collectionResponse.setTotalRecords(eventTags.size());
 		logRequestEnd(SAVE_USER_EVENTS_INTEREST_REQUEST, SAVE_USER_EVENTS_INTEREST_REQUEST);
 		return collectionResponse;
 	}

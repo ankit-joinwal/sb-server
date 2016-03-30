@@ -12,6 +12,7 @@ import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.MeetupAttendee;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.data.model.response.UserFriend;
 
 public interface EventService {
 
@@ -25,7 +26,9 @@ public interface EventService {
 	
 	public List<EventResponse> getEventsForUser(String userLocation,Long userId,String city,String country,Integer page);
 	
-	public List<EventResponse> getEventsByType(String userLocation,String eventType,String city,String country,Integer page);
+	public List<EventResponse> getEventsByType(String userLocation,Long userId,String eventType,String city,String country,Integer page);
+	
+	public List<EventResponse> getUpcomingEventsByOrg(String organizerId,String filterEventId);
 	
 	@PreAuthorize("hasAnyRole('"+Constants.ROLE_TYPE_ADMIN+"','"+Constants.ROLE_ORGANIZER+"')")
 	public void storeEventImages(String imagesURL,List<MultipartFile> images , String eventId) ;
@@ -39,4 +42,8 @@ public interface EventService {
 	public void approveEvents(List<String> eventIds);
 	
 	public EventAttendee registerForEvent(String eventId, String deviceId);
+	
+	public List<UserFriend> getFriendsGoingToEvent(String deviceId,String eventId);
+	
+	public void addEventToUserFav(String deviceId, String eventId);
 }

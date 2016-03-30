@@ -1,6 +1,7 @@
 package com.bitlogic.sociallbox.data.model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -38,6 +39,8 @@ public class EventType {
 	@XmlElement
 	@JsonProperty
 	private String description;
+	
+	
 
 	@JsonIgnore
 	@XmlTransient
@@ -53,8 +56,19 @@ public class EventType {
 	@JsonProperty
 	private Integer displayOrder;
 	
+	@Column(name="COLOR",length=20)
+	@JsonProperty
+	private String color;
 	
 	
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
 	public Integer getDisplayOrder() {
 		return displayOrder;
 	}
@@ -105,6 +119,25 @@ public class EventType {
 		this.description = description;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		 if (obj == null)
+	      {
+	         return false;
+	      }
+	      if (getClass() != obj.getClass())
+	      {
+	         return false;
+	      }
+	      final EventType eventType = (EventType) obj;
+		return  Objects.equals(this.name, eventType.name);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(name);
+	}
+	
 	@Override
 	public String toString() {
 		return "EventType [name = " + name + " ]";

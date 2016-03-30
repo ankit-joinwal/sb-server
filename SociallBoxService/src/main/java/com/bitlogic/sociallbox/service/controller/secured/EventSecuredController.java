@@ -27,6 +27,7 @@ import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.MeetupAttendee;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
+import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
@@ -49,7 +50,8 @@ public class EventSecuredController extends BaseController implements Constants{
 	private static final String UPLOAD_IMAGE_TO_EVENT_API = "UploadImageToEvent API";
 	private static final String MAKE_EVENT_LIVE_API = "MakeEventLive API";
 	private static final String REGISTER_FOR_EVENT_API = "RegisterForEvent API";
-	
+	private static final String GET_FRIENDS_GOING_API = "GetFriendsGoingToEvent API";
+	private static final String ADD_TO_FAV_API = "AddEventToFavourites API";
 	@Override
 	public Logger getLogger() {
 		return logger;
@@ -145,4 +147,71 @@ public class EventSecuredController extends BaseController implements Constants{
 		}
 	}
 	
+	@RequestMapping(value="/{eventId}/friends",method=RequestMethod.GET,produces = { MediaType.APPLICATION_JSON_VALUE },consumes = { MediaType.APPLICATION_JSON_VALUE })
+	@ResponseStatus(HttpStatus.OK)
+	public EntityCollectionResponse<UserFriend> getFriendsGoingToEvent(
+								@PathVariable("eventId") String eventId,
+								@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth){
+		logRequestStart(GET_FRIENDS_GOING_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_FRIENDS_GOING_API);
+		logInfo(GET_FRIENDS_GOING_API, "Event Id {}", eventId);
+		logInfo(GET_FRIENDS_GOING_API, "Auth header = {}", auth);
+		String userName = LoginUtil.getUserNameFromHeader(auth);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
+			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
+			logInfo(GET_FRIENDS_GOING_API, " Device Id {} ", deviceId);
+			List<UserFriend> friends = this.eventService.getFriendsGoingToEvent(deviceId, eventId);
+			EntityCollectionResponse<UserFriend> collectionResponse = new EntityCollectionResponse<UserFriend>();
+			collectionResponse.setData(friends);
+			collectionResponse.setPage(1);
+			collectionResponse.setStatus(SUCCESS_STATUS);
+			collectionResponse.setTotalRecords(friends.size());
+			return collectionResponse;
+		}else{
+			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
+		}
+	}
+	
+	/**
+	 *  @api {post} /api/secured/events/:eventId/addToFavourite Add event to favourites
+	 *  @apiName Add event to favourites
+	 *  @apiGroup Events
+	 *  @apiParam  {String} event_id Event Id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Message 
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+			"status": "Success",
+			"data": "User like saved successfully"
+		}
+
+	 */
+	@RequestMapping(value="/{eventId}/addToFavourite",method=RequestMethod.POST,produces = { MediaType.APPLICATION_JSON_VALUE },consumes = { MediaType.APPLICATION_JSON_VALUE })
+	@ResponseStatus(HttpStatus.OK)
+	public SingleEntityResponse<String> addToFavouriteEvents(@PathVariable("eventId") String eventId,@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String authHeader){
+		final String LOG_PREFIX = ADD_TO_FAV_API;
+		logRequestStart(LOG_PREFIX, SECURED_REQUEST_START_LOG_MESSAGE, ADD_TO_FAV_API );
+		logInfo(LOG_PREFIX, "Authorization {}", authHeader);
+		String userName = LoginUtil.getUserNameFromHeader(authHeader);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
+			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
+			logInfo(LOG_PREFIX, " Device Id {} ", deviceId);
+			this.eventService.addEventToUserFav(deviceId, eventId);
+			logInfo(LOG_PREFIX,"Event added to user favourites");
+		}else{
+			
+			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
+		}
+		SingleEntityResponse<String> entityResponse = new SingleEntityResponse<String>();
+		entityResponse.setStatus(SUCCESS_STATUS);
+		entityResponse.setData("Use like saved successfully");
+		logRequestEnd(LOG_PREFIX,ADD_TO_FAV_API);
+		return entityResponse;
+	}
 }

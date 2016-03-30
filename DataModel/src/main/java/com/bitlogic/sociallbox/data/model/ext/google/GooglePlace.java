@@ -52,6 +52,9 @@ public class GooglePlace extends Place implements Serializable {
 		private String placeId;
 
 		private Long rating;
+		
+		@JsonProperty("user_likes_place")
+		private Boolean isLikedByuser = Boolean.FALSE;
 
 		private Geometry geometry;
 		
@@ -94,6 +97,14 @@ public class GooglePlace extends Place implements Serializable {
 			
 		}
 		
+		public Boolean getIsLikedByuser() {
+			return isLikedByuser;
+		}
+
+		public void setIsLikedByuser(Boolean isLikedByuser) {
+			this.isLikedByuser = isLikedByuser;
+		}
+
 		public String getDistanceFromYou() {
 			return distanceFromYou;
 		}

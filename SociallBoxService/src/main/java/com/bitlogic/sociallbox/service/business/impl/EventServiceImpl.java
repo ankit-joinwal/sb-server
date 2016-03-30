@@ -28,16 +28,20 @@ import com.bitlogic.sociallbox.data.model.EventAddressInfo;
 import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.EventDetails;
 import com.bitlogic.sociallbox.data.model.EventImage;
+import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
 import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserFavouriteEvents;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace.Result.AddressComponent;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest.MockEventDetails;
+import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.business.EventService;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
@@ -55,6 +59,7 @@ import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 import com.bitlogic.sociallbox.service.transformers.MultipartToEventImageTransformer;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
+import com.bitlogic.sociallbox.service.transformers.UsersToFriendsTransformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
 import com.bitlogic.sociallbox.service.utils.GeoUtils;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
@@ -164,13 +169,14 @@ public class EventServiceImpl extends LoggingService implements EventService,
 		event.setDescription(createEventRequest.getDescription());
 		event.setEventStatus(EventStatus.CREATED);
 		event.setIsAllowedEventToGoLive(Boolean.FALSE);
+		event.setIsFreeEvent(createEventRequest.getIsFree());
 
 		EventDetails eventDetails = new EventDetails();
 		eventDetails.setLocation(mockEventDetails.getLocation());
 		eventDetails.setOrganizerAdmin(organizer);
 		eventDetails.setEvent(event);
 		eventDetails.setCreateDt(now);
-
+		eventDetails.setBookingUrl(mockEventDetails.getBookingUrl());
 		event.setEventDetails(eventDetails);
 
 		Event created = this.eventDAO.create(event);
@@ -259,7 +265,8 @@ public class EventServiceImpl extends LoggingService implements EventService,
 	@Override
 	public List<EventResponse> getEventsForUser(String userLocation,
 			Long userId, String city, String country, Integer page) {
-		logger.info("### Inside getEventsForUser . ###");
+		String LOG_PREFIX = "EventServiceImpl-getEventsForUser";
+		
 
 		// Parse Location is Format Lattitude,Longitude
 		Map<String, Double> cordinatesMap = GeoUtils
@@ -267,24 +274,28 @@ public class EventServiceImpl extends LoggingService implements EventService,
 
 		List<Long> userTags = null;
 		if (userId != null) {
+			logInfo(LOG_PREFIX,"Found user id in request");
 			userTags = this.eventTagDAO.getUserTagIds(userId);
+			logInfo(LOG_PREFIX,"User tags : {} ",userTags);
 		} else {
 			userTags = this.eventTagDAO.getAllTagIds();
+			logInfo(LOG_PREFIX,"User tags : {} ",userTags);
 		}
-		return this.eventDAO.getEventsByFilter(cordinatesMap, userTags, city,
+		return this.eventDAO.getEventsByFilter(userId,cordinatesMap, userTags, city,
 				country, page);
 
 	}
 
 	@Override
-	public List<EventResponse> getEventsByType(String userLocation,
+	public List<EventResponse> getEventsByType(String userLocation,Long userId,
 			String eventTypeName, String city, String country, Integer page) {
-
+		String LOG_PREFIX = "EventServiceImpl-getEventsByType";
+		
 		// Parse Location is Format Lattitude,Longitude
 		Map<String, Double> cordinatesMap = GeoUtils
 				.getCoordinatesFromLocation(userLocation);
 
-		logger.info(
+		logInfo(LOG_PREFIX,
 				"### Inside getEventsByType .Type {}, City {} , Country {} ###",
 				eventTypeName, city, country);
 		EventType eventType = this.eventTypeDAO
@@ -294,7 +305,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 					ERROR_EVENT_TYPE_INVALID);
 		}
 
-		logger.info("Found Event Type by name {}", eventTypeName);
+		logInfo(LOG_PREFIX,"Found Event Type by name {}", eventTypeName);
 		Set<EventTag> tags = eventType.getRelatedTags();
 
 		List<Long> tagIds = new ArrayList<Long>(tags.size());
@@ -302,8 +313,23 @@ public class EventServiceImpl extends LoggingService implements EventService,
 			tagIds.add(eventTag.getId());
 		}
 
-		return this.eventDAO.getEventsByFilter(cordinatesMap, tagIds, city,
+		return this.eventDAO.getEventsByFilter(userId,cordinatesMap, tagIds, city,
 				country, page);
+	}
+	
+	@Override
+	public List<EventResponse> getUpcomingEventsByOrg(String organizerId,String filterEventId) {
+		String LOG_PREFIX = "EventServiceImpl-getUpcomingEventsByOrg";
+		logInfo(LOG_PREFIX, "Getting organizer details");
+		EventOrganizer eventOrganizer = this.eventOrganizerDAO.getEODetails(organizerId);
+		if(eventOrganizer==null){
+			throw new ClientException(RestErrorCodes.ERR_002, ERROR_ORGANIZER_NOT_FOUND);
+		}
+		
+		Set<EventOrganizerAdmin> admins = eventOrganizer.getOrganizerAdmins();
+		List<EventResponse> events = this.eventDAO.getUpcomingEventsOfOrg(admins,filterEventId);
+		
+		return events;
 	}
 
 	@Override
@@ -428,5 +454,54 @@ public class EventServiceImpl extends LoggingService implements EventService,
 		logInfo(LOG_PREFIX, "User {} Registered for Event {} succesfully",
 				user.getName(), event.getTitle());
 		return registeredAttendee;
+	}
+	
+	@Override
+	public List<UserFriend> getFriendsGoingToEvent(String deviceId,
+			String eventId) {
+		String LOG_PREFIX = "EventServiceImpl-getFriendsGoingToEvent";
+		List<UserFriend> userFriends = new ArrayList<UserFriend>();
+		logInfo(LOG_PREFIX, "Getting user info from device id : {}", deviceId);
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
+		if (user == null) {
+			logError(LOG_PREFIX, "No user exists fro given device Id {}",
+					deviceId);
+			throw new UnauthorizedException(RestErrorCodes.ERR_002,
+					ERROR_LOGIN_USER_UNAUTHORIZED);
+		}
+		Event event = this.eventDAO.getEvent(eventId);
+		if (event == null) {
+			logInfo(LOG_PREFIX, "Event not found for id = {}", eventId);
+			throw new ClientException(RestErrorCodes.ERR_002,
+					ERROR_INVALID_EVENT_IN_REQUEST);
+		}
+		List<Long> attendeesIds = this.eventDAO.getEventAttendeesIds(event);
+		List<User> users = this.userDAO.getUserFriendsByIds(user, attendeesIds);
+		if(users!=null){
+			UsersToFriendsTransformer transformer = (UsersToFriendsTransformer) TransformerFactory
+				.getTransformer(Transformer_Types.USER_TO_FRIEND_TRANSFORMER);
+			userFriends = transformer.transform(users);
+		}
+		
+		return userFriends;
+	}
+	
+	@Override
+	public void addEventToUserFav(String deviceId, String eventId) {
+		String LOG_PREFIX = "EventServiceImpl-addEventToUserFav";
+		logInfo(LOG_PREFIX, "Getting user info from device id : {}",deviceId);
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
+		if(user == null){
+			logError(LOG_PREFIX, "No user exists fro given device Id {}", deviceId);
+			throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_LOGIN_USER_UNAUTHORIZED);
+		}
+		Event event = this.eventDAO.getEvent(eventId);
+		if(event==null){
+			throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_INVALID_EVENT_IN_REQUEST);
+		}
+		UserFavouriteEvents userFavouriteEvents = new UserFavouriteEvents();
+		userFavouriteEvents.setUserId(user.getId());
+		userFavouriteEvents.setEventId(eventId);
+		this.eventDAO.addEventToFav(userFavouriteEvents);
 	}
 }

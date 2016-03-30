@@ -47,14 +47,32 @@ public class EventResponse implements Serializable{
 	
 	private Set<EventTag> tags = new HashSet<>();
 	
-	
+	@JsonProperty("is_user_fav")
+	private Boolean userFavEvent = Boolean.FALSE;
 	
 	@NotNull
 	@JsonProperty("display_image")
 	private EventImage displayImage;
 	
+	@JsonProperty("is_free")
+	private Boolean isFree;
 	
-	
+	public Boolean getIsFree() {
+		return isFree;
+	}
+
+	public void setIsFree(Boolean isFree) {
+		this.isFree = isFree;
+	}
+
+	public Boolean getUserFavEvent() {
+		return userFavEvent;
+	}
+
+	public void setUserFavEvent(Boolean userFavEvent) {
+		this.userFavEvent = userFavEvent;
+	}
+
 	public String getDistanceFromSource() {
 		return distanceFromSource;
 	}

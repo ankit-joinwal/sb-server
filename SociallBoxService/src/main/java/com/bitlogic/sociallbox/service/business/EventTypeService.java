@@ -13,4 +13,6 @@ public interface EventTypeService {
 	public EventType createEventType(EventType eventType);
 	
 	public List<EventType> getAllEventTypes();
+	
+	public List<EventType> getAllEventTypesExceptShopping();
 }

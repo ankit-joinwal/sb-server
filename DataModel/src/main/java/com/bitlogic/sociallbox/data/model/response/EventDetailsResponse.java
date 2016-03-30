@@ -24,6 +24,7 @@ public class EventDetailsResponse {
 		super();
 		this.location = eventDetails.getLocation();
 		this.addressComponents = eventDetails.getAddressComponents();
+		this.bookingUrl = eventDetails.getBookingUrl();
 	}
 	
 	@XmlElement
@@ -33,9 +34,21 @@ public class EventDetailsResponse {
 	@JsonProperty
 	private EventOrganizerProfile organizer;
 	
+	@JsonProperty("booking_url")
+	private String bookingUrl;
+	
 	@JsonIgnore
 	private Set<EventAddressInfo> addressComponents = new HashSet<>();
 	
+	
+	public String getBookingUrl() {
+		return bookingUrl;
+	}
+
+	public void setBookingUrl(String bookingUrl) {
+		this.bookingUrl = bookingUrl;
+	}
+
 	public Set<EventAddressInfo> getAddressComponents() {
 		return addressComponents;
 	}

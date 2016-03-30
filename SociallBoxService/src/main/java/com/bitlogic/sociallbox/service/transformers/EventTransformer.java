@@ -39,6 +39,7 @@ public class EventTransformer implements Transformer<EventResponse, Event> {
 		//createEventResponse.setAttendees(meetup.getAttendees());
 		
 		createEventResponse.setDescription(event.getDescription());
+		createEventResponse.setIsFree(event.getIsFreeEvent());
 		createEventResponse.setEventDetails(new EventDetailsResponse(event.getEventDetails()));
 		//Set Organizer Profile
 		createEventResponse.getEventDetails().setOrganizer(eoProfileTransformer.transform(event.getEventDetails().getOrganizerAdmin().getOrganizer()));

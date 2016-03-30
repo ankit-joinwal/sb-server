@@ -288,6 +288,15 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 	}
 	
 	@Override
+	public List<User> getUserFriendsByIds(User user,List<Long> friendIds) {
+		Criteria criteria = getSession().createCriteria(User.class)
+				.add(Restrictions.in("id", friendIds))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		List<User> friends = criteria.list();
+		return friends;
+	}
+	
+	@Override
 	public List<UserSetting> getUserSettings(User user) {
 		Criteria criteria = getSession().createCriteria(UserSetting.class,"setting")
 				.createAlias("setting.user", "user")

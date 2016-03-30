@@ -10,6 +10,8 @@ public interface EventTypeDAO {
 	
 	public List<EventType> getAllEventTypes();
 	
+	public List<EventType> getAllEventTypesExceptShop();
+	
 	public List<EventType> getEventTypesByNames(List<String> names);
 	
 	public List<EventType> getUserInterests(Long userId);

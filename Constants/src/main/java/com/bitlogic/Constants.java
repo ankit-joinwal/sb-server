@@ -56,8 +56,9 @@ public interface Constants {
 	String DEFAULT_RADIUS = "5000";
 	String URL_PATH_SEPARATOR = "/";
 	String MEETUP_DATE_FORMAT = "dd/MM/yyyy hh:mm aa";
-	String EVENT_RESPONSE_DATE_FORMAT = "d MMM yyyy";
-	String MEETUP_RESPONSE_DATE_FORMAT = "d MMM yyyy";
+	//String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy"; For year also
+	String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM hh:mm aa";
+	String MEETUP_RESPONSE_DATE_FORMAT = "EEE, d MMM hh:mm aa";
 	String TRUE = "true";
 	String GEO_SERVICE_NAME = "SociallBoxService";
 	String IMAGE_SERVICE_NAME = "ImageService";
@@ -82,6 +83,8 @@ public interface Constants {
 	
 	//Image Service Constants
 	String IMAGE_URL_KEY = "IMAGE_URL_KEY";
+	
+	String SHOPPING_EVENT_TYPE_NAME = "shop";
 	
 	String EVENT_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"events";
 	String MEETUP_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"meetups";
