@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.bitlogic.sociallbox.data.model.EventDetails;
 import com.bitlogic.sociallbox.data.model.EventImage;
+import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -50,13 +51,36 @@ public class EventResponse implements Serializable{
 	@JsonProperty("is_user_fav")
 	private Boolean userFavEvent = Boolean.FALSE;
 	
+	@JsonProperty("is_user_going")
+	private Boolean isUserGoing = Boolean.FALSE;
+	
 	@NotNull
 	@JsonProperty("display_image")
 	private EventImage displayImage;
 	
+	@JsonProperty("status")
+	private EventStatus eventStatus;
+	
 	@JsonProperty("is_free")
 	private Boolean isFree;
 	
+	
+	public Boolean getIsUserGoing() {
+		return isUserGoing;
+	}
+
+	public void setIsUserGoing(Boolean isUserGoing) {
+		this.isUserGoing = isUserGoing;
+	}
+
+	public EventStatus getEventStatus() {
+		return eventStatus;
+	}
+
+	public void setEventStatus(EventStatus eventStatus) {
+		this.eventStatus = eventStatus;
+	}
+
 	public Boolean getIsFree() {
 		return isFree;
 	}

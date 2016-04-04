@@ -52,4 +52,6 @@ public interface EventDAO {
 	public List<EventAttendee> getEventAttendees(Event event);
 	
 	public List<Long> getEventAttendeesIds(Event event);
+	
+	
 }

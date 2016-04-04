@@ -317,7 +317,7 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 
 	@Override
 	public EventAttendee saveAttendee(EventAttendee attendee) {
-		if(checkIfUserRegisteredForEvent(attendee)){
+		if(!checkIfUserRegisteredForEvent(attendee)){
 			Long id = (Long) getSession().save(attendee);
 			return getAttendeeById(id);
 		}else{

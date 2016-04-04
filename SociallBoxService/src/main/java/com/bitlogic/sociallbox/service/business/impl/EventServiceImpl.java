@@ -41,6 +41,7 @@ import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest.MockEventDetails;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.data.model.response.UserEventInterest;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.business.EventService;
@@ -56,6 +57,7 @@ import com.bitlogic.sociallbox.service.exception.EntityNotFoundException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
+import com.bitlogic.sociallbox.service.transformers.EventTransformer;
 import com.bitlogic.sociallbox.service.transformers.MultipartToEventImageTransformer;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
@@ -233,7 +235,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 	}
 
 	@Override
-	public Event get(String uuid) {
+	public EventResponse get(String uuid,Long userId) {
 		String LOG_PREFIX = "EventServiceImpl-get";
 
 		Event event = this.eventDAO.getEvent(uuid);
@@ -242,7 +244,26 @@ public class EventServiceImpl extends LoggingService implements EventService,
 			throw new EntityNotFoundException(uuid, RestErrorCodes.ERR_020,
 					ERROR_INVALID_EVENT_IN_REQUEST);
 		}
-		return event;
+		EventTransformer transformer = (EventTransformer) TransformerFactory.getTransformer(Transformer_Types.EVENT_TRANS);
+		EventResponse eventResponse = transformer.transform(event);
+		if(userId!=null){
+			User user = this.userDAO.getUserById(userId);
+			if(user!=null){
+				UserFavouriteEvents favouriteEvents = new UserFavouriteEvents();
+				favouriteEvents.setEventId(event.getUuid());
+				favouriteEvents.setUserId(userId);
+				Boolean isFav = this.eventDAO.checkIfUserFavEvent(favouriteEvents);
+				eventResponse.setUserFavEvent(isFav);
+				
+				EventAttendee attendee = new EventAttendee();
+				attendee.setEvent(event);
+				attendee.setUser(user);
+				Boolean isGoing = this.eventDAO.checkIfUserRegisteredForEvent(attendee);
+				eventResponse.setIsUserGoing(isGoing);
+			}
+		}
+		 
+		return eventResponse;
 	}
 
 	@Override
@@ -287,10 +308,11 @@ public class EventServiceImpl extends LoggingService implements EventService,
 	}
 	
 	@Override
-	public List<EventResponse> getRetailEventsForUser(String userLocation,
-			Long userId, String city, String country, Integer page) {
-		String LOG_PREFIX = "EventServiceImpl-getRetailEventsForUser";
-
+	public List<EventResponse> getRetailEvents(String userLocation,
+			String tagIds, String city, String country, Integer page) {
+		String LOG_PREFIX = "EventServiceImpl-getRetailEvents";
+		logInfo(LOG_PREFIX, "Getting Retail Events based on params [location ={} , tagIds = {} , city= {} ,country = {} ,page = {}", 
+					userLocation , tagIds , city ,country , page);
 		// Parse Location is Format Lattitude,Longitude
 		Map<String, Double> cordinatesMap = GeoUtils
 				.getCoordinatesFromLocation(userLocation);
@@ -301,17 +323,27 @@ public class EventServiceImpl extends LoggingService implements EventService,
 		 * User Interests screen of Event-o-pedia.
 		 * Hence we can assume that shopping event type tags will always be mapped with user.
 		 */
-		List<Long> userTags = null;
-		if (userId != null) {
-			logInfo(LOG_PREFIX,"Found user id in request");
-			userTags = this.eventTagDAO.getRetailTagIdsForUser(userId);
+		List<Long> userTags = new ArrayList<Long>();
+		if (tagIds != null) {
+			logInfo(LOG_PREFIX,"Found tag ids in request");
+			String[] tagIdsArr = tagIds.split(COMMA);
+			if(tagIdsArr!=null){
+				for(String tagId : tagIdsArr){
+					try{
+						Long tag = Long.parseLong(tagId);
+						userTags.add(tag);
+					}catch(Exception exception){
+						logError(LOG_PREFIX, "Invalid tag id {} ", tagId,exception);
+					}
+				}
+			}
 			logInfo(LOG_PREFIX,"User tags : {} ",userTags);
 		} else {
 			userTags = this.eventTagDAO.getAllRetailTagIds();
 			logInfo(LOG_PREFIX,"All Retail tags : {} ",userTags);
 		}
 		
-		return this.eventDAO.getEventsByFilter(userId,cordinatesMap, userTags, city,
+		return this.eventDAO.getEventsByFilter(null,cordinatesMap, userTags, city,
 				country, page);
 		
 	}

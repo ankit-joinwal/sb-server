@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.EventAttendee;
-import com.bitlogic.sociallbox.data.model.MeetupAttendee;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
@@ -52,6 +51,7 @@ public class EventSecuredController extends BaseController implements Constants{
 	private static final String REGISTER_FOR_EVENT_API = "RegisterForEvent API";
 	private static final String GET_FRIENDS_GOING_API = "GetFriendsGoingToEvent API";
 	private static final String ADD_TO_FAV_API = "AddEventToFavourites API";
+	private static final String IS_ADDED_TO_FAV_API = "IsEventAddedToFav API";
 	@Override
 	public Logger getLogger() {
 		return logger;
@@ -121,7 +121,35 @@ public class EventSecuredController extends BaseController implements Constants{
 		return entityResponse;
 	}
 	
-	@RequestMapping(value="/{eventId}/register",method = RequestMethod.PUT, produces = {
+	/**
+	 *  @api {post} /api/secured/events/:id/register Going to Event API
+	 *  @apiName Going to event
+	 *  @apiGroup Events
+	 *  @apiParam {String} id Mandatory Event id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiHeaderExample {json} Example Headers
+	 *  accept: application/json
+		Content-Type: application/json
+		X-Auth-Date: 1455988523724
+		Authorization: Basic U0R+U01BUlRfREVWSUNFXzI6NCtPU3JRN0tKMzZ2TW9iRmoxbmJEZG5ydVVJVTlwTWFVWmN1V0xxaUFaRT0=
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Success Response
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+		  "status": "Success",
+		  "data": {
+			"id": null,
+			"user_id": 17,
+			"event_id": "4028918853bd6ca10153bd738d100000"
+		  }
+		}
+	 
+	 */
+	@RequestMapping(value="/{eventId}/register",method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
 	public SingleEntityResponse<EventAttendee> registerToEvent(@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth,
@@ -131,7 +159,6 @@ public class EventSecuredController extends BaseController implements Constants{
 		logInfo(REGISTER_FOR_EVENT_API, "Auth header = {}", auth);
 		String userName = LoginUtil.getUserNameFromHeader(auth);
 		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
-		List<UserFriend> friendsWhoLikeThisPlace = null;
 		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
 			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
 			logInfo(REGISTER_FOR_EVENT_API, " Device Id {} ", deviceId);
@@ -147,6 +174,39 @@ public class EventSecuredController extends BaseController implements Constants{
 		}
 	}
 	
+	/**
+	 *  @api {post} /api/secured/events/:id/friends Get Friends going to event
+	 *  @apiName Get Friends going to event
+	 *  @apiGroup Events
+	 *  @apiParam {String} id Mandatory Event id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiHeaderExample {json} Example Headers
+	 *  accept: application/json
+		Content-Type: application/json
+		X-Auth-Date: 1455988523724
+		Authorization: Basic U0R+U01BUlRfREVWSUNFXzI6NCtPU3JRN0tKMzZ2TW9iRmoxbmJEZG5ydVVJVTlwTWFVWmN1V0xxaUFaRT0=
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Success Response
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+		  "status": "Success",
+		  "data": [
+			{
+			  "profilePic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xla1/v/t1.0-1/p200x200/12316467_10206731945876364_3008257792416820623_n.jpg?oh=cece300cd2db2d885c81f2c00b6a7d84&oe=578A9FB4&__gda__=1465178287_36f0dafbe70beb7506ebd22f8f089edf",
+			  "name": "Ankit Joinwal",
+			  "emailId": "anki_join@yahoo.in"
+			}
+		  ],
+		  "page": 1,
+		  "nextPage": null,
+		  "total_records": 1
+		}
+	 
+	 */
 	@RequestMapping(value="/{eventId}/friends",method=RequestMethod.GET,produces = { MediaType.APPLICATION_JSON_VALUE },consumes = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.OK)
 	public EntityCollectionResponse<UserFriend> getFriendsGoingToEvent(
@@ -210,8 +270,12 @@ public class EventSecuredController extends BaseController implements Constants{
 		}
 		SingleEntityResponse<String> entityResponse = new SingleEntityResponse<String>();
 		entityResponse.setStatus(SUCCESS_STATUS);
-		entityResponse.setData("Use like saved successfully");
+		entityResponse.setData("Event marked as favourite");
 		logRequestEnd(LOG_PREFIX,ADD_TO_FAV_API);
 		return entityResponse;
 	}
+	
+	
+	
+	
 }

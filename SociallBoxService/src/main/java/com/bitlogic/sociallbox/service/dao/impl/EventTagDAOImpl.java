@@ -1,5 +1,6 @@
 package com.bitlogic.sociallbox.service.dao.impl;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -94,7 +95,13 @@ public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {
 		 sqlQuery.setParameter("userId", userId);
 		 List results = sqlQuery.list();
 
-		 List<Long> tagIds = (List<Long>) results;
+		 List<Long> tagIds = new ArrayList<Long>();
+		 if(results!=null && !results.isEmpty()){
+			 for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				 BigInteger tagId = (BigInteger) iterator.next();
+					tagIds.add(tagId.longValue());
+				}
+		 }
 		 return tagIds;
 	}
 	
@@ -107,8 +114,13 @@ public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {
 		 sqlQuery.setParameter("shopTypeName", Constants.SHOPPING_EVENT_TYPE_NAME);
 		 sqlQuery.setParameter("userId", userId);
 		 List results = sqlQuery.list();
-
-		 List<Long> tagIds = (List<Long>) results;
+		 List<Long> tagIds = new ArrayList<Long>();
+		 if(results!=null && !results.isEmpty()){
+			 for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				 BigInteger tagId = (BigInteger) iterator.next();
+					tagIds.add(tagId.longValue());
+				}
+		 }
 		return tagIds;
 	}
 	
@@ -141,8 +153,13 @@ public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {
 		sqlQuery.setParameter("shopTypeName",
 				Constants.SHOPPING_EVENT_TYPE_NAME);
 		List results = sqlQuery.list();
-
-		List<Long> tagIds = (List<Long>) results;
+		List<Long> tagIds = new ArrayList<Long>();
+		 if(results!=null && !results.isEmpty()){
+			 for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				 BigInteger tagId = (BigInteger) iterator.next();
+					tagIds.add(tagId.longValue());
+				}
+		 }
 		return tagIds;
 	}
 	
@@ -176,8 +193,13 @@ public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {
 		sqlQuery.setParameter("shopTypeName",
 				Constants.SHOPPING_EVENT_TYPE_NAME);
 		List results = sqlQuery.list();
-
-		List<Long> tagIds = (List<Long>) results;
+		List<Long> tagIds = new ArrayList<Long>();
+		 if(results!=null && !results.isEmpty()){
+			 for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				 BigInteger tagId = (BigInteger) iterator.next();
+					tagIds.add(tagId.longValue());
+				}
+		 }
 		return tagIds;
 	}
 	
