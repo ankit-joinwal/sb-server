@@ -10,6 +10,8 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -70,6 +72,10 @@ public class Meetup implements Serializable {
 	@JoinColumn(name="ORGANIZER_ID",nullable=false)
 	private User organizer;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(name="STATUS",nullable=false,length=20)
+	private MeetupStatus status;
+	
 	@OneToMany(mappedBy="meetup")
 	@Cascade(value=CascadeType.ALL)
 	private Set<MeetupAttendeeEntity> attendees = new HashSet<>();
@@ -92,6 +98,16 @@ public class Meetup implements Serializable {
 	@JoinColumn(name="EVENT_ID")
 	private Event eventAtMeetup;
 	
+	
+	
+	public MeetupStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(MeetupStatus status) {
+		this.status = status;
+	}
+
 	@Column(name="CREATE_DT",nullable=false)
 	private Date createdDt;
 	

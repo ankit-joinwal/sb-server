@@ -26,6 +26,8 @@ public interface EventService {
 	
 	public List<EventResponse> getEventsForUser(String userLocation,Long userId,String city,String country,Integer page);
 	
+	public List<EventResponse> getRetailEventsForUser(String userLocation,Long userId,String city,String country,Integer page);
+	
 	public List<EventResponse> getEventsByType(String userLocation,Long userId,String eventType,String city,String country,Integer page);
 	
 	public List<EventResponse> getUpcomingEventsByOrg(String organizerId,String filterEventId);

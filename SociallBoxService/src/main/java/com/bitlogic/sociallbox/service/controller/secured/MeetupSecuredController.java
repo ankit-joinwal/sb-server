@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +33,7 @@ import com.bitlogic.sociallbox.data.model.requests.CreateMeetupRequest;
 import com.bitlogic.sociallbox.data.model.requests.AddMeetupAttendeesRequest;
 import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
+import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.MeetupService;
 import com.bitlogic.sociallbox.service.controller.BaseController;
@@ -73,14 +75,26 @@ public class MeetupSecuredController extends BaseController implements Constants
 		logRequestStart(CREATE_MEETUP_API, SECURED_REQUEST_START_LOG_MESSAGE, CREATE_MEETUP_API);
 		logInfo(CREATE_MEETUP_API, "Auth header = {}", auth);
 		logInfo(CREATE_MEETUP_API, "Request = {}", createMeetupRequest);
-		Transformer<MeetupResponse, Meetup> transformer = (Transformer<MeetupResponse, Meetup>) TransformerFactory.getTransformer(Transformer_Types.MEETUP_TRANS);
-		MeetupResponse createMeetupResponse = transformer.transform(meetupService.createMetup(createMeetupRequest));
-		createMeetupResponse.setUrl(httpRequest.getRequestURL()+"/"+createMeetupResponse.getUuid());
-		SingleEntityResponse<MeetupResponse> entityResponse = new SingleEntityResponse<>();
-		entityResponse.setData(createMeetupResponse);
-		entityResponse.setStatus(SUCCESS_STATUS);
-		logRequestEnd(CREATE_MEETUP_API, CREATE_MEETUP_API);
-		return entityResponse;
+		String userName = LoginUtil.getUserNameFromHeader(auth);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
+			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
+			logInfo(CREATE_MEETUP_API, " Device Id {} ", deviceId);
+			createMeetupRequest.setDeviceId(deviceId);
+			Transformer<MeetupResponse, Meetup> transformer = (Transformer<MeetupResponse, Meetup>) TransformerFactory.getTransformer(Transformer_Types.MEETUP_TRANS);
+			MeetupResponse createMeetupResponse = transformer.transform(meetupService.createMetup(createMeetupRequest));
+			createMeetupResponse.setUrl(httpRequest.getRequestURL()+"/"+createMeetupResponse.getUuid());
+			SingleEntityResponse<MeetupResponse> entityResponse = new SingleEntityResponse<>();
+			entityResponse.setData(createMeetupResponse);
+			entityResponse.setStatus(SUCCESS_STATUS);
+			logRequestEnd(CREATE_MEETUP_API, CREATE_MEETUP_API);
+			return entityResponse;
+			
+		}else{
+			
+			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
+		}
+		
 		
 	}
 	
@@ -190,15 +204,24 @@ public class MeetupSecuredController extends BaseController implements Constants
 	@RequestMapping(value="/{meetupId}/messages",method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public Set<MeetupMessage> getMeetupMessages(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
-												@PathVariable String meetupId) throws ServiceException{
+	public EntityCollectionResponse<MeetupMessage> getMeetupMessages(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
+												@PathVariable String meetupId,
+												@RequestParam(required=false,value="page") Integer page) throws ServiceException{
 		logRequestStart(GET_MEETUP_MESSAGES_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_MEETUP_MESSAGES_API);
 		logInfo(GET_MEETUP_MESSAGES_API, "Auth header = {} ", auth);
 		logInfo(GET_MEETUP_MESSAGES_API, "Meetup id = {}", meetupId);
-		Transformer<MeetupResponse, Meetup> transformer = (Transformer<MeetupResponse, Meetup>) TransformerFactory.getTransformer(Transformer_Types.MEETUP_TRANS);
-		MeetupResponse createMeetupResponse = transformer.transform(meetupService.getMeetup(meetupId));
+		if(page==null){
+			page = new Integer(1);
+		}
+		List<MeetupMessage> messages = this.meetupService.getMeetupMessages(meetupId, page);
+		
+		EntityCollectionResponse<MeetupMessage> collectionResponse = new EntityCollectionResponse<MeetupMessage>();
+		collectionResponse.setData(messages);
+		collectionResponse.setStatus("Success");
+		collectionResponse.setPage(page);
+		collectionResponse.setTotalRecords(messages == null ? 0 : messages.size());
 		logRequestEnd(GET_MEETUP_MESSAGES_API, GET_MEETUP_MESSAGES_API);
-		return createMeetupResponse.getMessages();
+		return collectionResponse;
 		
 	}
 	

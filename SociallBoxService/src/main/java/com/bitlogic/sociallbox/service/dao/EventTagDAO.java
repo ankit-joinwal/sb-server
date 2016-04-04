@@ -14,8 +14,15 @@ public interface EventTagDAO {
 	
 	public List<EventTag> getUserTags(Long userId);
 	
-	
 	public List<Long> getUserTagIds(Long userId);
 	
+	public List<Long> getRetailTagIdsForUser(Long userId);
+	 
 	public List<Long> getAllTagIds();
+	
+	public List<Long> getAllRetailTagIds();
+	
+	public List<EventTag> getAllRetailTag();
+	
+	public List<EventTag> getRetailTagsForUser(Long userId);
 }

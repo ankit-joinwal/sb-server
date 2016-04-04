@@ -17,6 +17,7 @@
 		<module>../Constants</module>
 		<module>../DataModel</module>
 		<module>../ImageService</module>
+		<module>../NotificationService</module>
 		<module>../SociallBoxService</module>
   </modules> 
  

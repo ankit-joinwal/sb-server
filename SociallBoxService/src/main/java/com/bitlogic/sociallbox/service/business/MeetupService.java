@@ -23,5 +23,7 @@ public interface MeetupService {
 	public void sendMessageInMeetup(MeetupMessage meetupMessage,String meetupId,String senderId);
 	
 	public void uploadImageToMeetup(String deviceId,String imagesURL,List<MultipartFile> images , String meetupId) ;
+	
+	public List<MeetupMessage> getMeetupMessages(String meetupId,Integer page);
 
 }

@@ -40,7 +40,7 @@ public class MeetupTransformer implements Transformer<MeetupResponse, Meetup> {
 		createMeetupResponse.setLocation(meetup.getLocation());
 		createMeetupResponse.setUuid(meetup.getUuid());
 		createMeetupResponse.setTitle(meetup.getTitle());
-
+		createMeetupResponse.setStatus(meetup.getStatus());
 		
 		if(meetup.getEventAtMeetup()!=null){
 			createMeetupResponse.setEventAtMeetup(meetup.getEventAtMeetup().getUuid());

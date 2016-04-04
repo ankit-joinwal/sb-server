@@ -29,4 +29,6 @@ public interface MeetupDAO {
 	public MeetupAttendeeEntity addAttendee(MeetupAttendeeEntity meetupAttendee);
 	
 	public MeetupAttendeeEntity getAttendeeById(Long id);
+	
+	public List<MeetupMessage> getMeetupMessages(Meetup meetup, Integer page);
 }

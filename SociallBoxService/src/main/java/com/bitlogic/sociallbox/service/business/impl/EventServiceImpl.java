@@ -285,6 +285,36 @@ public class EventServiceImpl extends LoggingService implements EventService,
 				country, page);
 
 	}
+	
+	@Override
+	public List<EventResponse> getRetailEventsForUser(String userLocation,
+			Long userId, String city, String country, Integer page) {
+		String LOG_PREFIX = "EventServiceImpl-getRetailEventsForUser";
+
+		// Parse Location is Format Lattitude,Longitude
+		Map<String, Double> cordinatesMap = GeoUtils
+				.getCoordinatesFromLocation(userLocation);
+		
+		/* 
+		 * While user signup , all the tags will be mapped including shopping tags.
+		 * User will always be mapped with shopping event type because shopping event type will not be shown in
+		 * User Interests screen of Event-o-pedia.
+		 * Hence we can assume that shopping event type tags will always be mapped with user.
+		 */
+		List<Long> userTags = null;
+		if (userId != null) {
+			logInfo(LOG_PREFIX,"Found user id in request");
+			userTags = this.eventTagDAO.getRetailTagIdsForUser(userId);
+			logInfo(LOG_PREFIX,"User tags : {} ",userTags);
+		} else {
+			userTags = this.eventTagDAO.getAllRetailTagIds();
+			logInfo(LOG_PREFIX,"All Retail tags : {} ",userTags);
+		}
+		
+		return this.eventDAO.getEventsByFilter(userId,cordinatesMap, userTags, city,
+				country, page);
+		
+	}
 
 	@Override
 	public List<EventResponse> getEventsByType(String userLocation,Long userId,

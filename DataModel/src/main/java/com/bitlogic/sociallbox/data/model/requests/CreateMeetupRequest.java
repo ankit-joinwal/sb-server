@@ -34,7 +34,6 @@ public class CreateMeetupRequest implements Serializable{
 	@NotNull(message="error.end.date.mandatory")
 	private String endDate;
 	
-	@NotNull(message="error.event.organizer.mandatory")
 	private String organizerId;
 	
 	private String eventAtMeetup;
@@ -45,7 +44,17 @@ public class CreateMeetupRequest implements Serializable{
 	
 	private Set<GooglePlace.Result.AddressComponent> addressComponents;
 	
-	
+	private String deviceId;
+
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
 
 
 	public Boolean getIsPublic() {

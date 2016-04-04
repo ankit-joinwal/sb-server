@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
@@ -26,6 +25,7 @@ import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.data.model.response.UserEventInterest;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
+import com.bitlogic.sociallbox.data.model.response.UserRetailEventInterest;
 import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.controller.BaseController;
 import com.bitlogic.sociallbox.service.exception.ClientException;
@@ -45,7 +45,9 @@ public class UserSecuredController extends BaseController implements Constants{
 	private static final String REQUEST_SIGNUP_SIGNIN = "SigninOrSignupUser API";
 	private static final String GET_USER_REQUEST = "GetUser API";
 	private static final String GET_USER_EVENTS_INTEREST_REQUEST = "GetUserEventInterests API";
+	private static final String GET_USER_RETAIL_EVENTS_INTEREST_REQUEST = "GetUserRetailEventInterests API";
 	private static final String SAVE_USER_EVENTS_INTEREST_REQUEST = "SaveUserEventInterests API";
+	private static final String SAVE_USER__RETAIL_EVENTS_INTEREST_REQUEST = "SaveUserRetailEventInterests API";
 	private static final String SETUP_FRIENDS_REQUEST = "SetupFriendsForNewUser API";
 	private static final String GET_USER_FRIENDS_REQUEST = "GetUserFriends API";
 	private static final String GET_USER_SETTINGS = "GetUserSetings api";
@@ -385,6 +387,26 @@ public class UserSecuredController extends BaseController implements Constants{
 		return collectionResponse;
 	}
 	
+	@RequestMapping(value = "/{id}/preferences/interests/retail", method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@ResponseStatus(HttpStatus.OK)
+	public EntityCollectionResponse<UserRetailEventInterest> getUserRetailEventInterests(
+								@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth,
+								@PathVariable Long id){
+		logRequestStart(GET_USER_RETAIL_EVENTS_INTEREST_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE, GET_USER_RETAIL_EVENTS_INTEREST_REQUEST);
+		logInfo(GET_USER_RETAIL_EVENTS_INTEREST_REQUEST, "Auth header = {}", auth);
+		logInfo(GET_USER_RETAIL_EVENTS_INTEREST_REQUEST, "User id = {}", id);
+		List<UserRetailEventInterest> userInterests = this.userService.getUserRetailEventInterests(id);
+		EntityCollectionResponse<UserRetailEventInterest> collectionResponse = new EntityCollectionResponse<UserRetailEventInterest>();
+		collectionResponse.setData(userInterests);
+		collectionResponse.setPage(1);
+		collectionResponse.setStatus("Success");
+		collectionResponse.setTotalRecords(userInterests.size());
+		logRequestEnd(GET_USER_RETAIL_EVENTS_INTEREST_REQUEST, GET_USER_RETAIL_EVENTS_INTEREST_REQUEST);
+		return collectionResponse;
+	}
+	
+	
 	/**
 	 *  @api {post} /api/secured/users/:userId/preferences/interests Save User Event Interests
 	 *  @apiName Save User Event Interest
@@ -518,6 +540,25 @@ public class UserSecuredController extends BaseController implements Constants{
 		collectionResponse.setStatus(SUCCESS_STATUS);
 		collectionResponse.setTotalRecords(eventTags.size());
 		logRequestEnd(SAVE_USER_EVENTS_INTEREST_REQUEST, SAVE_USER_EVENTS_INTEREST_REQUEST);
+		return collectionResponse;
+	}
+	
+	@RequestMapping(value = "/{id}/preferences/interests/retail", method = RequestMethod.POST, produces = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@ResponseStatus(HttpStatus.CREATED)
+	public EntityCollectionResponse<UserEventInterest> saveUserRetailEventInterests(
+			@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
+			@PathVariable Long id,@RequestBody List<UserEventInterest> types){
+		logRequestStart(SAVE_USER__RETAIL_EVENTS_INTEREST_REQUEST, SECURED_REQUEST_START_LOG_MESSAGE, SAVE_USER__RETAIL_EVENTS_INTEREST_REQUEST);
+		logInfo(SAVE_USER__RETAIL_EVENTS_INTEREST_REQUEST, "Auth Header = {}", auth);
+		logInfo(SAVE_USER__RETAIL_EVENTS_INTEREST_REQUEST, "User id {}", id);
+		List<UserEventInterest> eventTags = this.userService.saveUserEventInterests(id, types);
+		EntityCollectionResponse<UserEventInterest> collectionResponse = new EntityCollectionResponse<UserEventInterest>();
+		collectionResponse.setData(eventTags);
+		collectionResponse.setPage(1);
+		collectionResponse.setStatus(SUCCESS_STATUS);
+		collectionResponse.setTotalRecords(eventTags.size());
+		logRequestEnd(SAVE_USER__RETAIL_EVENTS_INTEREST_REQUEST, SAVE_USER__RETAIL_EVENTS_INTEREST_REQUEST);
 		return collectionResponse;
 	}
 

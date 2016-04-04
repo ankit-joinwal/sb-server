@@ -34,6 +34,7 @@ import com.bitlogic.sociallbox.data.model.MeetupAttendee;
 import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
+import com.bitlogic.sociallbox.data.model.MeetupStatus;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
@@ -55,13 +56,18 @@ import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
 import com.bitlogic.sociallbox.service.utils.ImageUtils;
+import com.bitlogic.sociallbox.service.utils.LoggingService;
 
 @Service
 @Transactional
-public class MeetupServiceImpl implements MeetupService,Constants{
+public class MeetupServiceImpl extends LoggingService implements MeetupService,Constants{
 
 	private static final Logger logger = LoggerFactory.getLogger(MeetupServiceImpl.class);
 	
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
 	@Autowired
 	private UserDAO userDAO;
 	
@@ -79,11 +85,11 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 
 		logger.info("### Inside MeetupServiceImpl.createMetup ###");
 		Meetup meetup = new Meetup();
-		User organizer = userDAO.getUserByEmailId(createMeetupRequest.getOrganizerId(), false); 
+		User organizer = this.smartDeviceDAO.getUserInfoFromDeviceId(createMeetupRequest.getDeviceId()); 
 		if(organizer==null){
 			throw new ClientException(RestErrorCodes.ERR_003,Constants.ERROR_USER_INVALID);
 		}
-		logger.info("   Found organizer details in DB for {} : Id ",organizer.getEmailId(),organizer.getId());
+		logger.info("Found organizer details in DB for {} : Id {} ",organizer.getEmailId(),organizer.getId());
 
 		Event eventAtMeetup = null;
 		boolean isMeetupAtEvent = false;
@@ -98,6 +104,7 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 		meetup.setDescription(createMeetupRequest.getDescription());
 		meetup.setLocation(createMeetupRequest.getLocation());
 		meetup.setIsPublic(createMeetupRequest.getIsPublic());
+		meetup.setStatus(MeetupStatus.CREATED);
 		meetup.setCreatedDt(now);
 		try {
 			SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MEETUP_DATE_FORMAT);
@@ -230,6 +237,51 @@ public class MeetupServiceImpl implements MeetupService,Constants{
 		 }else{
 			 this.meetupDAO.sendMessageInMeetup(meetupMessage, meetupId, meetupAttendee.getAttendeeId());
 		 }
+	}
+	 
+	 @Override
+	public List<MeetupMessage> getMeetupMessages(String meetupId,Integer page) {
+		 String LOG_PREFIX = "MeetupServiceImpl.getMeetupMessages";
+		 Meetup meetup = this.meetupDAO.getMeetup(meetupId);
+		 if(meetup==null){
+			 logError(LOG_PREFIX, "Meetup not found = {}", meetupId);
+			 throw new ClientException(RestErrorCodes.ERR_003,ERROR_INVALID_MEETUP_IN_REQUEST);
+		 }
+		 
+		 List<MeetupMessage> messages = this.meetupDAO.getMeetupMessages(meetup, page);
+		 if(messages!=null && !messages.isEmpty()){
+		 Date now = new Date();
+			for (MeetupMessage meetupMessage : messages) {
+				Date messageTime = meetupMessage.getCreateDt();
+				long diff = now.getTime() - messageTime.getTime();// in
+																	// millisecons
+
+				int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+
+				if (diffDays > 0) {
+					meetupMessage.setTimeToDisplay(diffDays + "Day ago");
+					continue;
+				}
+
+				int diffHours = (int) (diff / (60 * 60 * 1000) % 24);
+				if (diffHours > 0) {
+					meetupMessage.setTimeToDisplay(diffHours + "Hour ago");
+					continue;
+				}
+
+				int diffMinutes = (int) (diff / (60 * 1000) % 60);
+				if (diffMinutes > 0) {
+					meetupMessage.setTimeToDisplay(diffMinutes + "Min ago");
+					continue;
+				}
+
+				meetupMessage.setTimeToDisplay("Just Now");
+			}
+		 }
+		 logInfo(LOG_PREFIX, "Returning {} messages for meetup = {}", meetupId);
+		 
+		 
+		 return messages;
 	}
 	 
 	 @Override

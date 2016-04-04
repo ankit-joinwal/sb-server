@@ -4,7 +4,7 @@ import com.bitlogic.sociallbox.data.model.EventType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JsonRootName("user_event_interes")
+@JsonRootName("user_event_interest")
 public class UserEventInterest {
 	
 	@JsonProperty("type")

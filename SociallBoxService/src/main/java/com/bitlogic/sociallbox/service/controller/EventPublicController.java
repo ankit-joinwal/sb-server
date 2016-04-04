@@ -42,6 +42,7 @@ public class EventPublicController extends BaseController implements Constants{
 	private static final String GET_EVENT_IMAGES_API = "GetEventImages API";
 	private static final String GET_EVENT_IMAGE_BY_NAME_API = "GetEventImageByName API";
 	private static final String GET_PERSONALIZEZ_EVENT_FOR_USER_API = "GetPersonalizedEventsForUser API";
+	private static final String GET_PERSONALIZED_RETAIL_EVENT_FOR_USER_API = "GetPersonalizedRetailEventsForUser API";
 	private static final String GET_EVENTS_BY_TYPE_API = "GetEventsOfType API";
 	private static final String GET_UPCOMING_EVENTS_BY_ORG_API = "GetUpcomingEventsOfOrg API";
 	
@@ -459,6 +460,33 @@ public class EventPublicController extends BaseController implements Constants{
 		return collectionResponse;
 	}
 	
+	@RequestMapping(value="/personalized/retail",method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@ResponseStatus(HttpStatus.OK)
+	public EntityCollectionResponse<EventResponse> getPersonalizedRetailEvents(
+												@RequestParam(required = true, value = "lat") String latitude,
+												@RequestParam(required = true, value = "lon") String longitude,
+												@RequestParam(required = false, value = "id") Long userId,
+												@RequestParam(required = true, value = "city") String city,
+												@RequestParam(required = true, value = "country") String country,
+												@RequestParam(required=false,value="page") Integer page){
+
+		logRequestStart(GET_PERSONALIZED_RETAIL_EVENT_FOR_USER_API, PUBLIC_REQUEST_START_LOG, GET_PERSONALIZED_RETAIL_EVENT_FOR_USER_API);
+		logInfo(GET_PERSONALIZED_RETAIL_EVENT_FOR_USER_API, " City {} , Country {} ,user {} ", city,country,userId);
+		if(page==null){
+			page = new Integer(1);
+		}
+		String location = latitude +","+longitude;
+		List<EventResponse> events = this.eventService.getRetailEventsForUser(location,userId,city, country,page);
+		EntityCollectionResponse<EventResponse> collectionResponse = new EntityCollectionResponse<>();
+		collectionResponse.setData(events);
+		collectionResponse.setStatus("Success");
+		collectionResponse.setPage(page);
+		collectionResponse.setTotalRecords(events.size());
+		
+		logRequestEnd(GET_PERSONALIZED_RETAIL_EVENT_FOR_USER_API, GET_PERSONALIZED_RETAIL_EVENT_FOR_USER_API);
+		return collectionResponse;
+	}
 	
 	/**
 	*  @api {get} /api/public/events/types/:type?city=:city&country=:country&id=:userId&lat=:lat&lon=:lon&page=:page Get Events By Event-Type

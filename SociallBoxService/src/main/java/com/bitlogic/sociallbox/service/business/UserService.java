@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.bitlogic.Constants;
-import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
@@ -13,6 +12,7 @@ import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.response.UserEventInterest;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
+import com.bitlogic.sociallbox.data.model.response.UserRetailEventInterest;
 
 public interface UserService {
 
@@ -26,6 +26,10 @@ public interface UserService {
 	public List<UserEventInterest> getUserEventInterests(Long id);
 	
 	public List<UserEventInterest> saveUserEventInterests(Long id,List<UserEventInterest> types);
+	
+	public List<UserRetailEventInterest> getUserRetailEventInterests(Long id);
+	
+	public List<UserRetailEventInterest> saveUserRetailEventInterests(Long id,List<UserRetailEventInterest> types);
 	
 	public SmartDevice getSmartDeviceDetails(String uniqueId) ;
 	

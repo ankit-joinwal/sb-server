@@ -13,6 +13,7 @@ import com.bitlogic.sociallbox.data.model.Location;
 import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
+import com.bitlogic.sociallbox.data.model.MeetupStatus;
 import com.bitlogic.sociallbox.data.model.response.UserPublicProfile;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -49,6 +50,9 @@ public class MeetupResponse  implements Serializable{
 	@JsonProperty("organizer")
 	private UserPublicProfile organizer;
 	
+	@JsonProperty("status")
+	private MeetupStatus status;
+	
 	@XmlElement
 	@JsonProperty("meetup_access_url")
 	private String url;
@@ -60,17 +64,15 @@ public class MeetupResponse  implements Serializable{
 	@JsonProperty("event_at_meetup")
 	private String eventAtMeetup;
 	
-	@XmlElement
-	@JsonProperty("attendees")
-	private Set<MeetupAttendeeEntity> attendees = new HashSet<>();
 	
-	@XmlElement
-	@JsonProperty("messages")
-	private Set<MeetupMessage> messages = new HashSet<>();
+	public MeetupStatus getStatus() {
+		return status;
+	}
 
-	
-	
-	
+	public void setStatus(MeetupStatus status) {
+		this.status = status;
+	}
+
 	public MeetupImage getDisplayImage() {
 		return displayImage;
 	}
@@ -97,21 +99,7 @@ public class MeetupResponse  implements Serializable{
 
 	
 	
-	public Set<MeetupMessage> getMessages() {
-		return messages;
-	}
-
-	public void setMessages(Set<MeetupMessage> messages) {
-		this.messages = messages;
-	}
-
-	public Set<MeetupAttendeeEntity> getAttendees() {
-		return attendees;
-	}
-
-	public void setAttendees(Set<MeetupAttendeeEntity> attendees) {
-		this.attendees = attendees;
-	}
+	
 
 	public UserPublicProfile getOrganizer() {
 		return organizer;

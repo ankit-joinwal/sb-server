@@ -6,11 +6,13 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.AddressComponentType;
 import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.Meetup;
@@ -89,6 +91,19 @@ public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{
 			meetupMessage.setCreateDt(now);
 			saveOrUpdate(meetupMessage);
 		}
+	}
+	
+	@Override
+	public List<MeetupMessage> getMeetupMessages(Meetup meetup, Integer page) {
+		int startIdx = (page - 1) * Constants.RECORDS_PER_PAGE;
+		Criteria criteria = getSession().createCriteria(MeetupMessage.class,"message")
+							.createAlias("message.meetup", "meetup")
+							.add(Restrictions.eq("meetup.uuid", meetup.getUuid()))
+							.setFirstResult(startIdx)
+							.setMaxResults(Constants.RECORDS_PER_PAGE)
+							.addOrder(Order.desc("message.createDt"));
+		
+		return criteria.list();
 	}
 	
 	@Override

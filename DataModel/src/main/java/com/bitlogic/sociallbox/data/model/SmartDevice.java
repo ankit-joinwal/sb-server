@@ -2,11 +2,13 @@ package com.bitlogic.sociallbox.data.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
@@ -69,7 +71,7 @@ public class SmartDevice implements Serializable{
 	private String gcmId;
 	
 	
-	 @ManyToOne
+	 @ManyToOne(fetch=FetchType.LAZY)
 	 @JsonIgnore
 	 @XmlTransient
 	 @JoinColumn(name="USER_ID",nullable=false)
@@ -178,6 +180,25 @@ public class SmartDevice implements Serializable{
 		this.gcmId = gcmId;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		 if (obj == null)
+	      {
+	         return false;
+	      }
+	      if (getClass() != obj.getClass())
+	      {
+	         return false;
+	      }
+	      final SmartDevice sd = (SmartDevice) obj;
+	      
+		return Objects.equals(this.uniqueId,sd.uniqueId);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.uniqueId);
+	}
 	@Override
 	public String toString() {
 		return "SmartDevice : [ uniqueId = "  + uniqueId+ " , " +

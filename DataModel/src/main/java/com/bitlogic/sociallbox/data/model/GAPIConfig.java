@@ -14,6 +14,7 @@ public class GAPIConfig extends APIConfig{
 	private String gapiKey;
 	private String placePhotoGetAPI ;
 	private String placePhotoGoogleAPI;
+	private String gcmServerURL;
 	
 	
 	public String getPlacePhotoGoogleAPI() {
@@ -70,6 +71,14 @@ public class GAPIConfig extends APIConfig{
 
 	public void setNearBySearchURL(String nearBySearchURL) {
 		this.nearBySearchURL = nearBySearchURL;
+	}
+
+	public String getGcmServerURL() {
+		return gcmServerURL;
+	}
+
+	public void setGcmServerURL(String gcmServerURL) {
+		this.gcmServerURL = gcmServerURL;
 	}
 	
 }

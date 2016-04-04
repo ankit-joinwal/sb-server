@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bitlogic.Constants;
+import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
@@ -29,6 +30,7 @@ import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.response.UserEventInterest;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
+import com.bitlogic.sociallbox.data.model.response.UserRetailEventInterest;
 import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.dao.EventTagDAO;
 import com.bitlogic.sociallbox.service.dao.EventTypeDAO;
@@ -242,6 +244,17 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 						}
 					}
 				}
+				Set<SmartDevice> deviceInRequest = user.getSmartDevices();
+				for(SmartDevice device : deviceInRequest){
+					for(SmartDevice existingDevice : existingDevices){
+						if(device.equals(existingDevice)){
+							if(!device.getGcmId().equals(existingDevice.getGcmId())){
+								logInfo(LOG_PREFIX, "Updating GCM ID for Device {}", existingDevice.getId());
+								existingDevice.setGcmId(device.getGcmId());
+							}
+						}
+					}
+				}
 				userObjectToReturn = userInDB;
 				//Set<SmartDevice> newDevices = new HashSet<>(1);
 				//userObjectToReturn.setSmartDevices(newDevices);
@@ -357,6 +370,46 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 		List<EventType> typesInDB = this.eventTypeDAO.getEventTypesByNames(typeNames);
 		
 		this.eventTypeDAO.saveUserEventInterests(typesInDB, id);
+		return interests;
+	}
+	
+	@Override
+	public List<UserRetailEventInterest> getUserRetailEventInterests(Long id) {
+		String LOG_PREFIX = "UserServiceImpl-getUserRetailEventInterests";
+		logInfo(LOG_PREFIX, "Getting user retail event interests");
+		List<EventTag> allRetailTags = this.eventTagDAO.getAllRetailTag();
+		List<UserRetailEventInterest> userEventInterests = new ArrayList<UserRetailEventInterest>();
+		
+		List<EventTag> userRetailInterests = this.eventTagDAO.getRetailTagsForUser(id);
+		if(userRetailInterests!=null){
+			for(EventTag tag : allRetailTags){
+				UserRetailEventInterest interest = new UserRetailEventInterest();
+				if(userRetailInterests.contains(tag)){
+					interest.setEventTag(tag);
+					interest.setIsUserInterest(Boolean.FALSE);
+				}else{
+					interest.setEventTag(tag);
+				}
+				userEventInterests.add(interest);
+			}
+		}
+		return userEventInterests;
+	}
+	
+	@Override
+	public List<UserRetailEventInterest> saveUserRetailEventInterests(Long id,
+			List<UserRetailEventInterest> interests) {
+		String LOG_PREFIX = "saveUserRetailEventInterests";
+		List<String> typeNames = new ArrayList<>();
+		for (UserRetailEventInterest interest : interests) {
+			if(interest.getIsUserInterest()){
+				typeNames.add(interest.getEventTag().getName());
+			}
+		}
+		logInfo(LOG_PREFIX, "Saving user interests for user {} | {} ", id,typeNames);
+		List<EventTag> typesInDB = this.eventTagDAO.getTagsByNames(typeNames);
+		
+		
 		return interests;
 	}
 

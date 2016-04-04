@@ -4,6 +4,7 @@ import java.io.File;
 
 public interface Constants {
 
+	String PACKAGE_NAME_FOR_NOTIFICATIONS = "com.bitlogic.sociallbox";
 	String BLANK = "";
 	String ZERO = "0";
 	Integer RECORDS_PER_PAGE = 20;
@@ -14,6 +15,7 @@ public interface Constants {
 	String HIBERNATE_SHOW_SQL_PROPERTY = "hibernate.show_sql";
 	String HIBERNATE_FORMAT_SQL_PROPERTY = "hibernate.format_sql";
 	String HIBERNATE_HBM_DDL_PROPERTY = "hibernate.hbm2ddl.auto";
+	String HIBERNATE_JDBC_BATCH_SIZE = "hibernate.jdbc.batch_size";
 	//BoneCP properties
 	String BONECP_URL = "bonecp.url";
 	String BONECP_USERNAME = "bonecp.username";
@@ -33,6 +35,7 @@ public interface Constants {
 	String G_PLACE_DETAIL_URL = "gplaces.place.details.url";
 	String DEFAULT_GAPI_DATA_EXCHANGE_FMT = "gapi.data.format";
 	String G_PLACE_PHOTOS_URL_KEY = "gplaces.photo.url";
+	String GAPI_GCM_SERVER_URL = "gapi.gcm.server.url";
 	String GAPI_KEY = "gapi.key";
 	String ZOMATO_NEARBY_PLACES_URL = "zplaces.nearby.url";
 	String ZOMATO_PLACE_DETAIL_URL = "zplaces.place.details.url";
