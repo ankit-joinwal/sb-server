@@ -21,7 +21,7 @@ import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EventOrganizerService;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 
 @RestController
 @RequestMapping("/api/secured/users/organizers")
@@ -41,7 +41,7 @@ public class EventOrganizerSecuredController implements Constants{
 		LOGGER.info("Request Payload : {} ",request);
 		EventOrganizer eventOrganizer = this.eventOrganizerService.create(request);
 		Transformer<EventOrganizerProfile, EventOrganizer> responseTransformer = 
-				(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER);
+				(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
 		EventOrganizerProfile eventOrganizerResponse = responseTransformer.transform(eventOrganizer);
 		
 		SingleEntityResponse<EventOrganizerProfile> entityResponse = new SingleEntityResponse<>();

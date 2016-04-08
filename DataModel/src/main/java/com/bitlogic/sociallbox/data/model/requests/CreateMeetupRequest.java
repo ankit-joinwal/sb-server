@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.bitlogic.sociallbox.data.model.Location;
 import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @XmlRootElement(name="meetup")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -29,16 +30,20 @@ public class CreateMeetupRequest implements Serializable{
 	private Location location;
 	
 	@NotNull(message="error.start.date.mandatory")
+	@JsonProperty("start_date")
 	private String startDate;
 	
 	@NotNull(message="error.end.date.mandatory")
+	@JsonProperty("end_date")
 	private String endDate;
 	
 	private String organizerId;
 	
+	@JsonProperty("event_at_meetup")
 	private String eventAtMeetup;
 	
-	private Boolean isPublic;
+	@JsonProperty("is_private")
+	private Boolean isPrivate;
 	
 	private List<MeetupAttendeeEntity> attendees;
 	
@@ -57,13 +62,15 @@ public class CreateMeetupRequest implements Serializable{
 	}
 
 
-	public Boolean getIsPublic() {
-		return isPublic;
+	
+
+	public Boolean getIsPrivate() {
+		return isPrivate;
 	}
 
 
-	public void setIsPublic(Boolean isPublic) {
-		this.isPublic = isPublic;
+	public void setIsPrivate(Boolean isPrivate) {
+		this.isPrivate = isPrivate;
 	}
 
 

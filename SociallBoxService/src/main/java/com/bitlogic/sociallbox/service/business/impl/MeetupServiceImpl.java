@@ -1,9 +1,6 @@
 package com.bitlogic.sociallbox.service.business.impl;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,6 +15,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +39,10 @@ import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace.Result.AddressComponent;
 import com.bitlogic.sociallbox.data.model.requests.AddMeetupAttendeesRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateMeetupRequest;
+import com.bitlogic.sociallbox.data.model.requests.EditMeetupRequest;
+import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
+import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.business.MeetupService;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
 import com.bitlogic.sociallbox.service.dao.MeetupDAO;
@@ -52,10 +53,11 @@ import com.bitlogic.sociallbox.service.exception.EntityNotFoundException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
+import com.bitlogic.sociallbox.service.transformers.MeetupAttendeeTransformer;
+import com.bitlogic.sociallbox.service.transformers.MeetupTransformer;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
-import com.bitlogic.sociallbox.service.utils.ImageUtils;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 
 @Service
@@ -81,21 +83,29 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 	private SmartDeviceDAO smartDeviceDAO;
 	
 	@Override
-	public Meetup createMetup(CreateMeetupRequest createMeetupRequest) {
-
-		logger.info("### Inside MeetupServiceImpl.createMetup ###");
+	public MeetupResponse createMetup(CreateMeetupRequest createMeetupRequest) {
+		String LOG_PREFIX = "MeetupServiceImpl-createMetup";
+		
 		Meetup meetup = new Meetup();
+		logInfo(LOG_PREFIX, "Getting User from device id {}", createMeetupRequest.getDeviceId());
 		User organizer = this.smartDeviceDAO.getUserInfoFromDeviceId(createMeetupRequest.getDeviceId()); 
 		if(organizer==null){
+			logError(LOG_PREFIX, "User cannot be found");
 			throw new ClientException(RestErrorCodes.ERR_003,Constants.ERROR_USER_INVALID);
 		}
-		logger.info("Found organizer details in DB for {} : Id {} ",organizer.getEmailId(),organizer.getId());
-
+		
 		Event eventAtMeetup = null;
 		boolean isMeetupAtEvent = false;
+		
 		if(createMeetupRequest.getEventAtMeetup()!=null && !createMeetupRequest.getEventAtMeetup().isEmpty()){
 			isMeetupAtEvent = true;
+			
 			eventAtMeetup = this.eventDAO.getEvent(createMeetupRequest.getEventAtMeetup());
+			if(eventAtMeetup==null){
+				logError(LOG_PREFIX, "Invalid event id {}", createMeetupRequest.getEventAtMeetup());
+				throw new ClientException(RestErrorCodes.ERR_003, ERROR_INVALID_EVENT_IN_REQUEST);
+			}
+			logInfo(LOG_PREFIX, "Meetup is at event = {}", eventAtMeetup.getTitle());
 			meetup.setEventAtMeetup(eventAtMeetup);
 		}
 		Date now = new Date();
@@ -103,7 +113,7 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 		meetup.setTitle(createMeetupRequest.getTitle());
 		meetup.setDescription(createMeetupRequest.getDescription());
 		meetup.setLocation(createMeetupRequest.getLocation());
-		meetup.setIsPublic(createMeetupRequest.getIsPublic());
+		meetup.setIsPrivate(createMeetupRequest.getIsPrivate());
 		meetup.setStatus(MeetupStatus.CREATED);
 		meetup.setCreatedDt(now);
 		try {
@@ -111,10 +121,11 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 			meetup.setStartDate(dateFormat.parse(createMeetupRequest.getStartDate()));
 			meetup.setEndDate(dateFormat.parse(createMeetupRequest.getEndDate()));
 		} catch (ParseException e) {
-			logger.error("ParseException",e);
+			logger.error("ParseException in startDate/endDate of meetup",e);
 		}
 		meetup.setOrganizer(organizer);
 		Meetup created = meetupDAO.createMeetup(meetup);
+
 		MeetupAttendeeEntity organizerAsAttendee = new MeetupAttendeeEntity();
 		organizerAsAttendee.setAttendeeResponse(AttendeeResponse.YES);
 		organizerAsAttendee.setIsAdmin(Boolean.TRUE);
@@ -130,9 +141,105 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 		}
 		
 		//meetupDAO.saveMeetup(created);
-		return created;
+		
+		MeetupTransformer transformer = (MeetupTransformer) TransformerFactory.getTransformer(TransformerTypes.MEETUP_TRANS);
+		MeetupResponse createMeetupResponse = transformer.transform(created);
+		createMeetupResponse.setUserActions(MeetupResponse.UserActionType.getOrganizerActions());
+		return createMeetupResponse;
 	}
 	
+	@Override
+	public Meetup editMeetup(EditMeetupRequest editMeetupRequest) {
+		String LOG_PREFIX = "MeetupServiceImpl-editMeetup";
+		
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(editMeetupRequest.getDeviceId()); 
+		if(user==null){
+			throw new ClientException(RestErrorCodes.ERR_003,Constants.ERROR_USER_INVALID);
+		}
+		String meetupId = editMeetupRequest.getMeetupId();
+		logInfo(LOG_PREFIX, "Getting meetup info with id = {}", meetupId);
+		Meetup meetup = meetupDAO.getMeetup(meetupId);
+		
+		if(meetup==null){
+			logError(LOG_PREFIX, "No meetup found with id {}", meetupId);
+			throw new ClientException(RestErrorCodes.ERR_003, ERROR_INVALID_MEETUP_IN_REQUEST);
+		}
+		
+		//Check if updater is admin
+		if(meetup.getOrganizer().getId() != user.getId()){
+			logError(LOG_PREFIX, "Only meetup organizer can edit meetup");
+			throw new ClientException(RestErrorCodes.ERR_003, ERROR_EDIT_MEETUP_INVALID_USER);
+		}
+		
+		boolean isUpdated = false;
+		Date now = new Date();
+		if(StringUtils.isNotBlank(editMeetupRequest.getTitle()) && !editMeetupRequest.getTitle().equals(meetup.getTitle())){
+			logInfo(LOG_PREFIX, "Updating title as {}", editMeetupRequest.getTitle());
+			meetup.setTitle(editMeetupRequest.getTitle());
+			isUpdated = true;
+		}
+		
+		if(StringUtils.isNotBlank(editMeetupRequest.getDescription()) && !editMeetupRequest.getDescription().equals(meetup.getDescription())){
+			logInfo(LOG_PREFIX, "Updating description as {}", editMeetupRequest.getDescription());
+			meetup.setDescription(editMeetupRequest.getDescription());
+			isUpdated = true;
+		}
+		
+		if(editMeetupRequest.getLocation()!=null && StringUtils.isNotBlank(editMeetupRequest.getLocation().getName())
+				&& editMeetupRequest.getLocation().getLattitude()!=null
+				&& editMeetupRequest.getLocation().getLongitude()!=null
+				&& !editMeetupRequest.getLocation().getName().equals(meetup.getLocation().getName())){
+			logInfo(LOG_PREFIX, "Updating location as {}", editMeetupRequest.getLocation());
+			meetup.setLocation(editMeetupRequest.getLocation());
+			isUpdated = true;
+		}
+		
+		if(StringUtils.isNotBlank(editMeetupRequest.getStartDate())){
+			try {
+				SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MEETUP_DATE_FORMAT);
+				Date startDate = dateFormat.parse(editMeetupRequest.getStartDate());
+				Date meetupStartDate = meetup.getStartDate();
+				if(meetupStartDate.compareTo(startDate)!=0){
+					logInfo(LOG_PREFIX, "Updating Start Date as {}", startDate);
+					meetup.setStartDate(startDate);
+					isUpdated = true;
+				}
+			} catch (ParseException e) {
+				logger.error("ParseException",e);
+			}
+		}
+		
+		if(StringUtils.isNotBlank(editMeetupRequest.getEndDate())){
+			try {
+				SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MEETUP_DATE_FORMAT);
+				Date endDate = dateFormat.parse(editMeetupRequest.getEndDate());
+				Date meetupEndDate = meetup.getEndDate();
+				if(meetupEndDate.compareTo(endDate)!=0){
+					logInfo(LOG_PREFIX, "Updating End Date as {}", endDate);
+					meetup.setEndDate(endDate);
+					isUpdated = true;
+				}
+			} catch (ParseException e) {
+				logger.error("ParseException",e);
+			}
+		}
+		
+		if(editMeetupRequest.getIsPrivate()!= meetup.getIsPrivate()){
+			logInfo(LOG_PREFIX, "Updating isPrivate to {}", editMeetupRequest.getIsPrivate());
+			meetup.setIsPrivate(editMeetupRequest.getIsPrivate());
+			isUpdated = true;
+		}
+		
+		if(isUpdated){
+			meetup.setUpdateDt(now);
+			meetup.setUpdBy(user);
+			Meetup edited = this.meetupDAO.getMeetup(meetupId);
+			logInfo(LOG_PREFIX, "Edit Meetup completed");
+			return edited;
+		}
+		return meetup;
+		
+	}
 	private Set<MeetupAddressInfo> getMeetupAddressInfo(Meetup meetup,Set<GooglePlace.Result.AddressComponent> addressComponents){
 		List<AddressComponentType> addressComponentTypes = this.meetupDAO.getAddressTypes();
 		logger.info("Inside getMeetupAddressInfo. addressComponentTypes : {}  ",addressComponentTypes);
@@ -167,23 +274,81 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 	}
 	
 	 @Override
-	public Meetup getMeetup(String meetupId) {
-		 logger.info("### Inside MeetupServiceImpl.getMeetup ###");
+	public MeetupResponse getMeetup(String deviceId,String meetupId) {
+		 String LOG_PREFIX = "MeetupServiceImpl-getMeetup";
+		 User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId); 
+		 if(user==null){
+			throw new ClientException(RestErrorCodes.ERR_003,Constants.ERROR_USER_INVALID);
+		 }
+		 logInfo(LOG_PREFIX, "Getting meetup with id = {}", meetupId);
 		 Meetup meetup = meetupDAO.getMeetup(meetupId);
 		 if(meetup==null){
+			 logError(LOG_PREFIX, "Meetup not found ");
 			 throw new EntityNotFoundException(meetup, RestErrorCodes.ERR_020, ERROR_MEETUP_NOT_FOUND);
 		 }
-		return meetup;
+		 MeetupTransformer transformer = (MeetupTransformer) TransformerFactory.getTransformer(TransformerTypes.MEETUP_TRANS);
+		 MeetupResponse meetupResponse = transformer.transform(meetup);
+		 /*
+		  * Scenarios :
+		  * 				Case									|				Result 
+		  * 1. When requesting user is not meetup attendee 			|				Error
+		  *    and meetup is private								|				
+		  * 2. When requesting user is not meetup attendee 			|				Read Only Actions
+		  *    and meetup is not private							|
+		  * 3. When requesting user is a non admin					|				Non admin Actions
+		  * 4. When requesting user is admin						|				Admin Actions
+		  * 5. When requesting user is organizer					|				Organizer Actions (Full Access)
+		  */
+		 MeetupAttendeeEntity attendeeEntity = this.meetupDAO.getMeetupAttendee(user.getId(), meetupId);
+		 if(attendeeEntity==null){
+			logError(LOG_PREFIX, "User {} is not an attendee for meetup {}.", user, meetupId);
+			if(meetup.getIsPrivate()){
+				throw new ClientException(RestErrorCodes.ERR_002, ERROR_ACTION_NOT_ALLOWED);
+			}else{
+				meetupResponse.setUserActions(MeetupResponse.UserActionType.getReadOnlyActions());
+				return meetupResponse;
+			}
+		 }
+		
+		if(user.getId() == meetup.getOrganizer().getId()){
+			meetupResponse.setUserActions(MeetupResponse.UserActionType.getOrganizerActions());
+			return meetupResponse;
+		}
+		 
+		if(attendeeEntity.getIsAdmin()){
+			meetupResponse.setUserActions(MeetupResponse.UserActionType.getAdminActions());
+			return meetupResponse;
+		}else{
+			meetupResponse.setUserActions(MeetupResponse.UserActionType.getNonAdminActions());
+			return meetupResponse;
+		}
+		
+		
 	}
 	 
+	 @Override
+	public List<MeetupImage> getMeetupImages(String deviceId, String meetupId) {
+		String LOG_PREFIX = "MeetupServiceImpl-getMeetupImages";
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId); 
+		if(user==null){
+			throw new ClientException(RestErrorCodes.ERR_003,Constants.ERROR_USER_INVALID);
+		}
+		MeetupAttendeeEntity attendeeEntity = this.meetupDAO.getMeetupAttendee(user.getId(), meetupId);
+		if(attendeeEntity==null){
+			logError(LOG_PREFIX, "User {} is not an attendee for meetup {}. Hence cannot view images", user, meetupId);
+			return new ArrayList<MeetupImage>();
+		}
+		return this.meetupDAO.getMeetupImages(meetupId);
+	}
 	 
 	 @Override
-	public void addAttendees(AddMeetupAttendeesRequest addAttendeesRequest) {
-		 logger.info("### Inside addAttendees ###");
+	public List<MeetupAttendee> addAttendees(AddMeetupAttendeesRequest addAttendeesRequest) {
+		 String LOG_PREFIX = "MeetupServiceImpl-addAttendees";
+		 
 		 List<MeetupAttendee> meetupAttendees = addAttendeesRequest.getAttendees();
 		 Meetup meetup = this.meetupDAO.getMeetup(addAttendeesRequest.getMeetupId());
 		 if(meetup==null){
-			 logger.error("No meetup found with id {}",addAttendeesRequest.getMeetupId());
+			 logError(LOG_PREFIX,"No meetup found with id {}",addAttendeesRequest.getMeetupId());
 			 throw new ClientException(RestErrorCodes.ERR_003, ERROR_MEETUP_NOT_FOUND);
 		 }
 		 List<Long> userIds = new ArrayList<>();
@@ -192,7 +357,7 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 			 userIds.add(meetupAttendee.getUserId());
 			 meetupAttendeesMap.put(meetupAttendee.getUserId(), meetupAttendee);
 		 }
-		 logger.info("Loading users corresponding to attendees");
+		 logInfo(LOG_PREFIX,"Loading users corresponding to attendees");
 		 Map<Long,User> usersMap = this.userDAO.getUsersMapFromUserIds(userIds);
 		 
 		 List<MeetupAttendeeEntity> attendeeEntities = new ArrayList<>(userIds.size());
@@ -207,41 +372,54 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 			 
 			 User user = usersMap.get(entry.getKey());
 			 if(user == null ){
-				 logger.warn("No user found for attendee {}",entry.getKey());
+				 logError(LOG_PREFIX,"No user found for attendee {}",entry.getKey());
 				 continue;
 			 }
 			 meetupAttendeeEntity.setUser(user);
 			 attendeeEntities.add(meetupAttendeeEntity);
 		 }
 		 meetup.getAttendees().addAll(new HashSet<>(attendeeEntities));
-		 meetup = this.meetupDAO.saveMeetup(meetup);
+		// meetup = this.meetupDAO.saveMeetup(meetup);
+		 List<MeetupAttendeeEntity> attendees = this.meetupDAO.getAttendees(meetup);
 		 
+		MeetupAttendeeTransformer transformer = (MeetupAttendeeTransformer) TransformerFactory.getTransformer(TransformerTypes.MEETUP_ATTENDEE_TRANSFORMER);
+		List<MeetupAttendee> attendeesToReturn = transformer.transform(attendees);
+		 
+		return attendeesToReturn;
 	}
 	 
 	 @Override
 	public void saveAttendeeResponse(SaveAttendeeResponse attendeeResponse) {
+		String LOG_PREFIX = "MeetupServiceImpl-saveAttendeeResponse";
+		logInfo(LOG_PREFIX, "Attendee Response = {}", attendeeResponse);
 		this.meetupDAO.saveAttendeeResponse(attendeeResponse);
 	}
 	 
 	 @Override
 	public void sendMessageInMeetup(MeetupMessage meetupMessage,
-			String meetupId, String userSocialId) {
+			String meetupId, Long attendeeId) {
 
-		 UserSocialDetail userSocialDetail = this.userDAO.getSocialDetail(userSocialId);
-		 if(userSocialDetail==null){
-			 throw new ClientException(RestErrorCodes.ERR_003, ERROR_SOCIAL_DETAILS_NOT_FOUND);
-		 }
-		 MeetupAttendeeEntity meetupAttendee = this.userDAO.getAttendeeByMeetupIdAndSocialId(meetupId, userSocialDetail.getId());
+		String LOG_PREFIX = "MeetupServiceImpl-sendMessageInMeetup";
+		logInfo(LOG_PREFIX, "Getting attendee for Meetup = {}. Attendee Id = {}", meetupId,attendeeId);
+		
+		 MeetupAttendeeEntity meetupAttendee = this.meetupDAO.getMeetupAttendeeByAttendeeId(attendeeId);
 		 if(meetupAttendee==null){
-			 logger.error("MeetupAttendee not found for social id {} , meetup {} ",userSocialId,meetupId);
+			 logError(LOG_PREFIX, "Invalid Attendee Id");
+			 throw new ClientException(RestErrorCodes.ERR_003,ERROR_USER_NOT_ATTENDEE_OF_MEETUP);
 		 }else{
-			 this.meetupDAO.sendMessageInMeetup(meetupMessage, meetupId, meetupAttendee.getAttendeeId());
+			 Meetup meetup = meetupAttendee.getMeetup();
+			 if(meetup.getUuid().equals(meetupId)){
+				 this.meetupDAO.sendMessageInMeetup(meetupMessage, meetup, meetupAttendee);
+			 }else{
+				 logError(LOG_PREFIX, "Invalid meetup id in request {}", meetupId);
+				 throw new ClientException(RestErrorCodes.ERR_003, ERROR_INVALID_MEETUP_IN_REQUEST);
+			 }
 		 }
 	}
 	 
 	 @Override
 	public List<MeetupMessage> getMeetupMessages(String meetupId,Integer page) {
-		 String LOG_PREFIX = "MeetupServiceImpl.getMeetupMessages";
+		 String LOG_PREFIX = "MeetupServiceImpl-getMeetupMessages";
 		 Meetup meetup = this.meetupDAO.getMeetup(meetupId);
 		 if(meetup==null){
 			 logError(LOG_PREFIX, "Meetup not found = {}", meetupId);
@@ -250,7 +428,7 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 		 
 		 List<MeetupMessage> messages = this.meetupDAO.getMeetupMessages(meetup, page);
 		 if(messages!=null && !messages.isEmpty()){
-		 Date now = new Date();
+			 Date now = new Date();
 			for (MeetupMessage meetupMessage : messages) {
 				Date messageTime = meetupMessage.getCreateDt();
 				long diff = now.getTime() - messageTime.getTime();// in
@@ -259,19 +437,19 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 				int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
 
 				if (diffDays > 0) {
-					meetupMessage.setTimeToDisplay(diffDays + "Day ago");
+					meetupMessage.setTimeToDisplay(diffDays + " Day ago");
 					continue;
 				}
 
 				int diffHours = (int) (diff / (60 * 60 * 1000) % 24);
 				if (diffHours > 0) {
-					meetupMessage.setTimeToDisplay(diffHours + "Hour ago");
+					meetupMessage.setTimeToDisplay(diffHours + " Hour ago");
 					continue;
 				}
 
 				int diffMinutes = (int) (diff / (60 * 1000) % 60);
 				if (diffMinutes > 0) {
-					meetupMessage.setTimeToDisplay(diffMinutes + "Min ago");
+					meetupMessage.setTimeToDisplay(diffMinutes + " Min ago");
 					continue;
 				}
 
@@ -285,7 +463,7 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 	}
 	 
 	 @Override
-	public void uploadImageToMeetup(String deviceId,String imagesURL, List<MultipartFile> images,
+	public List<MeetupImage> uploadImageToMeetup(Boolean isDp,String deviceId,String imagesURL, List<MultipartFile> images,
 			String meetupId) {
 		 logger.info("### Inside MeetupServiceImpl.uploadImageToMeetup ###");
 		 List<MeetupImage> imagesToSave = new ArrayList<>();
@@ -297,25 +475,40 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 		 if(meetup==null){
 			 throw new ClientException(RestErrorCodes.ERR_003,ERROR_INVALID_MEETUP_IN_REQUEST);
 		 }
-		 String meetupImagesPath = Constants.MEETUP_IMAGE_STORE_PATH +File.separator+meetupId;
-		 String imagesPublicURL = imagesURL.replaceAll("secured", "public");
-		 logger.info("Meetup images path : {}",meetupImagesPath);
+		 if(isDp == null){
+			 isDp = Boolean.FALSE;
+		 }
 		 for(MultipartFile multipartFile : images){
-			 logger.info("File to process : {} ",multipartFile.getOriginalFilename());
+			 String fileName = multipartFile.getOriginalFilename();
+				logger.info("File to process : {} ", fileName);
 	      	 logger.info("File size : {} ", multipartFile.getSize());
 	      	Transformer<MeetupImage, MultipartFile> transformer = 
-	      			   (Transformer<MeetupImage, MultipartFile>)TransformerFactory.getTransformer(Transformer_Types.MULTIPART_TO_MEETUP_IMAGE_TRANFORMER);
+	      			   (Transformer<MeetupImage, MultipartFile>)TransformerFactory.getTransformer(TransformerTypes.MULTIPART_TO_MEETUP_IMAGE_TRANFORMER);
 	      	 try{
-	      		   File created = ImageUtils.storeImageOnServer(meetupImagesPath, multipartFile);
+	      		ByteArrayInputStream imageStream = new ByteArrayInputStream(
+						multipartFile.getBytes());
+				Map<String, ?> uploadedImageInfo = ImageService.uploadImageToMeetup(meetupId, 
+								imageStream,
+								multipartFile.getContentType(),
+								multipartFile.getBytes().length, 
+								fileName);
+				
+				if (uploadedImageInfo == null
+						|| !uploadedImageInfo
+								.containsKey(Constants.IMAGE_URL_KEY)) {
+					throw new ServiceException(IMAGE_SERVICE_NAME,
+							RestErrorCodes.ERR_052,
+							"Unable to upload image.Please try later");
+				}
+				String imageURL = (String) uploadedImageInfo
+						.get(Constants.IMAGE_URL_KEY);
 	      		   Date now = new Date();
-	      		   String imageURL = imagesPublicURL +File.separator+ multipartFile.getOriginalFilename();
 	      		   MeetupImage meetupImage = transformer.transform(multipartFile);
 	      		   meetupImage.setMeetup(meetup);
 	      		   meetupImage.setUrl(imageURL);
 	      		   meetupImage.setUploadDt(now);
 	      		   meetupImage.setUploadedBy(uploadedBy);
-	      		   Path source = Paths.get(created.getAbsolutePath());
-	      		   meetupImage.setMimeType(Files.probeContentType(source));
+	      		   meetupImage.setIsDisplayImage(isDp);
 	      		   imagesToSave.add(meetupImage);
 	      	   }catch(ServiceException serviceException){
 	      		   logger.error("Error occurred while processing meetup image",serviceException);
@@ -327,5 +520,31 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 		 if(!imagesToSave.isEmpty()){
 			 this.meetupDAO.saveMeetupImages(imagesToSave);
 		 }
+		 
+		 return imagesToSave;
+	}
+	 
+	 @Override
+	public void cancelMeetup(String deviceId, String meetupId) {
+		 String LOG_PREFIX = "MeetupServiceImpl-cancelMeetup";
+		 
+		 User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
+		 if(user==null){
+			 throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_LOGIN_USER_UNAUTHORIZED);
+		 }
+		 
+		 Meetup meetup = this.meetupDAO.getMeetup(meetupId);
+		 if(meetup==null){
+			 throw new ClientException(RestErrorCodes.ERR_003,ERROR_INVALID_MEETUP_IN_REQUEST);
+		 }
+		 
+		 if(meetup.getOrganizer().getId() != user.getId()){
+			 logError(LOG_PREFIX, "Only meetup organizer can cancel meetup");
+			 throw new ClientException(RestErrorCodes.ERR_003, ERROR_CANCEL_MEETUP_INVALID_USER);
+		 }
+		 
+		 logInfo(LOG_PREFIX, "User {} cancelled meetup {}", user.getName(),meetup.getTitle());
+		 
+		 meetup.setStatus(MeetupStatus.CANCELLED);
 	}
 }

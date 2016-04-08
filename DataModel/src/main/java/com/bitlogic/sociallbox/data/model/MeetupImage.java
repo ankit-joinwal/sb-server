@@ -30,6 +30,9 @@ public class MeetupImage {
 	@Column(name="MIME_TYPE",length=20)
 	private String mimeType;
 	
+	@Column(name="IS_DISPLAY_IMAGE",length=5)
+	private Boolean isDisplayImage;
+	
 	@ManyToOne
 	@JoinColumn(name = "MEETUP_ID",nullable=false)
 	@JsonIgnore
@@ -40,6 +43,13 @@ public class MeetupImage {
 	@JsonIgnore
 	private User uploadedBy;
 	
+	
+	public Boolean getIsDisplayImage() {
+		return isDisplayImage;
+	}
+	public void setIsDisplayImage(Boolean isDisplayImage) {
+		this.isDisplayImage = isDisplayImage;
+	}
 	public User getUploadedBy() {
 		return uploadedBy;
 	}

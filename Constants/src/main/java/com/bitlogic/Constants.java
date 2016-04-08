@@ -60,8 +60,8 @@ public interface Constants {
 	String URL_PATH_SEPARATOR = "/";
 	String MEETUP_DATE_FORMAT = "dd/MM/yyyy hh:mm aa";
 	//String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy"; For year also
-	String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM hh:mm aa";
-	String MEETUP_RESPONSE_DATE_FORMAT = "EEE, d MMM hh:mm aa";
+	String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
+	String MEETUP_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
 	String TRUE = "true";
 	String GEO_SERVICE_NAME = "SociallBoxService";
 	String IMAGE_SERVICE_NAME = "ImageService";
@@ -81,6 +81,7 @@ public interface Constants {
 	
 	//S3 Config Properties
 	String AWS_EVENTS_ROOT_FOLDER_KEY = "aws.s3.events.root.path";
+	String AWS_MEETUPS_ROOT_FOLDER_KEY = "aws.s3.meetups.root.path";	
 	String AWS_BUCKET_NAME_KEY = "aws.s3.bucket.name";
 	String AWS_IMAGES_BASE_URL_KEY = "aws.s3.images.bas.url";
 	
@@ -138,4 +139,8 @@ public interface Constants {
 	String ERROR_INVALID_EOADMIN_ID = "error.invalid.eoadmin.id";
 	String ERROR_TAGS_MANDATORY = "error.tags.mandatory";
 	String ERROR_EO_ADMIN_UNAPPROVED = "error.eo.admin.unapproved";
+	String ERROR_EDIT_MEETUP_INVALID_USER = "error.edit.meetup.invalid.user";
+	String ERROR_CANCEL_MEETUP_INVALID_USER = "error.cancel.meetup.invalid.user";
+	String ERROR_ACTION_NOT_ALLOWED = "error.action.not.allowed";
+	String ERROR_USER_NOT_ATTENDEE_OF_MEETUP = "error.user.not.attendee.of.meetup";
 }

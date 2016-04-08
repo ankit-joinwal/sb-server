@@ -42,7 +42,7 @@ import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 import com.bitlogic.sociallbox.service.utils.LoginUtil;
 
@@ -466,7 +466,7 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 		}
 
 		Transformer<List<UserFriend>, List<User>> transformer = (Transformer<List<UserFriend>, List<User>>) TransformerFactory
-				.getTransformer(Transformer_Types.USER_TO_FRIEND_TRANSFORMER);
+				.getTransformer(TransformerTypes.USER_TO_FRIEND_TRANSFORMER);
 		List<UserFriend> userFriends = transformer.transform(friendsInSystem);
 		return userFriends;
 	}
@@ -485,7 +485,7 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 		List<User> friendsInSystem = this.userDAO.getUserFriends(user);
 		
 		Transformer<List<UserFriend>, List<User>> transformer = (Transformer<List<UserFriend>, List<User>>) TransformerFactory
-				.getTransformer(Transformer_Types.USER_TO_FRIEND_TRANSFORMER);
+				.getTransformer(TransformerTypes.USER_TO_FRIEND_TRANSFORMER);
 		List<UserFriend> userFriends = transformer.transform(friendsInSystem);
 		return userFriends;
 	}

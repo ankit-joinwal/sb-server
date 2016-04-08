@@ -37,7 +37,7 @@ import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.transformers.EventTransformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.LoginUtil;
 
 @RestController
@@ -49,9 +49,10 @@ public class EventSecuredController extends BaseController implements Constants{
 	private static final String UPLOAD_IMAGE_TO_EVENT_API = "UploadImageToEvent API";
 	private static final String MAKE_EVENT_LIVE_API = "MakeEventLive API";
 	private static final String REGISTER_FOR_EVENT_API = "RegisterForEvent API";
+	private static final String DE_REGISTER_FOR_EVENT_API = "DeRegisterForEvent API";
 	private static final String GET_FRIENDS_GOING_API = "GetFriendsGoingToEvent API";
 	private static final String ADD_TO_FAV_API = "AddEventToFavourites API";
-	private static final String IS_ADDED_TO_FAV_API = "IsEventAddedToFav API";
+	private static final String UNLIKE_EVENT_API = "UnlikeEvent API";
 	@Override
 	public Logger getLogger() {
 		return logger;
@@ -72,7 +73,7 @@ public class EventSecuredController extends BaseController implements Constants{
 		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
 		if(typeBasedOnDevice==UserTypeBasedOnDevice.WEB){
 			String userEmail = LoginUtil.getUserEmailIdFromUserName(userName);
-			EventTransformer transformer = (EventTransformer) TransformerFactory.getTransformer(Transformer_Types.EVENT_TRANS);
+			EventTransformer transformer = (EventTransformer) TransformerFactory.getTransformer(TransformerTypes.EVENT_TRANS);
 			EventResponse createEventResponse = transformer.transform(eventService.create(userEmail,createEventRequest));
 			SingleEntityResponse<EventResponse> entityResponse = new SingleEntityResponse<>();
 			entityResponse.setData(createEventResponse);
@@ -168,6 +169,55 @@ public class EventSecuredController extends BaseController implements Constants{
 			entityResponse.setStatus(SUCCESS_STATUS);
 			entityResponse.setData(attendee);
 			
+			return entityResponse;
+		}else{
+			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
+		}
+	}
+	
+	/**
+	 *  @api {post} /api/secured/events/:id/deregister De-Register from event
+	 *  @apiName De-register from event
+	 *  @apiGroup Events
+	 *  @apiParam {String} id Mandatory Event id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiHeaderExample {json} Example Headers
+	 *  accept: application/json
+		Content-Type: application/json
+		X-Auth-Date: 1455988523724
+		Authorization: Basic U0R+U01BUlRfREVWSUNFXzI6NCtPU3JRN0tKMzZ2TW9iRmoxbmJEZG5ydVVJVTlwTWFVWmN1V0xxaUFaRT0=
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Success Response
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+		  "status": "Success",
+		  "data": "Successfully De-Registered from event"
+		}
+	 
+	 */
+	@RequestMapping(value="/{eventId}/deregister",method = RequestMethod.POST, produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	@ResponseStatus(HttpStatus.OK)
+	public SingleEntityResponse<String> deRegisterToEvent(@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String auth,
+			@PathVariable String eventId){
+		logRequestStart(DE_REGISTER_FOR_EVENT_API, SECURED_REQUEST_START_LOG_MESSAGE, DE_REGISTER_FOR_EVENT_API);
+		logInfo(DE_REGISTER_FOR_EVENT_API, "Event Id {}", eventId);
+		logInfo(DE_REGISTER_FOR_EVENT_API, "Auth header = {}", auth);
+		String userName = LoginUtil.getUserNameFromHeader(auth);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
+			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
+			logInfo(DE_REGISTER_FOR_EVENT_API, " Device Id {} ", deviceId);
+			this.eventService.deRegisterForEvent(eventId, deviceId);
+			
+			SingleEntityResponse<String> entityResponse = new SingleEntityResponse<String>();
+			entityResponse.setStatus(SUCCESS_STATUS);
+			entityResponse.setData("Successfully De-Registered from event");
+			logRequestEnd(DE_REGISTER_FOR_EVENT_API, DE_REGISTER_FOR_EVENT_API);
 			return entityResponse;
 		}else{
 			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
@@ -272,6 +322,49 @@ public class EventSecuredController extends BaseController implements Constants{
 		entityResponse.setStatus(SUCCESS_STATUS);
 		entityResponse.setData("Event marked as favourite");
 		logRequestEnd(LOG_PREFIX,ADD_TO_FAV_API);
+		return entityResponse;
+	}
+	
+	/**
+	 *  @api {post} /api/secured/events/:eventId/unlike Remove event from favourites
+	 *  @apiName Remove event from favourites
+	 *  @apiGroup Events
+	 *  @apiParam  {String} event_id Event Id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Message 
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+		  "status": "Success",
+		  "data": "Successfully un liked event"
+		}
+
+	 */
+	@RequestMapping(value="/{eventId}/unlike",method=RequestMethod.POST,produces = { MediaType.APPLICATION_JSON_VALUE },consumes = { MediaType.APPLICATION_JSON_VALUE })
+	@ResponseStatus(HttpStatus.OK)
+	public SingleEntityResponse<String> unlikeEvent(@PathVariable("eventId") String eventId,@RequestHeader(value=Constants.AUTHORIZATION_HEADER) String authHeader){
+		final String LOG_PREFIX = UNLIKE_EVENT_API;
+		logRequestStart(LOG_PREFIX, SECURED_REQUEST_START_LOG_MESSAGE, LOG_PREFIX );
+		logInfo(LOG_PREFIX, "Authorization {}", authHeader);
+		String userName = LoginUtil.getUserNameFromHeader(authHeader);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
+			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
+			logInfo(LOG_PREFIX, " Device Id {} ", deviceId);
+			this.eventService.removeEventFromFav(deviceId, eventId);
+			logInfo(LOG_PREFIX,"Event removed from user favourites");
+		}else{
+			
+			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
+		}
+		SingleEntityResponse<String> entityResponse = new SingleEntityResponse<String>();
+		entityResponse.setStatus(SUCCESS_STATUS);
+		entityResponse.setData("Successfully un liked event");
+		logRequestEnd(LOG_PREFIX,LOG_PREFIX);
 		return entityResponse;
 	}
 	

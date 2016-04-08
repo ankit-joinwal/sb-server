@@ -130,7 +130,7 @@ public class SpringConfiguration extends LoggingService {
 		s3Properties.put(Constants.AWS_BUCKET_NAME_KEY, environment.getRequiredProperty(Constants.AWS_BUCKET_NAME_KEY));
 		s3Properties.put(Constants.AWS_EVENTS_ROOT_FOLDER_KEY, environment.getRequiredProperty(Constants.AWS_EVENTS_ROOT_FOLDER_KEY));
 		s3Properties.put(Constants.AWS_IMAGES_BASE_URL_KEY, environment.getRequiredProperty(Constants.AWS_IMAGES_BASE_URL_KEY));
-		
+		s3Properties.put(Constants.AWS_MEETUPS_ROOT_FOLDER_KEY, environment.getRequiredProperty(Constants.AWS_MEETUPS_ROOT_FOLDER_KEY));
 		imageService.setConfigProperties(s3Properties);
 		
 		return imageService;

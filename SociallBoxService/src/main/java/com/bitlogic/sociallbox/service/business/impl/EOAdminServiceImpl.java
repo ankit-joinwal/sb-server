@@ -31,7 +31,7 @@ import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.transformers.EOToEOResponseTransformer;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 import com.bitlogic.sociallbox.service.utils.LoginUtil;
 import com.bitlogic.sociallbox.service.utils.PasswordUtils;
@@ -88,7 +88,7 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 		EventOrganizerAdmin eventOrganizerAdmin = this.eventOrganizerService.getEOAdminById(id);
 		
 		Transformer<EventOrganizerProfile, EventOrganizer> eoProfileTransformer = 
-				(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER);
+				(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
 		EventOrganizerProfile eventOrganizerProfile = eoProfileTransformer.transform(eventOrganizerAdmin.getOrganizer());
 		
 		EOAdminProfile adminProfile = new EOAdminProfile(eventOrganizerProfile, eventOrganizerAdmin, eventOrganizerAdmin.getUser());
@@ -134,7 +134,7 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 		eoAdmin.setCreateDt(new Date());
 		this.eventOrganizerService.createEOAdmin(eoAdmin);
 		
-		EOToEOResponseTransformer eoProfileTransformer = (EOToEOResponseTransformer) TransformerFactory.getTransformer(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER);
+		EOToEOResponseTransformer eoProfileTransformer = (EOToEOResponseTransformer) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
 		EventOrganizerProfile eventOrganizerProfile = eoProfileTransformer.transform(organizer);
 		
 		EOAdminProfile adminProfile = new EOAdminProfile(eventOrganizerProfile, eoAdmin, eoAdminUser);

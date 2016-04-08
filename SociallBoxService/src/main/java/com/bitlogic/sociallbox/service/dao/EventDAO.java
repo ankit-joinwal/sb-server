@@ -45,6 +45,8 @@ public interface EventDAO {
 	
 	public void addEventToFav(UserFavouriteEvents favouriteEvents);
 	
+	public void removeEventFromFav(UserFavouriteEvents favouriteEvents);
+	
 	public Boolean checkIfUserRegisteredForEvent(EventAttendee attendee);
 	
 	public Boolean checkIfUserFavEvent(UserFavouriteEvents userFavouriteEvents);
@@ -52,6 +54,8 @@ public interface EventDAO {
 	public List<EventAttendee> getEventAttendees(Event event);
 	
 	public List<Long> getEventAttendeesIds(Event event);
+	
+	public void deRegisterForEvent(String eventId, Long userId);
 	
 	
 }

@@ -26,7 +26,7 @@ import com.bitlogic.sociallbox.service.exception.EntityNotFoundException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 
 @Service("eventOrganizerService")
@@ -53,7 +53,7 @@ public class EventOrganizerServiceImpl extends LoggingService implements EventOr
 			throw new ClientException(RestErrorCodes.ERR_002, ERROR_ORGANIZER_EXISTS);
 		}
 		Transformer<EventOrganizer, CreateEventOrganizerRequest> transformer = 
-				(Transformer<EventOrganizer, CreateEventOrganizerRequest>) TransformerFactory.getTransformer(Transformer_Types.CREATE_EO_TO_EO_TRANSFORMER);
+				(Transformer<EventOrganizer, CreateEventOrganizerRequest>) TransformerFactory.getTransformer(TransformerTypes.CREATE_EO_TO_EO_TRANSFORMER);
 		eventOrganizer = transformer.transform(organizerRequest);
 		eventOrganizer.setCreateDt(new Date());
 		EventOrganizer created = this.eventOrganizerDAO.createEO(eventOrganizer);
@@ -110,7 +110,7 @@ public class EventOrganizerServiceImpl extends LoggingService implements EventOr
 			User user = admin.getUser();
 			EventOrganizer organizer = admin.getOrganizer();
 			Transformer<EventOrganizerProfile, EventOrganizer> eoProfileTransformer = 
-					(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER);
+					(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
 			EventOrganizerProfile eventOrganizerProfile = eoProfileTransformer.transform(organizer);
 			EOAdminProfile adminProfile = new EOAdminProfile(eventOrganizerProfile, admin, user);
 			pendingProfiles.add(adminProfile);

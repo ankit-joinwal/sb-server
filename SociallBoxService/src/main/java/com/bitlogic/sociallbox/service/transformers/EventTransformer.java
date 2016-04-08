@@ -7,7 +7,7 @@ import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.response.EventDetailsResponse;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 
 public class EventTransformer implements Transformer<EventResponse, Event> {
 
@@ -32,7 +32,7 @@ public class EventTransformer implements Transformer<EventResponse, Event> {
 	public EventResponse transform(Event event) {
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.EVENT_RESPONSE_DATE_FORMAT);
-		EOToEOResponseTransformer eoProfileTransformer = (EOToEOResponseTransformer) TransformerFactory.getTransformer(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER);
+		EOToEOResponseTransformer eoProfileTransformer = (EOToEOResponseTransformer) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
 		
 		EventResponse createEventResponse = new EventResponse();
 		//TODO

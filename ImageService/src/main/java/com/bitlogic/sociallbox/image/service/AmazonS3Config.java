@@ -3,8 +3,16 @@ package com.bitlogic.sociallbox.image.service;
 public class AmazonS3Config {
 
 	private String eventsRootFolder;
+	private String meetupsRootFolder;
 	private String bucketName;
 	private String imageBaseUrl;
+	
+	public String getMeetupsRootFolder() {
+		return meetupsRootFolder;
+	}
+	public void setMeetupsRootFolder(String meetupsRootFolder) {
+		this.meetupsRootFolder = meetupsRootFolder;
+	}
 	public String getEventsRootFolder() {
 		return eventsRootFolder;
 	}

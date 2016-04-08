@@ -18,7 +18,7 @@ import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EventOrganizerService;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 
 @RestController
 @RequestMapping("/api/public/users/organizers")
@@ -43,7 +43,7 @@ public class EventOrganizerPublicController extends BaseController implements Co
 		logInfo(GET_ORGANIZER_PROFILE_API, "Organizer Profile Id = {}", id);
 		EventOrganizer eventOrganizerResponse = this.eventOrganizerService.getOrganizerDetails(id);
 		Transformer<EventOrganizerProfile, EventOrganizer> responseTransformer = 
-				(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(Transformer_Types.EO_TO_EO_RESPONSE_TRANSFORMER);
+				(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
 		EventOrganizerProfile eventOrganizerProfile = responseTransformer.transform(eventOrganizerResponse);
  		SingleEntityResponse<EventOrganizerProfile> entityResponse = new SingleEntityResponse<>();
 		entityResponse.setData(eventOrganizerProfile);

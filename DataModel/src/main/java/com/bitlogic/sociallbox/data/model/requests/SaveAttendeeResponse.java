@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class SaveAttendeeResponse {
 	
 	@XmlElement
-	@JsonProperty
+	@JsonProperty("response")
 	private AttendeeResponse attendeeResponse;
 	
 	@JsonIgnore
@@ -49,7 +49,9 @@ public class SaveAttendeeResponse {
 	
 	@Override
 	public String toString() {
-		return "AttendeeResponse = "+this.attendeeResponse;
+		return "AttendeeResponse [meetupId = "+this.meetupId+
+				" , attendeeId = "+this.attendeeId+
+				" , response = "+this.attendeeResponse + " ]";
 	}
 	
 }

@@ -3,7 +3,6 @@ package com.bitlogic.sociallbox.service.dao;
 import java.util.List;
 
 import com.bitlogic.sociallbox.data.model.AddressComponentType;
-import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.Meetup;
 import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
@@ -20,7 +19,7 @@ public interface MeetupDAO {
 	
 	public void saveAttendeeResponse(SaveAttendeeResponse attendeeResponse);
 	
-	public void sendMessageInMeetup(MeetupMessage meetupMessage,String meetupId,Long senderId);
+	public void sendMessageInMeetup(MeetupMessage meetupMessage,Meetup meetup, MeetupAttendeeEntity attendeeEntity);
 	
 	public List<AddressComponentType> getAddressTypes();
 	
@@ -30,5 +29,15 @@ public interface MeetupDAO {
 	
 	public MeetupAttendeeEntity getAttendeeById(Long id);
 	
+	public MeetupAttendeeEntity getMeetupAttendee(Long userId, String meetupId);
+	
+	public MeetupAttendeeEntity getMeetupAttendeeByAttendeeId(Long attendeeId);
+	
+	public List<MeetupImage> getMeetupImages(String meetupId);
+	
 	public List<MeetupMessage> getMeetupMessages(Meetup meetup, Integer page);
+	
+	public List<MeetupAttendeeEntity> getAttendees(Meetup meetup);
+	
+	
 }

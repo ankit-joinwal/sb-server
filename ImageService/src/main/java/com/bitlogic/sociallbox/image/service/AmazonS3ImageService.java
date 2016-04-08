@@ -31,26 +31,26 @@ public class AmazonS3ImageService {
 		this.s3Client = AmazonS3Client.getClient();
 	}
 	
-	public Map<String,?> uploadImage(String folderName,String fileName, InputStream inputStream,
+	public Map<String,?> uploadImage(ImageFolderType folderType,String folderName,String fileName, InputStream inputStream,
 			String contentType,
 			Integer contentLength){
 		LOGGER.info("Inside AmazonS3ImageService to upload image {} to folder {} ",fileName,folderName);
-		Boolean isfolderExist = checkIfFolderExists(folderName);
+		Boolean isfolderExist = checkIfFolderExists(folderType,folderName);
 
 		//Create folder
     	if(!isfolderExist){
     		LOGGER.info("Folder does not exist. Creating new folder");
-    		createFolder(folderName);
+    		createFolder(folderType,folderName);
     	}
     	//Upload File
-    	String imageUrl = uploadFileToFolder(folderName, fileName,inputStream,contentType,contentLength);
+    	String imageUrl = uploadFileToFolder(folderType,folderName, fileName,inputStream,contentType,contentLength);
     	LOGGER.info("File Uploaded succesfully. URL for file {} ",imageUrl);
     	Map<String,String> imageInfoMap = new HashMap<String,String>();
     	imageInfoMap.put(Constants.IMAGE_URL_KEY, imageUrl);
 		return imageInfoMap;
 	}
 
-	private void createFolder(String folderName) {
+	private void createFolder(ImageFolderType folderType,String folderName) {
 		// create meta-data for your folder and set content-length to 0
 		ObjectMetadata metadata = new ObjectMetadata();
 		metadata.setContentLength(0);
@@ -59,15 +59,16 @@ public class AmazonS3ImageService {
 		// create a PutObjectRequest passing the folder name suffixed by /
 		PutObjectRequest putObjectRequest = new PutObjectRequest(
 				amazonS3Config.getBucketName(),
-				amazonS3Config.getEventsRootFolder() + folderName + SUFFIX,
+				folderType.getRootFolderPath(amazonS3Config) + folderName + SUFFIX,
 				emptyContent, metadata);
 		// send request to S3 to create folder
 		s3Client.putObject(putObjectRequest);
 	}
 
-	private boolean checkIfFolderExists(String folderName) {
-		String folderKey = amazonS3Config.getEventsRootFolder() + folderName
+	private boolean checkIfFolderExists(ImageFolderType folderType,String folderName) {
+		String folderKey = folderType.getRootFolderPath(amazonS3Config) + folderName
 				+ SUFFIX;
+		
 		GetObjectRequest getObjectRequest = new GetObjectRequest(
 				amazonS3Config.getBucketName(), folderKey);
 		try {
@@ -81,10 +82,10 @@ public class AmazonS3ImageService {
 		return false;
 	}
 
-	public String uploadFileToFolder(String folderName, String imageName, InputStream inputStream,
+	public String uploadFileToFolder(ImageFolderType folderType,String folderName, String imageName, InputStream inputStream,
 			String contentType,
 			Integer contentLength) {
-		String folderKey = amazonS3Config.getEventsRootFolder() + folderName;
+		String folderKey = folderType.getRootFolderPath(amazonS3Config) + folderName;
 		String fileName = folderKey + SUFFIX + imageName;
 		ObjectMetadata metadata = new ObjectMetadata();
 		metadata.setContentType(contentType);

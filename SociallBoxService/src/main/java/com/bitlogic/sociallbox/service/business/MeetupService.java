@@ -5,25 +5,35 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bitlogic.sociallbox.data.model.Meetup;
+import com.bitlogic.sociallbox.data.model.MeetupAttendee;
+import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
 import com.bitlogic.sociallbox.data.model.requests.AddMeetupAttendeesRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateMeetupRequest;
+import com.bitlogic.sociallbox.data.model.requests.EditMeetupRequest;
+import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
 
 public interface MeetupService {
 
-	public Meetup createMetup(CreateMeetupRequest createMeetupRequest);
+	public MeetupResponse createMetup(CreateMeetupRequest createMeetupRequest);
 	
-	public Meetup getMeetup(String meetupId);
+	public Meetup editMeetup(EditMeetupRequest editMeetupRequest);
 	
-	public void addAttendees(AddMeetupAttendeesRequest editMeetupRequest);
+	public MeetupResponse getMeetup(String deviceId,String meetupId);
+	
+	public List<MeetupImage> getMeetupImages(String deviceId,String meetupId);
+	
+	public List<MeetupAttendee> addAttendees(AddMeetupAttendeesRequest editMeetupRequest);
 	
 	public void saveAttendeeResponse(SaveAttendeeResponse attendeeResponse);
 	
-	public void sendMessageInMeetup(MeetupMessage meetupMessage,String meetupId,String senderId);
+	public void sendMessageInMeetup(MeetupMessage meetupMessage,String meetupId,Long attendeeId);
 	
-	public void uploadImageToMeetup(String deviceId,String imagesURL,List<MultipartFile> images , String meetupId) ;
+	public List<MeetupImage> uploadImageToMeetup(Boolean isDp,String deviceId,String imagesURL,List<MultipartFile> images , String meetupId) ;
 	
 	public List<MeetupMessage> getMeetupMessages(String meetupId,Integer page);
+	
+	public void cancelMeetup(String deviceId,String meetupId);
 
 }

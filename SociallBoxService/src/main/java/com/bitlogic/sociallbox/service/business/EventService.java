@@ -9,6 +9,7 @@ import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.EventImage;
+import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
@@ -25,7 +26,7 @@ public interface EventService {
 	
 	public List<EventResponse> getEventsForUser(String userLocation,Long userId,String city,String country,Integer page);
 	
-	public List<EventResponse> getRetailEvents(String userLocation,String tagIds,String city,String country,Integer page);
+	public List<EventResponse> getRetailEvents(String userLocation,String tagIds,Long userId,String city,String country,Integer page);
 	
 	public List<EventResponse> getEventsByType(String userLocation,Long userId,String eventType,String city,String country,Integer page);
 	
@@ -44,8 +45,13 @@ public interface EventService {
 	
 	public EventAttendee registerForEvent(String eventId, String deviceId);
 	
+	public void deRegisterForEvent(String eventId, String deviceId);
+	
 	public List<UserFriend> getFriendsGoingToEvent(String deviceId,String eventId);
 	
 	public void addEventToUserFav(String deviceId, String eventId);
 	
+	public void removeEventFromFav(String deviceId, String eventId);
+
+	public List<EventTag> getRetailTags();
 }

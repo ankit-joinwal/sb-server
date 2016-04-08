@@ -21,6 +21,8 @@ import org.springframework.stereotype.Repository;
 
 
 
+
+
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventAttendee;
@@ -34,7 +36,7 @@ import com.bitlogic.sociallbox.service.dao.AbstractDAO;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
 import com.bitlogic.sociallbox.service.transformers.EventTransformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.GeoUtils;
 
 @Repository("eventDAO")
@@ -207,7 +209,7 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 			Double sourceLng = cordinatesMap.get(Constants.LONGITUDE_KEY);
 
 			EventTransformer transformer = (EventTransformer) TransformerFactory
-					.getTransformer(Transformer_Types.EVENT_TRANS);
+					.getTransformer(TransformerTypes.EVENT_TRANS);
 			EventResponse eventInCity = null;
 			for (Event event : events) {
 				// TODO: This is done to lazy load the tags.
@@ -252,7 +254,7 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 		List<EventResponse> eventsResponse = new ArrayList<EventResponse>();
 		if (events != null && !events.isEmpty()) {
 			EventTransformer transformer = (EventTransformer) TransformerFactory
-					.getTransformer(Transformer_Types.EVENT_TRANS);
+					.getTransformer(TransformerTypes.EVENT_TRANS);
 			EventResponse eventInCity = null;
 			for (Event event : events) {
 				// TODO: This is done to lazy load the tags.
@@ -289,7 +291,7 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 			logger.info("Found : {} events", events.size());
 
 			EventTransformer transformer = (EventTransformer) TransformerFactory
-					.getTransformer(Transformer_Types.EVENT_TRANS);
+					.getTransformer(TransformerTypes.EVENT_TRANS);
 			EventResponse eventInCity = null;
 			for (Event event : events) {
 				// TODO: This is done to lazy load the tags.
@@ -397,6 +399,26 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 		Boolean isEventFav = checkIfUserFavEvent(favouriteEvents);
 		if(!isEventFav){
 			this.getSession().save(favouriteEvents);
+		}
+	}
+	
+	@Override
+	public void removeEventFromFav(UserFavouriteEvents favouriteEvents) {
+		
+		Criteria criteria = getSession().createCriteria(UserFavouriteEvents.class)
+				.add(Restrictions.eq("userId", favouriteEvents.getUserId()))
+				.add(Restrictions.eq("eventId", favouriteEvents.getEventId()));
+		UserFavouriteEvents favouriteEvent = (UserFavouriteEvents) criteria.uniqueResult();
+		if(favouriteEvent!=null){
+			getSession().delete(favouriteEvent);
+		}
+	}
+	
+	@Override
+	public void deRegisterForEvent(String eventId, Long userId) {
+		EventAttendee attendee = getAttendee(eventId, userId);
+		if(attendee!=null){
+			getSession().delete(attendee);
 		}
 	}
 }

@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
@@ -49,7 +50,7 @@ public class MeetupAttendeeEntity implements Serializable {
 	@Column(name = "IS_ADMIN",length=5)
 	private Boolean isAdmin;
 
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "MEETUP_ID",nullable=false)
 	private Meetup meetup;
 	

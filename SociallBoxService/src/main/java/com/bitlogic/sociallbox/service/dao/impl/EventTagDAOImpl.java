@@ -126,7 +126,7 @@ public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {
 	
 	@Override
 	public List<EventTag> getRetailTagsForUser(Long userId) {
-		String sql = "SELECT * FROM EVENT_TYPE_TAGS ETT INNER JOIN USER_EVENT_INTERESTS UEI ON ETT.EVENT_TYPE_ID = "
+		String sql = "SELECT T.* FROM TAG T INNER JOIN EVENT_TYPE_TAGS ETT ON T.ID = ETT.TAG_ID INNER JOIN USER_EVENT_INTERESTS UEI ON ETT.EVENT_TYPE_ID = "
 				+ " UEI.EVENT_TYPE_ID INNER JOIN EVENT_TYPE ET ON UEI.EVENT_TYPE_ID = ET.ID "
 				+ " WHERE ET.NAME = :shopTypeName AND UEI.USER_ID = :userId";
 		SQLQuery sqlQuery = getSession().createSQLQuery(sql);
@@ -166,7 +166,7 @@ public class EventTagDAOImpl extends AbstractDAO implements EventTagDAO {
 	@Override
 	public List<EventTag> getAllRetailTag() {
 		
-		String sql = "SELECT * FROM EVENT_TYPE_TAGS ETT  INNER JOIN EVENT_TYPE ET ON ETT.EVENT_TYPE_ID = ET.ID "
+		String sql = "SELECT T.* FROM TAG T INNER JOIN EVENT_TYPE_TAGS ETT ON T.ID = ETT.TAG_ID INNER JOIN EVENT_TYPE ET ON ETT.EVENT_TYPE_ID = ET.ID "
 				+ " WHERE ET.NAME = :shopTypeName";
 		SQLQuery sqlQuery = getSession().createSQLQuery(sql);
 		sqlQuery.addEntity(EventTag.class);

@@ -38,7 +38,7 @@ public class MeetupMessage implements Serializable {
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "SENDER_ID",nullable=false)
-	@JsonProperty
+	@JsonIgnore
 	private MeetupAttendeeEntity meetupAttendee;
 
 	@ManyToOne
@@ -53,10 +53,36 @@ public class MeetupMessage implements Serializable {
 	private Date createDt;
 
 	@Transient
+	@JsonProperty("user_name")
+	private String userName;
+	
+	@Transient
+	@JsonProperty("profile_pic")
+	private String profilePic;
+	
+	
+	@Transient
 	@JsonProperty
 	@XmlTransient
 	private String timeToDisplay;
 	
+	
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getProfilePic() {
+		return profilePic;
+	}
+
+	public void setProfilePic(String profilePic) {
+		this.profilePic = profilePic;
+	}
+
 	public String getTimeToDisplay() {
 		return timeToDisplay;
 	}
@@ -107,7 +133,7 @@ public class MeetupMessage implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Message =" + this.message;
+		return "MeetupMessage [message = " + this.message + " ,createDate = "+this.createDt+ " , user = "+this.userName+ " ]";
 	}
 
 }

@@ -3,7 +3,6 @@ package com.bitlogic.sociallbox.notification.service.business.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

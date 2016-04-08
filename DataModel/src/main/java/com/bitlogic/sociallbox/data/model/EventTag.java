@@ -27,7 +27,6 @@ public class EventTag {
 	@Id
 	@GeneratedValue
 	@XmlTransient
-	@JsonIgnore
 	@Column(name="ID")
 	private Long id;
 	

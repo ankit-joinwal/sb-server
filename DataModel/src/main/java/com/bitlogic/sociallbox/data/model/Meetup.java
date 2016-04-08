@@ -65,8 +65,8 @@ public class Meetup implements Serializable {
 	@Column(name="END_DT",nullable=false)
 	private Date endDate;
 	
-	@Column(name="IS_PUBLIC",nullable=false,length=5)
-	private Boolean isPublic;
+	@Column(name="IS_PRIVATE",nullable=false,length=5)
+	private Boolean isPrivate;
 	
 	@OneToOne
 	@JoinColumn(name="ORGANIZER_ID",nullable=false)
@@ -111,6 +111,31 @@ public class Meetup implements Serializable {
 	@Column(name="CREATE_DT",nullable=false)
 	private Date createdDt;
 	
+	
+	@Column(name="UPD_DT")
+	private Date updateDt;
+	
+	@OneToOne
+	@JoinColumn(name="UPDATE_BY")
+	private User updBy;
+	
+	
+	public Date getUpdateDt() {
+		return updateDt;
+	}
+
+	public void setUpdateDt(Date updateDt) {
+		this.updateDt = updateDt;
+	}
+
+	public User getUpdBy() {
+		return updBy;
+	}
+
+	public void setUpdBy(User updBy) {
+		this.updBy = updBy;
+	}
+
 	public Date getCreatedDt() {
 		return createdDt;
 	}
@@ -119,12 +144,12 @@ public class Meetup implements Serializable {
 		this.createdDt = createdDt;
 	}
 
-	public Boolean getIsPublic() {
-		return isPublic;
+	public Boolean getIsPrivate() {
+		return isPrivate;
 	}
 
-	public void setIsPublic(Boolean isPublic) {
-		this.isPublic = isPublic;
+	public void setIsPrivate(Boolean isPrivate) {
+		this.isPrivate = isPrivate;
 	}
 
 	public List<MeetupImage> getImages() {

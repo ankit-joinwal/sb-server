@@ -62,7 +62,7 @@ import com.bitlogic.sociallbox.service.transformers.MultipartToEventImageTransfo
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.UsersToFriendsTransformer;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.GeoUtils;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 
@@ -244,7 +244,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 			throw new EntityNotFoundException(uuid, RestErrorCodes.ERR_020,
 					ERROR_INVALID_EVENT_IN_REQUEST);
 		}
-		EventTransformer transformer = (EventTransformer) TransformerFactory.getTransformer(Transformer_Types.EVENT_TRANS);
+		EventTransformer transformer = (EventTransformer) TransformerFactory.getTransformer(TransformerTypes.EVENT_TRANS);
 		EventResponse eventResponse = transformer.transform(event);
 		if(userId!=null){
 			User user = this.userDAO.getUserById(userId);
@@ -309,7 +309,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 	
 	@Override
 	public List<EventResponse> getRetailEvents(String userLocation,
-			String tagIds, String city, String country, Integer page) {
+			String tagIds, Long userId,String city, String country, Integer page) {
 		String LOG_PREFIX = "EventServiceImpl-getRetailEvents";
 		logInfo(LOG_PREFIX, "Getting Retail Events based on params [location ={} , tagIds = {} , city= {} ,country = {} ,page = {}", 
 					userLocation , tagIds , city ,country , page);
@@ -343,7 +343,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 			logInfo(LOG_PREFIX,"All Retail tags : {} ",userTags);
 		}
 		
-		return this.eventDAO.getEventsByFilter(null,cordinatesMap, userTags, city,
+		return this.eventDAO.getEventsByFilter(userId,cordinatesMap, userTags, city,
 				country, page);
 		
 	}
@@ -412,7 +412,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 			logger.info("File to process : {} ", fileName);
 			logger.info("File size : {} ", multipartFile.getSize());
 			MultipartToEventImageTransformer transformer = (MultipartToEventImageTransformer) TransformerFactory
-					.getTransformer(Transformer_Types.MULTIPART_TO_EVENT_IMAGE_TRANFORMER);
+					.getTransformer(TransformerTypes.MULTIPART_TO_EVENT_IMAGE_TRANFORMER);
 			try {
 				ByteArrayInputStream imageStream = new ByteArrayInputStream(
 						multipartFile.getBytes());
@@ -519,6 +519,21 @@ public class EventServiceImpl extends LoggingService implements EventService,
 	}
 	
 	@Override
+	public void deRegisterForEvent(String eventId, String deviceId) {
+		String LOG_PREFIX = "EventServiceImpl-deRegisterForEvent";
+
+		logInfo(LOG_PREFIX, "Getting user info from device id : {}", deviceId);
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
+		if (user == null) {
+			logError(LOG_PREFIX, "No user exists fro given device Id {}",
+					deviceId);
+			throw new UnauthorizedException(RestErrorCodes.ERR_002,
+					ERROR_LOGIN_USER_UNAUTHORIZED);
+		}
+		this.eventDAO.deRegisterForEvent(eventId, user.getId());
+	}
+	
+	@Override
 	public List<UserFriend> getFriendsGoingToEvent(String deviceId,
 			String eventId) {
 		String LOG_PREFIX = "EventServiceImpl-getFriendsGoingToEvent";
@@ -541,7 +556,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 		List<User> users = this.userDAO.getUserFriendsByIds(user, attendeesIds);
 		if(users!=null){
 			UsersToFriendsTransformer transformer = (UsersToFriendsTransformer) TransformerFactory
-				.getTransformer(Transformer_Types.USER_TO_FRIEND_TRANSFORMER);
+				.getTransformer(TransformerTypes.USER_TO_FRIEND_TRANSFORMER);
 			userFriends = transformer.transform(users);
 		}
 		
@@ -565,5 +580,30 @@ public class EventServiceImpl extends LoggingService implements EventService,
 		userFavouriteEvents.setUserId(user.getId());
 		userFavouriteEvents.setEventId(eventId);
 		this.eventDAO.addEventToFav(userFavouriteEvents);
+	}
+	
+	@Override
+	public void removeEventFromFav(String deviceId, String eventId) {
+		String LOG_PREFIX = "EventServiceImpl-removeEventFromFav";
+		logInfo(LOG_PREFIX, "Getting user info from device id : {}",deviceId);
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
+		if(user == null){
+			logError(LOG_PREFIX, "No user exists fro given device Id {}", deviceId);
+			throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_LOGIN_USER_UNAUTHORIZED);
+		}
+		
+		UserFavouriteEvents favouriteEvents = new UserFavouriteEvents();
+		favouriteEvents.setUserId(user.getId());
+		favouriteEvents.setEventId(eventId);
+		this.eventDAO.removeEventFromFav(favouriteEvents);
+		
+	}
+	
+	@Override
+	public List<EventTag> getRetailTags() {
+		String LOG_PREFIX = "EventServiceImpl-EventTag";
+		List<EventTag> retailTags = this.eventTagDAO.getAllRetailTag();
+		logInfo(LOG_PREFIX, "All Retail Tags {}", retailTags);
+		return retailTags;
 	}
 }

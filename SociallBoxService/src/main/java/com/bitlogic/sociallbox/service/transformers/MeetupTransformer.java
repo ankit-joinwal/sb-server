@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Meetup;
+import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
@@ -52,7 +53,13 @@ public class MeetupTransformer implements Transformer<MeetupResponse, Meetup> {
 		createMeetupResponse.setEndDate(dateFormat.format(endDate));
 		
 		if(meetup.getImages()!=null && !meetup.getImages().isEmpty()){
-			createMeetupResponse.setDisplayImage(meetup.getImages().get(0));
+			for(MeetupImage meetupImage : meetup.getImages()){
+				if(meetupImage.getIsDisplayImage()){
+					createMeetupResponse.setDisplayImage(meetupImage);
+					
+				}
+			}
+			
 		}
 		
 		if(meetup.getOrganizer()!=null){

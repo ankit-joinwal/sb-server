@@ -34,7 +34,7 @@ import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
-import com.bitlogic.sociallbox.service.transformers.TransformerFactory.Transformer_Types;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.transformers.UsersToFriendsTransformer;
 import com.bitlogic.sociallbox.service.utils.GeoUtils;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
@@ -225,7 +225,7 @@ public class PlacesServiceImpl extends LoggingService implements PlacesService,C
 			List<User> friendsWhoLikePlace = this.userDAO.getUserFriendsByIds(user, usersIds);
 			if(friendsWhoLikePlace!=null){
 				UsersToFriendsTransformer transformer = (UsersToFriendsTransformer) TransformerFactory
-					.getTransformer(Transformer_Types.USER_TO_FRIEND_TRANSFORMER);
+					.getTransformer(TransformerTypes.USER_TO_FRIEND_TRANSFORMER);
 				userFriends = transformer.transform(friendsWhoLikePlace);
 			}
 		}else{
