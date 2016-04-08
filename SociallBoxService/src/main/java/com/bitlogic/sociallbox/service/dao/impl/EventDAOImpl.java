@@ -23,6 +23,9 @@ import org.springframework.stereotype.Repository;
 
 
 
+
+
+
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventAttendee;
@@ -30,6 +33,7 @@ import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
 import com.bitlogic.sociallbox.data.model.EventStatus;
+import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserFavouriteEvents;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.service.dao.AbstractDAO;
@@ -123,27 +127,6 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 			String country, Integer page) {
 		int startIdx = (page - 1) * Constants.RECORDS_PER_PAGE;
 		logger.info("Getting paginated events . Start :{}", startIdx);
-		/*
-		 * Criteria criteria = getSession().createCriteria(Event.class,"event")
-		 * .setFetchMode("event.eventDetails.organizer", FetchMode.JOIN)
-		 * .setFetchMode("event.tags", FetchMode.JOIN)
-		 * .createAlias("event.eventDetails", "ed") .createAlias("event.tags",
-		 * "eventTag") .setFetchMode("event.eventImages", FetchMode.JOIN)
-		 * .createAlias("event.eventImages", "image")
-		 * .add(Restrictions.eq("image.displayOrder", 1))
-		 * .add(Restrictions.eq("event.eventStatus", EventStatus.LIVE))
-		 * .add((tagIds==null || tagIds.isEmpty() ) ?
-		 * Restrictions.like("eventTag.name","%") :
-		 * Restrictions.in("eventTag.id",tagIds))
-		 * .add(Restrictions.and(Restrictions.like("ed.location.name",
-		 * city,MatchMode.ANYWHERE) ,Restrictions.like("ed.location.name",
-		 * country,MatchMode.ANYWHERE))) .setFirstResult(startIdx)
-		 * .setMaxResults(Constants.RECORDS_PER_PAGE)
-		 * .addOrder(Order.asc("event.title"))
-		 * .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY); List<Event>
-		 * events = criteria.list();
-		 */
-
 		Criteria criteria1 = getSession().createCriteria(Event.class, "event")
 				.add(Restrictions.eq("event.eventStatus", EventStatus.LIVE))
 				.setFirstResult(startIdx)
@@ -420,5 +403,133 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 		if(attendee!=null){
 			getSession().delete(attendee);
 		}
+	}
+	
+	@Override
+	public void deRegisterMeetupAtEvent(String meetupId, String eventId) {
+		String sql = "DELETE FROM EVENT_ATTENDEES WHERE EVENT_ID = :eventId AND USER_ID IN (SELECT USER_ID FROM MEETUP_ATTENDEES "+
+					" WHERE MEETUP_ID = :meetupId)";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.setParameter("eventId", eventId);
+		query.setParameter("meetupId", meetupId);
+		query.executeUpdate();
+	}
+	
+	@Override
+	public List<Event> getUserPastRegisteredEvents(User user) {
+		Date now = new Date();
+		String sql = "SELECT * FROM EVENT EVENT"
+				+ "	INNER JOIN EVENT_DETAILS ED ON EVENT.ID = ED.EVENT_ID "
+				+ " INNER JOIN EVENT_IMAGES EI ON EVENT.ID = EI.EVENT_ID "
+				+ "	INNER JOIN EVENT_ATTENDEES EA ON EVENT.ID = EA.EVENT_ID "
+				+ "	WHERE EVENT.EVENT_STATUS = :eventStatus "
+				+ "	AND EI.DISPLAY_ORDER = 1 " + "	AND EA.USER_ID = :userId "
+				+ "	AND EVENT.END_DT < :startDt ";
+		SQLQuery sqlQuery = getSession().createSQLQuery(sql);
+		sqlQuery.addEntity(Event.class);
+		sqlQuery.setParameter("eventStatus", EventStatus.LIVE.name());
+		sqlQuery.setParameter("userId", user.getId());
+		sqlQuery.setParameter("startDt", now);
+		List results = sqlQuery.list();
+		List<Event> events = new ArrayList<Event>();
+		
+		if (results != null && !results.isEmpty()) {
+			for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				Event event = (Event) iterator.next();
+				event.getTags().size();
+				events.add(event);
+			}
+		}
+						
+		return events;
+	}
+	
+	@Override
+	public List<Event> getUserPastFavouriteEvents(User user) {
+		Date now = new Date();
+		String sql = "SELECT * FROM EVENT EVENT"
+				+ "	INNER JOIN EVENT_DETAILS ED ON EVENT.ID = ED.EVENT_ID "
+				+ " INNER JOIN EVENT_IMAGES EI ON EVENT.ID = EI.EVENT_ID "
+				+ "	INNER JOIN USER_FAVOURITE_EVENTS UFE ON EVENT.ID = UFE.EVENT_ID "
+				+ "	WHERE EVENT.EVENT_STATUS = :eventStatus "
+				+ "	AND EI.DISPLAY_ORDER = 1 " + "	AND UFE.USER_ID = :userId "
+				+ "	AND EVENT.END_DT < :startDt ";
+		SQLQuery sqlQuery = getSession().createSQLQuery(sql);
+		sqlQuery.addEntity(Event.class);
+		sqlQuery.setParameter("eventStatus", EventStatus.LIVE.name());
+		sqlQuery.setParameter("userId", user.getId());
+		sqlQuery.setParameter("startDt", now);
+		List results = sqlQuery.list();
+		List<Event> events = new ArrayList<Event>();
+		
+		if (results != null && !results.isEmpty()) {
+			for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				Event event = (Event) iterator.next();
+				event.getTags().size();
+				events.add(event);
+			}
+		}
+						
+		return events;
+	}
+	
+	@Override
+	public List<Event> getUserUpcomingRegisteredEvents(User user) {
+		Date now = new Date();
+		String sql = "SELECT * FROM EVENT EVENT"
+				+ "	INNER JOIN EVENT_DETAILS ED ON EVENT.ID = ED.EVENT_ID "
+				+ " INNER JOIN EVENT_IMAGES EI ON EVENT.ID = EI.EVENT_ID "
+				+ "	INNER JOIN EVENT_ATTENDEES EA ON EVENT.ID = EA.EVENT_ID "
+				+ "	WHERE EVENT.EVENT_STATUS = :eventStatus "
+				+ "	AND EI.DISPLAY_ORDER = 1 " + "	AND EA.USER_ID = :userId "
+				+ "	AND EVENT.END_DT >= :startDt ";
+		SQLQuery sqlQuery = getSession().createSQLQuery(sql);
+		sqlQuery.addEntity(Event.class);
+		sqlQuery.setParameter("eventStatus", EventStatus.LIVE.name());
+		sqlQuery.setParameter("userId", user.getId());
+		sqlQuery.setParameter("startDt", now);
+		List results = sqlQuery.list();
+		List<Event> events = new ArrayList<Event>();
+		
+		if (results != null && !results.isEmpty()) {
+			for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				Event event = (Event) iterator.next();
+				event.getTags().size();
+				events.add(event);
+			}
+		}
+						
+		return events;
+	}
+	
+	@Override
+	public List<Event> getUserUpcomingFavouriteEvents(User user) {
+
+		Date now = new Date();
+		String sql = "SELECT * FROM EVENT EVENT"
+				+ "	INNER JOIN EVENT_DETAILS ED ON EVENT.ID = ED.EVENT_ID "
+				+ " INNER JOIN EVENT_IMAGES EI ON EVENT.ID = EI.EVENT_ID "
+				+ "	INNER JOIN USER_FAVOURITE_EVENTS UFE ON EVENT.ID = UFE.EVENT_ID "
+				+ "	WHERE EVENT.EVENT_STATUS = :eventStatus "
+				+ "	AND EI.DISPLAY_ORDER = 1 " + "	AND UFE.USER_ID = :userId "
+				+ "	AND EVENT.END_DT > :startDt ";
+		SQLQuery sqlQuery = getSession().createSQLQuery(sql);
+		sqlQuery.addEntity(Event.class);
+		sqlQuery.setParameter("eventStatus", EventStatus.LIVE.name());
+		sqlQuery.setParameter("userId", user.getId());
+		sqlQuery.setParameter("startDt", now);
+		List results = sqlQuery.list();
+		List<Event> events = new ArrayList<Event>();
+		
+		if (results != null && !results.isEmpty()) {
+			for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				Event event = (Event) iterator.next();
+				event.getTags().size();
+				events.add(event);
+			}
+		}
+						
+		return events;
+	
 	}
 }

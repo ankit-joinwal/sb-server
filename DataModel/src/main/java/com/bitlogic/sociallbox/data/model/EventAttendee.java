@@ -1,5 +1,7 @@
 package com.bitlogic.sociallbox.data.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -40,6 +42,17 @@ public class EventAttendee {
 	@Transient
 	private String eventId;
 	
+	@Column(name="CREATE_DT")
+	private Date createDate;
+	
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
 	public Long getUserId() {
 		if(user!=null){
 			return user.getId();

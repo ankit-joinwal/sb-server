@@ -250,5 +250,5 @@ public class Meetup implements Serializable {
 		this.endDate = endDate;
 	}
 
-
+	
 }

@@ -7,6 +7,7 @@ import com.bitlogic.sociallbox.data.model.Meetup;
 import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
+import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
 
 public interface MeetupDAO {
@@ -39,5 +40,9 @@ public interface MeetupDAO {
 	
 	public List<MeetupAttendeeEntity> getAttendees(Meetup meetup);
 	
+	public List<Meetup> getPastMeetupsOfUser(User user);
 	
+	public List<Meetup> getUpcomingMeetupsOfUser(User user);
+	
+	public List<Meetup> getPendingMeetupInvites(User user);
 }

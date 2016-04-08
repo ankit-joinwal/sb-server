@@ -58,6 +58,7 @@ public class MeetupSecuredController extends BaseController implements Constants
 	private static final String GET_MEETUP_API = "GetMeetup API";
 	private static final String GET_MEETUP_IMAGES_API = "GetMeetupImages API";
 	private static final String ADD_ATTENDEES_API = "AddAttendees API";
+	private static final String GET_ATTENDEES_API = "GetMeetupAttendees API";
 	private static final String SAVE_ATTENDEE_RESPONSE_API = "SaveResponse API";
 	private static final String POST_MESSAGE_TO_MEETUP_API = "PostMessageToMeetup API";
 	private static final String GET_MEETUP_MESSAGES_API = "GetMeetupMessages API";
@@ -81,6 +82,7 @@ public class MeetupSecuredController extends BaseController implements Constants
 	*  @apiHeader {Number} X-Auth-Date Current Epoch Date
 	*  @apiHeader {String} Authorization Authentication Token
 	*  @apiParamExample {json} Request-Example:
+	*  For Normal Meetup, below is the request format-
 	*	{
 			"title" : "College Fest Meetup",
 			"description" : "IP University Fest",
@@ -95,10 +97,28 @@ public class MeetupSecuredController extends BaseController implements Constants
 			"start_date" : "01/07/2016 12:30 AM",
 			"end_date" : "01/08/2016 12:30 PM"
 		}
+		
+		For meetup at event, below is the request format-
+		{
+			"title" : "Meetup at event",
+			"description" : "Meetup at event desc",
+			"is_private":"true",
+			"event_at_meetup":"2c9f8ff353bd8bf50153bd9ea0a10000",
+			"location" : {
+							"name": "Kalkaji, New Delhi, Delhi, India",
+							"longitude": 28.4682917,
+							"lattitude": 77.06347870000002,
+							"locality" : "Kalkaji"
+						},
+			
+			"start_date" : "01/07/2016 12:30 AM",
+			"end_date" : "01/08/2016 12:30 PM"
+		}
 	*  @apiSuccess (Success - OK 201) {Object}  response  Response.
 	*  @apiSuccess (Success - OK 201) {String}  response.status   Eg.Success.
 	*  @apiSuccess (Success - OK 201) {Object}  response.data Meetup Details 
 	*  @apiSuccessExample {json} Success-Response:
+	*  	*For normal meetup, the response is as below format-
 	*  	{
 		  "status": "Success",
 		  "data": {
@@ -157,6 +177,64 @@ public class MeetupSecuredController extends BaseController implements Constants
 		  }
 		}
 		
+		*For meetup at an event, below is response format-
+		{
+		    "status": "Success",
+		    "data": {
+		        "description": "Meetup at event desc",
+		        "id": "4028918a53f604c50153f60a76830000",
+		        "title": "Meetup at event",
+		        "location": {
+		            "lattitude": 77.06347870000002,
+		            "longitude": 28.4682917,
+		            "name": "Kalkaji, New Delhi, Delhi, India",
+		            "locality": "Kalkaji"
+		        },
+		        "start_date": "Fri, 1 Jul 2016 12:30 AM",
+		        "end_date": "Mon, 1 Aug 2016 12:30 PM",
+		        "organizer": {
+		            "id": 17,
+		            "name": "Ankit Joinwal",
+		            "social_details": [
+		                {
+		                    "system": "FACEBOOK",
+		                    "detail": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xla1/v/t1.0-1/p200x200/12316467_10206731945876364_3008257792416820623_n.jpg?oh=cece300cd2db2d885c81f2c00b6a7d84&oe=578A9FB4&__gda__=1465178287_36f0dafbe70beb7506ebd22f8f089edf",
+		                    "detailType": "USER_PROFILE_PIC"
+		                }
+		            ]
+		        },
+		        "status": "CREATED",
+		        "meetup_access_url": "http://localhost:8080/SociallBox/api/secured/meetups/4028918a53f604c50153f60a76830000",
+		        "display_pic": null,
+		        "event_at_meetup": "2c9f8ff353bd8bf50153bd9ea0a10000",
+		        "user_actions": [
+		            {
+		                "value": true,
+		                "action_type": "CAN_VIEW"
+		            },
+		            {
+		                "value": true,
+		                "action_type": "CAN_EDIT"
+		            },
+		            {
+		                "value": true,
+		                "action_type": "CAN_INVITE"
+		            },
+		            {
+		                "value": true,
+		                "action_type": "CAN_UPLOAD_IMAGE"
+		            },
+		            {
+		                "value": true,
+		                "action_type": "CAN_MESSAGE"
+		            },
+		            {
+		                "value": true,
+		                "action_type": "CAN_CANCEL"
+		            }
+		        ]
+		    }
+		}
 	*/
 	@RequestMapping(method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, consumes = {
@@ -775,8 +853,13 @@ public class MeetupSecuredController extends BaseController implements Constants
 		logInfo(SAVE_ATTENDEE_RESPONSE_API, "Meetup id = {}, attendee = {} , response = {} ", meetupId,attendeeId,saveAttendeeResponse);
 		saveAttendeeResponse.setAttendeeId(attendeeId);
 		saveAttendeeResponse.setMeetupId(meetupId);
-
-		this.meetupService.saveAttendeeResponse(saveAttendeeResponse);
+		String userName = LoginUtil.getUserNameFromHeader(auth);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
+			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
+			this.meetupService.saveAttendeeResponse(saveAttendeeResponse,deviceId);
+		}
+		
 		SingleEntityResponse<String> entityResponse = new SingleEntityResponse<String>();
 		entityResponse.setData("Response saved successfully");
 		entityResponse.setStatus(SUCCESS_STATUS);
@@ -885,4 +968,71 @@ public class MeetupSecuredController extends BaseController implements Constants
 		
 	}
 	
+	/**
+	 *  @api {get} /api/secured/meetups/:meetupId/attendees Get Meetup Attendees
+	 *  @apiName Get Meetup Attendees
+	 *  @apiGroup Meetups
+	 *  @apiParam {String} meetupId Mandatory Meetup Id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiHeaderExample {json} Example Headers
+	 *  accept: application/json
+		Content-Type: application/json
+		X-Auth-Date: 1455988523724
+		Authorization: Basic U0R+U01BUlRfREVWSUNFXzI6NCtPU3JRN0tKMzZ2TW9iRmoxbmJEZG5ydVVJVTlwTWFVWmN1V0xxaUFaRT0=
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Attendees
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  
+		{
+			"status": "Success",
+			"data": [
+				{
+					"id": 14,
+					"name": "Ankit Joinwal",
+					"user_id": 17,
+					"profile_pic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xla1/v/t1.0-1/p200x200/12316467_10206731945876364_3008257792416820623_n.jpg?oh=cece300cd2db2d885c81f2c00b6a7d84&oe=578A9FB4&__gda__=1465178287_36f0dafbe70beb7506ebd22f8f089edf",
+					"response": "YES",
+					"is_admin": true
+				},
+				{
+					"id": 15,
+					"name": "Soumya Ranjan Nayak",
+					"user_id": 15,
+					"profile_pic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-frc3/v/t1.0-1/s200x200/539741_10151593876161285_1932943812_n.jpg?oh=91e5fd9cb3e7c726746a735d0603d5b2&oe=575DA8D4&__gda__=1468788536_04b0219db6544b0831aa55d45c7c76d0",
+					"response": "MAYBE",
+					"is_admin": false
+				},
+				{
+					"id": 16,
+					"name": "Vardhan Singh",
+					"user_id": 16,
+					"profile_pic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/v/t1.0-1/s200x200/11224309_10153200429036366_3899281527807886630_n.jpg?oh=fbb67c694bc2bc6c21b7b70d0d25f53a&oe=574D6AFC&__gda__=1468826733_a181d28d9b3f9ed4bc72fac9d0b4d08a",
+					"response": "NO",
+					"is_admin": false
+				}
+			],
+			"page": null,
+			"nextPage": null,
+			"total_records": 3
+		}
+	 */
+	@RequestMapping(value="/{meetupId}/attendees",method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@ResponseStatus(HttpStatus.OK)
+	public EntityCollectionResponse<MeetupAttendee> getMeetupAttendees(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
+												@PathVariable String meetupId){
+		logRequestStart(GET_ATTENDEES_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_ATTENDEES_API);
+		logInfo(GET_ATTENDEES_API, "Meetup ID = {}", meetupId);
+		List<MeetupAttendee> attendees = this.meetupService.getMeetupAttendees(meetupId);
+		EntityCollectionResponse<MeetupAttendee> collectionResponse = new EntityCollectionResponse<MeetupAttendee>();
+		collectionResponse.setData(attendees);
+		collectionResponse.setStatus(SUCCESS_STATUS);
+		collectionResponse.setTotalRecords(attendees.size());
+		logRequestEnd(GET_ATTENDEES_API, GET_ATTENDEES_API);
+		return collectionResponse;
+	}
 }

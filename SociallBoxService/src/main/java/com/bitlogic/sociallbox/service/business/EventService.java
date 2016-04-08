@@ -1,6 +1,7 @@
 package com.bitlogic.sociallbox.service.business;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,9 @@ import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.EventImage;
 import com.bitlogic.sociallbox.data.model.EventTag;
+import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserEventActivity;
+import com.bitlogic.sociallbox.data.model.UserSocialActivity;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.data.model.response.UserFriend;
@@ -45,7 +49,13 @@ public interface EventService {
 	
 	public EventAttendee registerForEvent(String eventId, String deviceId);
 	
+	public EventAttendee registerForEvent(String eventId, User user);
+	
+	public EventAttendee registerForEvent(Event event, User user);
+	
 	public void deRegisterForEvent(String eventId, String deviceId);
+	
+	public void deRegisterMeetupAtEvent(String meetupId,String eventId);
 	
 	public List<UserFriend> getFriendsGoingToEvent(String deviceId,String eventId);
 	
@@ -54,4 +64,8 @@ public interface EventService {
 	public void removeEventFromFav(String deviceId, String eventId);
 
 	public List<EventTag> getRetailTags();
+	
+	public  List<UserSocialActivity<UserEventActivity>> getUserPastEvents(User user,Map<String, Double> cordinatesMap);
+	
+	public  List<UserSocialActivity<UserEventActivity>> getUserUpcomingEvents(User user,Map<String, Double> cordinatesMap);
 }

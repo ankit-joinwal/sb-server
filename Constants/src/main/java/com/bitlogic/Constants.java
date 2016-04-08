@@ -62,6 +62,7 @@ public interface Constants {
 	//String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy"; For year also
 	String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
 	String MEETUP_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
+	String ACTIVITY_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
 	String TRUE = "true";
 	String GEO_SERVICE_NAME = "SociallBoxService";
 	String IMAGE_SERVICE_NAME = "ImageService";
@@ -143,4 +144,5 @@ public interface Constants {
 	String ERROR_CANCEL_MEETUP_INVALID_USER = "error.cancel.meetup.invalid.user";
 	String ERROR_ACTION_NOT_ALLOWED = "error.action.not.allowed";
 	String ERROR_USER_NOT_ATTENDEE_OF_MEETUP = "error.user.not.attendee.of.meetup";
+	String ERROR_INVALID_TIMELINE = "error.invalid.timeline";
 }

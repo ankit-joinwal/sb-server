@@ -9,7 +9,8 @@ public class TransformerFactory {
 		USER_TO_FRIEND_TRANSFORMER , 
 		CREATE_EO_TO_EO_TRANSFORMER,
 		EO_TO_EO_RESPONSE_TRANSFORMER,
-		MEETUP_ATTENDEE_TRANSFORMER
+		MEETUP_ATTENDEE_TRANSFORMER,
+		USER_MEETUP_ACTIVITY_TRANSFORMER 
 	}
 	
 	public static Transformer<?, ?> getTransformer(TransformerTypes types){
@@ -29,6 +30,8 @@ public class TransformerFactory {
 			return  EOToEOResponseTransformer.getInstance();
 		}else if (types.equals(TransformerTypes.MEETUP_ATTENDEE_TRANSFORMER)){
 			return MeetupAttendeeTransformer.getInstance();
+		}else if(types.equals(TransformerTypes.USER_MEETUP_ACTIVITY_TRANSFORMER)){
+			return MeetupActivityTransformer.getInstance();
 		}
 		
 		

@@ -7,8 +7,8 @@ import java.util.Set;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.EventImage;
-import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
+import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserFavouriteEvents;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
@@ -57,5 +57,13 @@ public interface EventDAO {
 	
 	public void deRegisterForEvent(String eventId, Long userId);
 	
+	public void deRegisterMeetupAtEvent(String meetupId,String eventId);
 	
+	public List<Event> getUserPastRegisteredEvents(User user);
+	
+	public List<Event> getUserPastFavouriteEvents(User user);
+	
+	public List<Event> getUserUpcomingRegisteredEvents(User user);
+	
+	public List<Event> getUserUpcomingFavouriteEvents(User user);
 }

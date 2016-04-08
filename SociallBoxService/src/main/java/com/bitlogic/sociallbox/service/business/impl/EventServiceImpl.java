@@ -34,7 +34,10 @@ import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.EventTag;
 import com.bitlogic.sociallbox.data.model.EventType;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserEventActivity;
 import com.bitlogic.sociallbox.data.model.UserFavouriteEvents;
+import com.bitlogic.sociallbox.data.model.UserSocialActivity;
+import com.bitlogic.sociallbox.data.model.UserSocialActivity.ActivityType;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace;
 import com.bitlogic.sociallbox.data.model.ext.google.GooglePlace.Result.AddressComponent;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventRequest;
@@ -494,11 +497,21 @@ public class EventServiceImpl extends LoggingService implements EventService,
 			throw new UnauthorizedException(RestErrorCodes.ERR_002,
 					ERROR_LOGIN_USER_UNAUTHORIZED);
 		}
-
+		
+		EventAttendee registeredAttendee = registerForEvent(eventId, user);
+		
+		
+		return registeredAttendee;
+	}
+	
+	@Override
+	public EventAttendee registerForEvent(String eventId, User user) {
+		String LOG_PREFIX = "EventServiceImpl-registerForEvent";
+		
 		EventAttendee eventAttendee = this.eventDAO.getAttendee(eventId,
 				user.getId());
 		if (eventAttendee != null) {
-			logInfo(LOG_PREFIX, "Event attendee exists already ");
+			logInfo(LOG_PREFIX, "User already registered for this event");
 			return eventAttendee;
 		}
 		Event event = this.eventDAO.getEvent(eventId);
@@ -507,16 +520,28 @@ public class EventServiceImpl extends LoggingService implements EventService,
 			throw new ClientException(RestErrorCodes.ERR_002,
 					ERROR_INVALID_EVENT_IN_REQUEST);
 		}
+		EventAttendee registeredAttendee =registerForEvent(event, user);
+		return registeredAttendee;
+	}
+	
+	@Override
+	public EventAttendee registerForEvent(Event event, User user) {
+		String LOG_PREFIX = "EventServiceImpl-registerForEvent";
+		
+		logInfo(LOG_PREFIX, "Registering {} for event {}", user.getName(),event.getTitle());
 		EventAttendee newAttendee = new EventAttendee();
 		newAttendee.setEvent(event);
 		newAttendee.setUser(user);
 
+		Date now = new Date();
+		newAttendee.setCreateDate(now);
 		EventAttendee registeredAttendee = this.eventDAO
 				.saveAttendee(newAttendee);
-		logInfo(LOG_PREFIX, "User {} Registered for Event {} succesfully",
-				user.getName(), event.getTitle());
+		logInfo(LOG_PREFIX, "User {} Registered for Event  succesfully",
+				user.getName());
 		return registeredAttendee;
 	}
+	
 	
 	@Override
 	public void deRegisterForEvent(String eventId, String deviceId) {
@@ -531,6 +556,14 @@ public class EventServiceImpl extends LoggingService implements EventService,
 					ERROR_LOGIN_USER_UNAUTHORIZED);
 		}
 		this.eventDAO.deRegisterForEvent(eventId, user.getId());
+	}
+	
+	@Override
+	public void deRegisterMeetupAtEvent(String meetupId, String eventId) {
+		String LOG_PREFIX = "EventServiceImpl-deRegisterMeetupAtEvent";
+		logInfo(LOG_PREFIX, "Deleting all attendees of meetup = {}  from event = {}", meetupId,eventId);
+		this.eventDAO.deRegisterMeetupAtEvent(meetupId, eventId);
+		logInfo(LOG_PREFIX, "Meetup de registered from event succesfully");
 	}
 	
 	@Override
@@ -605,5 +638,142 @@ public class EventServiceImpl extends LoggingService implements EventService,
 		List<EventTag> retailTags = this.eventTagDAO.getAllRetailTag();
 		logInfo(LOG_PREFIX, "All Retail Tags {}", retailTags);
 		return retailTags;
+	}
+	
+	
+	@Override
+	public List<UserSocialActivity<UserEventActivity>> getUserPastEvents(
+			User user,Map<String, Double> cordinatesMap) {
+		String LOG_PREFIX = "EventServiceImpl-getUserPastEvents";
+		Double sourceLatt = cordinatesMap.get(Constants.LATTITUDE_KEY);
+		Double sourceLng = cordinatesMap.get(Constants.LONGITUDE_KEY);
+
+		List<Event> pastRegisteredEvent = this.eventDAO.getUserPastRegisteredEvents(user);
+		List<UserSocialActivity<UserEventActivity>> activities = new ArrayList<UserSocialActivity<UserEventActivity>>();
+		EventTransformer transformer = (EventTransformer) TransformerFactory.getTransformer(TransformerTypes.EVENT_TRANS);
+		List<String> eventIds = new ArrayList<String>();
+		if(pastRegisteredEvent!=null && !pastRegisteredEvent.isEmpty()){
+			for(Event event : pastRegisteredEvent){
+				eventIds.add(event.getUuid());
+				
+				UserSocialActivity<UserEventActivity> socialActivity = new UserSocialActivity<UserEventActivity>();
+				SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.ACTIVITY_RESPONSE_DATE_FORMAT);
+				socialActivity.setActivityTime(dateFormat.format(event.getStartDate()));
+				socialActivity.setActivityType(ActivityType.EVENT);
+				socialActivity.setActivityDate(event.getStartDate());
+				UserEventActivity eventActivity = new UserEventActivity();
+				EventResponse eventResponse = transformer.transform(event);
+				eventResponse.setDistanceFromSource(GeoUtils
+						.calculateDistance(sourceLatt, sourceLng,
+								event.getEventDetails().getLocation()
+										.getLattitude(), event
+										.getEventDetails().getLocation()
+										.getLongitude()));
+				
+				eventActivity.setEvent(eventResponse);
+				eventActivity.setType(UserEventActivity.ActivityType.ATTENDED);
+				socialActivity.setDetail(eventActivity);
+				activities.add(socialActivity);
+			}
+		}
+		
+		List<Event> pastFavEvents = this.eventDAO.getUserPastFavouriteEvents(user);
+		if(pastFavEvents!=null && !pastFavEvents.isEmpty()){
+			for(Event event : pastFavEvents){
+				if(!eventIds.contains(event.getUuid())){
+					
+					UserSocialActivity<UserEventActivity> socialActivity = new UserSocialActivity<UserEventActivity>();
+					SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.ACTIVITY_RESPONSE_DATE_FORMAT);
+					socialActivity.setActivityTime(dateFormat.format(event.getStartDate()));
+					socialActivity.setActivityType(ActivityType.EVENT);
+					socialActivity.setActivityDate(event.getStartDate());
+					UserEventActivity eventActivity = new UserEventActivity();
+					EventResponse eventResponse = transformer.transform(event);
+					eventResponse.setDistanceFromSource(GeoUtils
+							.calculateDistance(sourceLatt, sourceLng,
+									event.getEventDetails().getLocation()
+											.getLattitude(), event
+											.getEventDetails().getLocation()
+											.getLongitude()));
+					
+					eventActivity.setEvent(eventResponse);
+					eventActivity.setType(UserEventActivity.ActivityType.INTERESTED);
+					socialActivity.setDetail(eventActivity);
+					activities.add(socialActivity);
+				}
+			}
+		}
+		logInfo(LOG_PREFIX, "Found {} events as past events for user {}", activities.size(),user.getName());
+		return activities;
+	}
+	
+	@Override
+	public List<UserSocialActivity<UserEventActivity>> getUserUpcomingEvents(
+			User user,Map<String, Double> cordinatesMap) {
+
+		String LOG_PREFIX = "EventServiceImpl-getUserUpcomingEvents";
+		
+		Double sourceLatt = cordinatesMap.get(Constants.LATTITUDE_KEY);
+		Double sourceLng = cordinatesMap.get(Constants.LONGITUDE_KEY);
+
+		
+		List<Event> upcomingRegisteredEvents = this.eventDAO.getUserUpcomingRegisteredEvents(user);
+		List<UserSocialActivity<UserEventActivity>> activities = new ArrayList<UserSocialActivity<UserEventActivity>>();
+		EventTransformer transformer = (EventTransformer) TransformerFactory.getTransformer(TransformerTypes.EVENT_TRANS);
+		List<String> eventIds = new ArrayList<String>();
+		if(upcomingRegisteredEvents!=null && !upcomingRegisteredEvents.isEmpty()){
+			for(Event event : upcomingRegisteredEvents){
+				eventIds.add(event.getUuid());
+				UserSocialActivity<UserEventActivity> socialActivity = new UserSocialActivity<UserEventActivity>();
+				SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.ACTIVITY_RESPONSE_DATE_FORMAT);
+				socialActivity.setActivityTime(dateFormat.format(event.getStartDate()));
+				socialActivity.setActivityDate(event.getStartDate());
+				socialActivity.setActivityType(ActivityType.EVENT);
+				
+				UserEventActivity eventActivity = new UserEventActivity();
+				EventResponse eventResponse = transformer.transform(event);
+				eventResponse.setDistanceFromSource(GeoUtils
+						.calculateDistance(sourceLatt, sourceLng,
+								event.getEventDetails().getLocation()
+										.getLattitude(), event
+										.getEventDetails().getLocation()
+										.getLongitude()));
+				
+				eventActivity.setEvent(eventResponse);
+				eventActivity.setType(UserEventActivity.ActivityType.GOING);
+				socialActivity.setDetail(eventActivity);
+				activities.add(socialActivity);
+			}
+		}
+		
+		List<Event> upcomingFavEvents = this.eventDAO.getUserUpcomingFavouriteEvents(user);
+		if(upcomingFavEvents!=null && !upcomingFavEvents.isEmpty()){
+			for(Event event : upcomingFavEvents){
+				if(!eventIds.contains(event.getUuid())){
+					
+					UserSocialActivity<UserEventActivity> socialActivity = new UserSocialActivity<UserEventActivity>();
+					SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.ACTIVITY_RESPONSE_DATE_FORMAT);
+					socialActivity.setActivityTime(dateFormat.format(event.getStartDate()));
+					socialActivity.setActivityType(ActivityType.EVENT);
+					socialActivity.setActivityDate(event.getStartDate());
+					UserEventActivity eventActivity = new UserEventActivity();
+					EventResponse eventResponse = transformer.transform(event);
+					eventResponse.setDistanceFromSource(GeoUtils
+							.calculateDistance(sourceLatt, sourceLng,
+									event.getEventDetails().getLocation()
+											.getLattitude(), event
+											.getEventDetails().getLocation()
+											.getLongitude()));
+					
+					eventActivity.setEvent(eventResponse);
+					eventActivity.setType(UserEventActivity.ActivityType.INTERESTED);
+					socialActivity.setDetail(eventActivity);
+					activities.add(socialActivity);
+				}
+			}
+		}
+		logInfo(LOG_PREFIX, "Found {} events as upcoming events for user {}", activities.size(),user.getName());
+		return activities;
+	
 	}
 }

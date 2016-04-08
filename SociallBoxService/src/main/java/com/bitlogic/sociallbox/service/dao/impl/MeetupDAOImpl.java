@@ -19,12 +19,14 @@ import org.springframework.stereotype.Repository;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.AddressComponentType;
+import com.bitlogic.sociallbox.data.model.AttendeeResponse;
 import com.bitlogic.sociallbox.data.model.Meetup;
 import com.bitlogic.sociallbox.data.model.MeetupAttendee;
 import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.MeetupMessage;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
+import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
 import com.bitlogic.sociallbox.service.dao.AbstractDAO;
@@ -205,5 +207,77 @@ public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{
 							.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		
 		return criteria.list();
+	}
+	
+	@Override
+	public List<Meetup> getPastMeetupsOfUser(User user) {
+		Date now = new Date();
+		String sql = "SELECT DISTINCT MEETUP.* FROM MEETUP MEETUP INNER JOIN MEETUP_ATTENDEES ATTENDEE"
+				+ "	ON MEETUP.ID = ATTENDEE.MEETUP_ID"+
+					" WHERE (MEETUP.ORGANIZER_ID = :userId OR ATTENDEE.USER_ID = :userId ) "
+					+ " AND MEETUP.END_DT < :now "
+					+ "	ORDER BY MEETUP.START_DT DESC";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.addEntity(Meetup.class);
+		query.setParameter("userId", user.getId());
+		query.setParameter("now", now);
+		List results = query.list();
+		List<Meetup> meetups = new ArrayList<Meetup>();
+		if (results != null && !results.isEmpty()) {
+			for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				Meetup meetup = (Meetup) iterator.next();
+				meetups.add(meetup);
+			}
+		}
+		
+		return meetups;
+	}
+	
+	@Override
+	public List<Meetup> getUpcomingMeetupsOfUser(User user) {
+
+		Date now = new Date();
+		String sql = "SELECT DISTINCT MEETUP.* FROM MEETUP MEETUP INNER JOIN MEETUP_ATTENDEES ATTENDEE"
+				+ "	ON MEETUP.ID = ATTENDEE.MEETUP_ID"+
+					" WHERE (MEETUP.ORGANIZER_ID = :userId OR ATTENDEE.USER_ID = :userId ) "
+					+ " AND MEETUP.END_DT >= :now "
+					+ "	ORDER BY MEETUP.START_DT DESC";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.addEntity(Meetup.class);
+		query.setParameter("userId", user.getId());
+		query.setParameter("now", now);
+		List results = query.list();
+		List<Meetup> meetups = new ArrayList<Meetup>();
+		if (results != null && !results.isEmpty()) {
+			for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				Meetup meetup = (Meetup) iterator.next();
+				meetups.add(meetup);
+			}
+		}
+		
+		return meetups;
+	
+	}
+	
+	@Override
+	public List<Meetup> getPendingMeetupInvites(User user) {
+		String sql = "SELECT * FROM MEETUP MEETUP "
+						+ "	INNER JOIN MEETUP_ATTENDEES ATTENDEE ON MEETUP.ID = ATTENDEE.MEETUP_ID "
+						+ "	WHERE ATTENDEE.USER_ID = :userId "
+						+ "	AND ATTENDEE.ATTENDEE_RESPONSE = :attendeeResponse";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.addEntity(Meetup.class);
+		query.setParameter("userId", user.getId());
+		query.setParameter("attendeeResponse", AttendeeResponse.MAYBE.name());
+		
+		List results = query.list();
+		List<Meetup> meetups = new ArrayList<Meetup>();
+		if (results != null && !results.isEmpty()) {
+			for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				Meetup meetup = (Meetup) iterator.next();
+				meetups.add(meetup);
+			}
+		}
+		return meetups;
 	}
 }
