@@ -40,6 +40,8 @@ public interface MeetupDAO {
 	
 	public List<MeetupAttendeeEntity> getAttendees(Meetup meetup);
 	
+	public List<Long> getAttendeeIdsExcept(Meetup meetup,Long userIdToExclude);
+	
 	public List<Meetup> getPastMeetupsOfUser(User user);
 	
 	public List<Meetup> getUpcomingMeetupsOfUser(User user);

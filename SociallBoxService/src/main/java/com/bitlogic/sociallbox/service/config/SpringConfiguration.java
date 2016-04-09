@@ -20,6 +20,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.GAPIConfig;
+import com.bitlogic.sociallbox.data.model.SocialBoxConfig;
 import com.bitlogic.sociallbox.data.model.ZomatoAPIConfig;
 import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
@@ -57,10 +58,24 @@ public class SpringConfiguration extends LoggingService {
         return restTemplate;
 	}
 	
+	@Bean(name="sociallBoxConfig")
+	public SocialBoxConfig getSociallBoxConfig(){
+		String LOG_PREFIX = "getSociallBoxConfig";
+		SocialBoxConfig boxConfig = new SocialBoxConfig();
+		String notificationServiceURL = environment.getRequiredProperty(Constants.NOTIFICATION_SERVICE_URL);
+		String meetupsBaseURL = environment.getRequiredProperty(Constants.MEETUPS_BASE_URL_PROPERTY);
+		logger.info("###           SocialBoxConfig       ###");
+		logInfo(LOG_PREFIX, "NOTIFICATION_SERVICE_URL : {}", notificationServiceURL);
+		logInfo(LOG_PREFIX, "MEETUPS_BASE_URL_PROPERTY : {}", meetupsBaseURL);
+		logger.info("###########################################");
+		
+		boxConfig.setNotificationServiceURL(notificationServiceURL);
+		boxConfig.setMeetupsBaseUrl(meetupsBaseURL);
+		return boxConfig;
+	}
 	@Bean(name="gapiConfig")
 	public GAPIConfig getGConfig(){
 		String LOG_PREFIX = "getGConfig";
-		logInfo(LOG_PREFIX,"Inside SpringConfiguration to load gConfig");
 		GAPIConfig gConfig = new GAPIConfig();
 		String nearbySearchURL =  environment.getRequiredProperty(Constants.G_NEARBY_PLACES_URL);
 		String gapiDataFormat = environment.getRequiredProperty(Constants.DEFAULT_GAPI_DATA_EXCHANGE_FMT);
@@ -92,7 +107,6 @@ public class SpringConfiguration extends LoggingService {
 	@Bean(name="zomatoApiConfig")
 	public ZomatoAPIConfig getZomatoAPIConfig(){
 		String LOG_PREFIX = "getZomatoAPIConfig";
-		logInfo(LOG_PREFIX,"Inside SpringConfiguration to load ZomatoAPIConfig");
 		
 		ZomatoAPIConfig apiConfig = new ZomatoAPIConfig();
 		String nearbySearchURL =  environment.getRequiredProperty(Constants.ZOMATO_NEARBY_PLACES_URL);

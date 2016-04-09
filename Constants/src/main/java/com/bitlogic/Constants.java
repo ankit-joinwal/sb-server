@@ -4,18 +4,16 @@ import java.io.File;
 
 public interface Constants {
 
-	String PACKAGE_NAME_FOR_NOTIFICATIONS = "com.bitlogic.sociallbox";
-	String BLANK = "";
-	String ZERO = "0";
-	Integer RECORDS_PER_PAGE = 20;
-	String SUCCESS_STATUS = "Success";
-	String LOCATION_HEADER = "Location";
+	String MEETUPS_BASE_URL_PROPERTY = "sb.meetups.base.url";
+	
+	//Hibernate Properties
 	String JDBC_DRIVER_PROPERTY = "jdbc.driverClassName";
 	String HIBERNATE_DIALECT_PROPERTY = "hibernate.dialect";
 	String HIBERNATE_SHOW_SQL_PROPERTY = "hibernate.show_sql";
 	String HIBERNATE_FORMAT_SQL_PROPERTY = "hibernate.format_sql";
 	String HIBERNATE_HBM_DDL_PROPERTY = "hibernate.hbm2ddl.auto";
 	String HIBERNATE_JDBC_BATCH_SIZE = "hibernate.jdbc.batch_size";
+	
 	//BoneCP properties
 	String BONECP_URL = "bonecp.url";
 	String BONECP_USERNAME = "bonecp.username";
@@ -28,8 +26,11 @@ public interface Constants {
 	String BONECP_ACQUIRE_INCREMENT = "bonecp.acquireIncrement";
 	String BONECP_STATEMENTS_CACHE_SIZE = "bonecp.statementsCacheSize";
 	
+	//Not used
 	String DEFAULT_USER_DAILY_QUOTA_PROPERTY = "ggenie.default.user.quota";
 	Integer DEFAULT_USER_DAILY_QUOTA = 100;
+	
+	//Google API Config Properties
 	String G_NEARBY_PLACES_URL = "gplaces.nearby.url";
 	String G_TSEARCH_URL = "gplaces.tsearch.url";
 	String G_PLACE_DETAIL_URL = "gplaces.place.details.url";
@@ -37,16 +38,24 @@ public interface Constants {
 	String G_PLACE_PHOTOS_URL_KEY = "gplaces.photo.url";
 	String GAPI_GCM_SERVER_URL = "gapi.gcm.server.url";
 	String GAPI_KEY = "gapi.key";
+	
+	//Zomato API Config Properties
 	String ZOMATO_NEARBY_PLACES_URL = "zplaces.nearby.url";
 	String ZOMATO_PLACE_DETAIL_URL = "zplaces.place.details.url";
 	String ZOMATO_DEFAULT_GAPI_DATA_EXCHANGE_FMT = "zapi.data.format";
 	String PLACES_PHOTOS_GET_API_BASE_PATH_KEY = "places.photos.api";
 	String ZOMATO_API_KEY = "zapi.key";
-	String USER_SERVICE_URL = "user.svc.url";
-	String USER_VALIDATE_URL = "user.validate.url";
+	
+	//Common Request Header
 	String AUTHORIZATION_HEADER = "Authorization";
 	String USER_TYPE_HEADER = "type";
 	String ACCEPT_HEADER = "Accept";
+	String LATTITUDE_KEY = "LATTITUDE";
+	String LONGITUDE_KEY = "LONGITUDE";
+	String SHOPPING_EVENT_TYPE_NAME = "shop";
+	String LOCATION_HEADER = "Location";
+
+	//Common Constants
 	String QUESTIONMARK = "?";
 	String COMMA = ",";
 	String AMP = "&";
@@ -55,27 +64,37 @@ public interface Constants {
 	String UNAME_DELIM = "~";
 	String DEVICE_PREFIX = "SD";
 	String WEB_USER_PREFIX = "W";
-	//Default Radius for Nearby Search
-	String DEFAULT_RADIUS = "5000";
 	String URL_PATH_SEPARATOR = "/";
-	String MEETUP_DATE_FORMAT = "dd/MM/yyyy hh:mm aa";
-	//String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy"; For year also
-	String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
-	String MEETUP_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
-	String ACTIVITY_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
 	String TRUE = "true";
-	String GEO_SERVICE_NAME = "SociallBoxService";
-	String IMAGE_SERVICE_NAME = "ImageService";
-	String LATTITUDE_KEY = "LATTITUDE";
-	String LONGITUDE_KEY = "LONGITUDE";
 	String KILOMETRES = " Kms";
 	String IS_ENABLED_TRUE = "true";
-	String ROLE_TYPE_ADMIN = "ADMIN";
-	String ROLE_TYPE_APP_USER = "APP_USER";
-	String ROLE_ORGANIZER = "EVENT_ORGANIZER";
 	String ONE_WHITESPACE = " ";
 	String COLON = ":";
 	String DOUBLE_COLON = "::";
+	String BLANK = "";
+	String ZERO = "0";
+	Integer RECORDS_PER_PAGE = 20;
+	String SUCCESS_STATUS = "Success";
+	String DEFAULT_USER_PICTURE = "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xla1/v/t1.0-1/c15.0.50.50/p50x50/1379841_10150004552801901_469209496895221757_n.jpg?oh=1ecfea0dda4f046e7d518ce2243c1a61&oe=57789C33&__gda__=1471731386_863525fcdf1cee40b0e9562b633a5197";
+	//Default Radius for Nearby Search
+	String DEFAULT_RADIUS = "5000";
+	
+	//Date Formats 
+	String MEETUP_DATE_FORMAT = "dd/MM/yyyy hh:mm aa";
+	String EVENT_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
+	String MEETUP_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
+	String ACTIVITY_RESPONSE_DATE_FORMAT = "EEE, d MMM yyyy hh:mm aa";
+	
+	//Service Names
+	String GEO_SERVICE_NAME = "SociallBoxService";
+	String IMAGE_SERVICE_NAME = "ImageService";
+	String NOTIFICATION_SERVICE_NAME = "NotificationService";
+	//User Roles
+	String ROLE_TYPE_ADMIN = "ADMIN";
+	String ROLE_TYPE_APP_USER = "APP_USER";
+	String ROLE_ORGANIZER = "EVENT_ORGANIZER";
+	
+	//For Logging Purposes
 	String SECURED_REQUEST_START_LOG_MESSAGE = "Request Recieved | {} ";
 	//Pass Request Name
 	String PUBLIC_REQUEST_START_LOG = "Request Recieved | {} ";
@@ -85,23 +104,45 @@ public interface Constants {
 	String AWS_MEETUPS_ROOT_FOLDER_KEY = "aws.s3.meetups.root.path";	
 	String AWS_BUCKET_NAME_KEY = "aws.s3.bucket.name";
 	String AWS_IMAGES_BASE_URL_KEY = "aws.s3.images.bas.url";
+	String EVENT_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"events";
+	String MEETUP_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"meetups";
 	
 	//Image Service Constants
 	String IMAGE_URL_KEY = "IMAGE_URL_KEY";
 	
-	String SHOPPING_EVENT_TYPE_NAME = "shop";
+	//Notification Service Constants
+	String PACKAGE_NAME_FOR_NOTIFICATIONS = "com.bitlogic.sociallbox";
+	String NOTIFICATION_SERVICE_URL = "sb.notification.service.url";
+	String NEW_FRIEND_JOINED_NOT_TITLE = "Friend joined you";
+	String NEW_FRIEND_JOINED_NOT_BODY = "%s is now on SociallBox";
+	String NEW_FRIEND_JOINED_NOT_TARGET = "SociallBox";
+	String NEW_MEETUP_INVITE_NOT_TITLE = "Meetup Invite";
+	String NEW_MEETUP_INVITE_NOT_BODY = "%s invited you to meetup %s";
+	String NEW_MEETUP_INVITE_NOT_TARGET = "%s";//Meetup Title
+	String NEW_MEETUP_PHOTO_NOT_TITLE = "%s"; //Meetup Title
+	String NEW_MEETUP_PHOTO_NOT_BODY = "%s posted a photo to meetup"; 
+	String NEW_MEETUP_PHOTO_NOT_TARGET = "%s"; //Meetup Title 
+	String MEETUP_MODIFY_NOT_TITLE = "%s"; //Meetup Title
+	String MEETUP_MODIFY_NOT_BODY = "%s modified meetup"; 
+	String MEETUP_MODIFY_NOT_TARGET = "%s"; //Meetup Title 
+	String MEETUP_CANCEL_NOT_TITLE = "%s"; //Meetup Title
+	String MEETUP_CANCEL_NOT_BODY = "%s cancelled meetup";
+	String MEETUP_CANCEL_NOT_TARGET = "%s"; //Meetup  Title
+	String MEETUP_MESSAGE_NOT_TITLE = "%s";
+	String MEETUP_MESSAGE_NOT_BODY = "New message from %s";
+	String MEETUP_MESSAGE_NOT_TARGET = "%s"; //Meetup title
 	
-	String EVENT_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"events";
-	String MEETUP_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"meetups";
 	
 	//Error Message Keys
 	String ERROR_ID_MANDATORY = "error.id.mandatory";
 	String ERROR_NAME_MANDATORY = "error.name.mandatory";
 	String ERROR_EMAIL_MANDATORY = "error.email.mandatory";
 	String ERROR_GAPI_CLIENT_REQUEST = "error.gapi.client.request";
+	String ERROR_NOTIFICATION_CLIENT_REQUEST = "error.notification.client.request";
 	String ERROR_GAPI_WEBSERVICE_ERROR = "error.gapi.webservice.error";
 	String ERROR_ZAPI_CLIENT_REQUEST = "error.zapi.client.request";
 	String ERROR_ZAPI_WEBSERVICE_ERROR = "error.zapi.webservice.error";
+	String ERROR_NOTIFICATION_WEBSERVICE_ERROR = "error.notification.webservice.error";
 	String ERROR_LOGIN_SOCIAL_DETAILS_MISSING = "error.login.social.details.missing";
 	String ERROR_LOGIN_INVALID_DEVICES_IN_REQ = "error.login.invalid.devices.in.req";
 	String ERROR_LOGIN_DEVICE_MISSING = "error.login.device.missing";

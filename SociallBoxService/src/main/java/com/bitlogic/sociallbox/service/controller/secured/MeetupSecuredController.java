@@ -250,8 +250,9 @@ public class MeetupSecuredController extends BaseController implements Constants
 			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
 			logInfo(CREATE_MEETUP_API, " Device Id {} ", deviceId);
 			createMeetupRequest.setDeviceId(deviceId);
+			createMeetupRequest.setMeetupsURL(httpRequest.getRequestURL()+URL_PATH_SEPARATOR);
 			MeetupResponse createMeetupResponse = this.meetupService.createMetup(createMeetupRequest);
-			createMeetupResponse.setUrl(httpRequest.getRequestURL()+"/"+createMeetupResponse.getUuid());
+			
 			SingleEntityResponse<MeetupResponse> entityResponse = new SingleEntityResponse<>();
 			entityResponse.setData(createMeetupResponse);
 			entityResponse.setStatus(SUCCESS_STATUS);

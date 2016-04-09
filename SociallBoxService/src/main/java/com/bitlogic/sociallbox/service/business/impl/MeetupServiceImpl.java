@@ -47,6 +47,7 @@ import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
 import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.business.EventService;
 import com.bitlogic.sociallbox.service.business.MeetupService;
+import com.bitlogic.sociallbox.service.business.NotificationService;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
 import com.bitlogic.sociallbox.service.dao.MeetupDAO;
 import com.bitlogic.sociallbox.service.dao.SmartDeviceDAO;
@@ -56,7 +57,6 @@ import com.bitlogic.sociallbox.service.exception.EntityNotFoundException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
-import com.bitlogic.sociallbox.service.transformers.MeetupActivityTransformer;
 import com.bitlogic.sociallbox.service.transformers.MeetupAttendeeTransformer;
 import com.bitlogic.sociallbox.service.transformers.MeetupTransformer;
 import com.bitlogic.sociallbox.service.transformers.Transformer;
@@ -88,6 +88,9 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 	
 	@Autowired
 	private EventService eventService;
+	
+	@Autowired
+	private NotificationService notificationService;
 	
 	@Override
 	public MeetupResponse createMetup(CreateMeetupRequest createMeetupRequest) {
@@ -153,6 +156,8 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 		
 		MeetupTransformer transformer = (MeetupTransformer) TransformerFactory.getTransformer(TransformerTypes.MEETUP_TRANS);
 		MeetupResponse createMeetupResponse = transformer.transform(created);
+		createMeetupResponse.setUrl(createMeetupRequest.getMeetupsURL()+created.getUuid());
+		
 		createMeetupResponse.setUserActions(MeetupResponse.UserActionType.getOrganizerActions());
 		return createMeetupResponse;
 	}
@@ -243,6 +248,9 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 			meetup.setUpdateDt(now);
 			meetup.setUpdBy(user);
 			Meetup edited = this.meetupDAO.getMeetup(meetupId);
+			
+			//Send Notification
+			this.notificationService.notifyAboutMeetupModification(user, edited);
 			logInfo(LOG_PREFIX, "Edit Meetup completed");
 			return edited;
 		}
@@ -393,7 +401,9 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 		 
 		MeetupAttendeeTransformer transformer = (MeetupAttendeeTransformer) TransformerFactory.getTransformer(TransformerTypes.MEETUP_ATTENDEE_TRANSFORMER);
 		List<MeetupAttendee> attendeesToReturn = transformer.transform(attendees);
-		 
+		
+		//Send Notifications
+		notificationService.notifyAboutMeetupInvite(meetup.getOrganizer(), meetup, userIds);
 		return attendeesToReturn;
 	}
 	 
@@ -460,6 +470,8 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 			 Meetup meetup = meetupAttendee.getMeetup();
 			 if(meetup.getUuid().equals(meetupId)){
 				 this.meetupDAO.sendMessageInMeetup(meetupMessage, meetup, meetupAttendee);
+				 //Send Notification
+				 this.notificationService.notifyAboutMeetupMessage(meetupAttendee.getUser(), meetup);
 			 }else{
 				 logError(LOG_PREFIX, "Invalid meetup id in request {}", meetupId);
 				 throw new ClientException(RestErrorCodes.ERR_003, ERROR_INVALID_MEETUP_IN_REQUEST);
@@ -571,6 +583,8 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 			 this.meetupDAO.saveMeetupImages(imagesToSave);
 		 }
 		 
+		 //Send notification
+		 this.notificationService.notifyAboutMeetupPhoto(uploadedBy, imagesToSave, meetup);
 		 return imagesToSave;
 	}
 	 
@@ -602,6 +616,8 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 			 this.eventService.deRegisterMeetupAtEvent(meetupId, eventAtMeetup.getUuid());
 		 }
 		 
+		 //Send Notification
+		 this.notificationService.notifyAboutMeetupCancellation(user, meetup);
 	}
 	 
 	 @Override

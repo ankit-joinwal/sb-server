@@ -543,4 +543,5 @@ public class MySociallBoxController extends BaseController implements Constants 
 					ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
 		}
 	}
+	
 }

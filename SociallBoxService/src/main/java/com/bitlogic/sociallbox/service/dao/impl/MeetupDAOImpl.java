@@ -210,6 +210,23 @@ public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{
 	}
 	
 	@Override
+	public List<Long> getAttendeeIdsExcept(Meetup meetup,Long userIdToExclude) {
+		String sql = "SELECT USER_ID FROM MEETUP_ATTENDEES WHERE MEETUP_ID = :meetupId AND USER_ID != :userIdToExclude";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.setParameter("meetupId", meetup.getUuid());
+		query.setParameter("userIdToExclude", userIdToExclude);
+		List results = query.list();
+		List<Long> attendeeIds = new ArrayList<>();
+		 if(results!=null && !results.isEmpty()){
+			 for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				 BigInteger tagId = (BigInteger) iterator.next();
+					attendeeIds.add(tagId.longValue());
+				}
+		 }
+		return attendeeIds;
+	}
+	
+	@Override
 	public List<Meetup> getPastMeetupsOfUser(User user) {
 		Date now = new Date();
 		String sql = "SELECT DISTINCT MEETUP.* FROM MEETUP MEETUP INNER JOIN MEETUP_ATTENDEES ATTENDEE"

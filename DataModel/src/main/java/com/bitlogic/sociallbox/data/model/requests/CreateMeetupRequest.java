@@ -39,6 +39,18 @@ public class CreateMeetupRequest implements Serializable{
 	
 	private String organizerId;
 	
+	private String meetupsURL;
+	
+	public String getMeetupsURL() {
+		return meetupsURL;
+	}
+
+
+	public void setMeetupsURL(String meetupsURL) {
+		this.meetupsURL = meetupsURL;
+	}
+
+
 	@JsonProperty("event_at_meetup")
 	private String eventAtMeetup;
 	
