@@ -8,6 +8,7 @@ import com.bitlogic.sociallbox.data.model.MeetupAttendeeEntity;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserMessage;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
@@ -46,11 +47,18 @@ public interface UserDAO {
 	
 	public List<User> getUserFriends(User user);
 	
+	
 	public List<User> getUserFriendsByIds(User user,List<Long> friendIds);
 	
 	public List<UserSetting> getUserSettings(User user);
 	
 	public void saveUserSettings(List<UserSetting> oldSettings,List<UserSetting> newSettings);
+	
+	public void addMessageForUser(UserMessage userMessage);
+	
+	public List<UserMessage> getUnreadMessages(Long userId);
+	
+	public UserMessage getMessage(Long userId,Long messageId);
 	
 	
 	

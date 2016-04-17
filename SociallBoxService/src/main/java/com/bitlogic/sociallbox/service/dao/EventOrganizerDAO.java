@@ -21,4 +21,6 @@ public interface EventOrganizerDAO {
 	public List<EventOrganizerAdmin> getEOAdminProfilesByIds(List<Long> profileIds);
 	
 	public EventOrganizerAdmin getEOAdminProfileById(Long profileId);
+	
+	public EventOrganizerAdmin getEOAdminProfileByUserId(Long userId);
 }

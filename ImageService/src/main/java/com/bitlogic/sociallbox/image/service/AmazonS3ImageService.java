@@ -43,6 +43,9 @@ public class AmazonS3ImageService {
     		createFolder(folderType,folderName);
     	}
     	//Upload File
+    	if(fileName.contains(" ")){
+    		fileName = fileName.replaceAll(" ", "-");
+    	}
     	String imageUrl = uploadFileToFolder(folderType,folderName, fileName,inputStream,contentType,contentLength);
     	LOGGER.info("File Uploaded succesfully. URL for file {} ",imageUrl);
     	Map<String,String> imageInfoMap = new HashMap<String,String>();

@@ -47,4 +47,5 @@ public interface MeetupDAO {
 	public List<Meetup> getUpcomingMeetupsOfUser(User user);
 	
 	public List<Meetup> getPendingMeetupInvites(User user);
+	
 }

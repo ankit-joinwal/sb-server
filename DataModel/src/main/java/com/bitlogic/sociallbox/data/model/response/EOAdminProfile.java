@@ -13,13 +13,22 @@ public class EOAdminProfile extends UserPublicProfile{
 	
 	public EOAdminProfile(EventOrganizerProfile organizerProfile , EventOrganizerAdmin eoAdmin , User user){
 		this.setId(user.getId());
-		this.setEventOrganizerProfile(organizerProfile );
+		this.setEventOrganizerProfile(organizerProfile);
+		this.setProfilePic(user.getProfilePic());
 		this.setName(user.getName());
-		this.setStatus(eoAdmin==null ? null : eoAdmin.getStatus());
+		this.setEmailId(user.getEmailId());
+		this.setStatus(eoAdmin==null ? EOAdminStatus.COMPANY_NOT_LINKED : eoAdmin.getStatus());
 		this.setProfileId(eoAdmin ==null ? null : eoAdmin.getId());
 	}
+	
 	@JsonProperty("profile_id")
 	private Long profileId;
+	
+	@JsonProperty("profile_pic")
+	private String profilePic;
+	
+	@JsonProperty("email_id")
+	private String emailId;
 	
 	@JsonProperty("company_profile")
 	private EventOrganizerProfile eventOrganizerProfile;
@@ -27,6 +36,22 @@ public class EOAdminProfile extends UserPublicProfile{
 	@JsonProperty("status")
 	private EOAdminStatus status;
 	
+	public String getEmailId() {
+		return emailId;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+
+	public String getProfilePic() {
+		return profilePic;
+	}
+
+	public void setProfilePic(String profilePic) {
+		this.profilePic = profilePic;
+	}
+
 	public Long getProfileId() {
 		return profileId;
 	}

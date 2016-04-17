@@ -13,6 +13,9 @@ public class UserFriend implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	@JsonProperty
+	private Long id;
+	
+	@JsonProperty
 	private String profilePic;
 	
 	@JsonProperty
@@ -20,6 +23,16 @@ public class UserFriend implements Serializable{
 	
 	@JsonProperty
 	private String emailId;
+	
+	
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getProfilePic() {
 		return profilePic;

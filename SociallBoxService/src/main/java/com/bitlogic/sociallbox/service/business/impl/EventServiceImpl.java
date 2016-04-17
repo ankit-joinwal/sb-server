@@ -383,16 +383,18 @@ public class EventServiceImpl extends LoggingService implements EventService,
 	}
 	
 	@Override
-	public List<EventResponse> getUpcomingEventsByOrg(String organizerId,String filterEventId) {
+	public List<EventResponse> getUpcomingEventsByOrg(String userLocation,String organizerId,String filterEventId,Long userId) {
 		String LOG_PREFIX = "EventServiceImpl-getUpcomingEventsByOrg";
 		logInfo(LOG_PREFIX, "Getting organizer details");
 		EventOrganizer eventOrganizer = this.eventOrganizerDAO.getEODetails(organizerId);
 		if(eventOrganizer==null){
 			throw new ClientException(RestErrorCodes.ERR_002, ERROR_ORGANIZER_NOT_FOUND);
 		}
-		
+		// Parse Location is Format Lattitude,Longitude
+		Map<String, Double> cordinatesMap = GeoUtils
+				.getCoordinatesFromLocation(userLocation);
 		Set<EventOrganizerAdmin> admins = eventOrganizer.getOrganizerAdmins();
-		List<EventResponse> events = this.eventDAO.getUpcomingEventsOfOrg(admins,filterEventId);
+		List<EventResponse> events = this.eventDAO.getUpcomingEventsOfOrg(userId,cordinatesMap,admins,filterEventId);
 		
 		return events;
 	}
@@ -586,13 +588,14 @@ public class EventServiceImpl extends LoggingService implements EventService,
 					ERROR_INVALID_EVENT_IN_REQUEST);
 		}
 		List<Long> attendeesIds = this.eventDAO.getEventAttendeesIds(event);
-		List<User> users = this.userDAO.getUserFriendsByIds(user, attendeesIds);
-		if(users!=null){
-			UsersToFriendsTransformer transformer = (UsersToFriendsTransformer) TransformerFactory
-				.getTransformer(TransformerTypes.USER_TO_FRIEND_TRANSFORMER);
-			userFriends = transformer.transform(users);
+		if(attendeesIds!=null && !attendeesIds.isEmpty()){
+			List<User> users = this.userDAO.getUserFriendsByIds(user, attendeesIds);
+			if(users!=null){
+				UsersToFriendsTransformer transformer = (UsersToFriendsTransformer) TransformerFactory
+					.getTransformer(TransformerTypes.USER_TO_FRIEND_TRANSFORMER);
+				userFriends = transformer.transform(users);
+			}
 		}
-		
 		return userFriends;
 	}
 	

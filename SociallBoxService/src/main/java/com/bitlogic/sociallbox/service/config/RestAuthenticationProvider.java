@@ -3,7 +3,6 @@ package com.bitlogic.sociallbox.service.config;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -23,9 +22,7 @@ import org.springframework.stereotype.Component;
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
-import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.User;
-import com.bitlogic.sociallbox.data.model.UserSocialDetail;
 import com.bitlogic.sociallbox.service.business.UserService;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
@@ -110,7 +107,7 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 			user = this.userService.loadUserByUsername(userId);
 
 			if(user==null){
-				throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_USER_INVALID);
+				throw new BadCredentialsException("User not found");
 			}
 
 			/*	
@@ -167,7 +164,7 @@ public class RestAuthenticationProvider implements AuthenticationProvider,
 						restToken.getTimestamp(), authorities);
 			}catch(Exception exception){
 				LOGGER.error("Error while authenticating web user", exception);
-				throw new BadCredentialsException(ERROR_LOGIN_USER_UNAUTHORIZED);
+				throw new UnauthorizedException(RestErrorCodes.ERR_002,ERROR_LOGIN_USER_UNAUTHORIZED);
 			}
 		}
 

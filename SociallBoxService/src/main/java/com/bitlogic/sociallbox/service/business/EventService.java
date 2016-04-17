@@ -34,7 +34,7 @@ public interface EventService {
 	
 	public List<EventResponse> getEventsByType(String userLocation,Long userId,String eventType,String city,String country,Integer page);
 	
-	public List<EventResponse> getUpcomingEventsByOrg(String organizerId,String filterEventId);
+	public List<EventResponse> getUpcomingEventsByOrg(String userLocation,String organizerId,String filterEventId,Long userId);
 	
 	@PreAuthorize("hasAnyRole('"+Constants.ROLE_TYPE_ADMIN+"','"+Constants.ROLE_ORGANIZER+"')")
 	public void storeEventImages(String imagesURL,List<MultipartFile> images , String eventId) ;

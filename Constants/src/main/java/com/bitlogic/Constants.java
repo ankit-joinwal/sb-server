@@ -99,9 +99,14 @@ public interface Constants {
 	//Pass Request Name
 	String PUBLIC_REQUEST_START_LOG = "Request Recieved | {} ";
 	
+	//Message keys for EOAdmin users
+	String WELCOME_MESSAGE_KEY = "eo.welcome.message";
+	String COMPANY_ADDED_MESSAGE = "eo.company.added.message";
 	//S3 Config Properties
 	String AWS_EVENTS_ROOT_FOLDER_KEY = "aws.s3.events.root.path";
 	String AWS_MEETUPS_ROOT_FOLDER_KEY = "aws.s3.meetups.root.path";	
+	String AWS_USERS_ROOT_FOLDER_KEY = "aws.s3.users.root.path";
+	String AWS_COMPANIES_ROOT_FOLDER_KEY = "aws.s3.companies.root.path";
 	String AWS_BUCKET_NAME_KEY = "aws.s3.bucket.name";
 	String AWS_IMAGES_BASE_URL_KEY = "aws.s3.images.bas.url";
 	String EVENT_IMAGE_STORE_PATH = System.getProperty("catalina.home")+File.separator+"images"+File.separator+"events";
@@ -186,4 +191,6 @@ public interface Constants {
 	String ERROR_ACTION_NOT_ALLOWED = "error.action.not.allowed";
 	String ERROR_USER_NOT_ATTENDEE_OF_MEETUP = "error.user.not.attendee.of.meetup";
 	String ERROR_INVALID_TIMELINE = "error.invalid.timeline";
+	String ERROR_INVALID_COMPANY_ID = "error.invalid.company.id";
+	String ERROR_INVALID_COMPANY_PIC_TYPE = "error.invalid.company.pic.type";
 }

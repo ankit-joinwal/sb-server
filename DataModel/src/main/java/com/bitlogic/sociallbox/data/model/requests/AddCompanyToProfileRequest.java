@@ -2,14 +2,14 @@ package com.bitlogic.sociallbox.data.model.requests;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 @JsonRootName(value="add_company_request")
 public class AddCompanyToProfileRequest{
 
-	@NotNull(message="error.id.mandatory")
-	@JsonProperty("user_id")
+	@JsonIgnore
 	private Long userId;
 	
 	@NotNull(message="error.company.mandatory")

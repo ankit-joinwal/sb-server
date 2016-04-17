@@ -28,4 +28,6 @@ public interface EventOrganizerService {
 	
 	public EventOrganizerAdmin getEOAdminById(Long eoAdminId);
 	
+	public EventOrganizerAdmin getEOAdminByUserId(Long userId);
+	
 }

@@ -24,6 +24,7 @@ import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserMessage;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSocialDetail;
@@ -545,5 +546,28 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 		return updatedSettings;
 	}
 	
+	@Override
+	public List<UserMessage> getMessagesForUser(Long userId) {
+		String LOG_PREFIX = "UserServiceImpl-getMessagesForUser";
+		List<UserMessage> messages = this.userDAO.getUnreadMessages(userId);
+		
+		return messages;
+	}
 	
+	@Override
+	public String markMessageAsRead(Long userId, Long messageId) {
+		
+		String LOG_PREFIX = "UserServiceImpl-markMessageAsRead";
+		String result = null;
+		UserMessage message = this.userDAO.getMessage(userId, messageId);
+		if(message==null){
+			logInfo(LOG_PREFIX, "Message is either already read or does not exist");
+			result = "Message is either already read or does not exist";
+		}else{
+			message.setIsRead(Boolean.TRUE);
+			result = "Message is marked as read";
+		}
+		
+		return result;
+	}
 }

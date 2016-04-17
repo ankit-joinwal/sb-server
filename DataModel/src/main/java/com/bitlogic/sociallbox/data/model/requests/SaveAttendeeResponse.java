@@ -21,7 +21,7 @@ public class SaveAttendeeResponse {
 	
 	@JsonIgnore
 	@XmlTransient
-	private Long attendeeId;
+	private Long userId;
 
 	public AttendeeResponse getAttendeeResponse() {
 		return attendeeResponse;
@@ -39,18 +39,18 @@ public class SaveAttendeeResponse {
 		this.meetupId = meetupId;
 	}
 
-	public Long getAttendeeId() {
-		return attendeeId;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setAttendeeId(Long attendeeId) {
-		this.attendeeId = attendeeId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 	
 	@Override
 	public String toString() {
 		return "AttendeeResponse [meetupId = "+this.meetupId+
-				" , attendeeId = "+this.attendeeId+
+				" , userId = "+this.userId+
 				" , response = "+this.attendeeResponse + " ]";
 	}
 	

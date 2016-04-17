@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html ng-app="sociallbox">
+
+<head>
+    <title>SociallBox | Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Fonts -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:300,400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,900' rel='stylesheet' type='text/css'>
+    <!-- CSS Libs -->
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/bootstrap-switch.min.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/checkbox3.min.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/dataTables.bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/select2.min.css">
+    <!-- CSS App -->
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/login.css">
+    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/themes/flat-blue.css">
+</head>
+
+<body class="flat-blue login-page">
+    <div class="container login-container" ng-controller="AuthController">
+        <div class="row">
+			<div class="col-md-6 col-md-offset-3">
+				<div class="panel panel-login">
+					<div class="panel-heading">
+						<div class="row">
+							<div class="col-xs-6">
+								<a  class="active a-prevent-default" id="login-form-link">Login</a>
+							</div>
+							<div class="col-xs-6">
+								<a class="a-prevent-default" id="register-form-link">Register</a>
+							</div>
+						</div>
+						<hr>
+					</div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-lg-12">
+								<form id="login-form" method="post" role="form" style="display: block;">
+									<div class="form-group">
+										<input type="text" ng-model="loginEmail" name="email" id="email" tabindex="1" class="form-control" placeholder="Email Id" value="">
+									</div>
+									<div class="form-group">
+										<input type="password" ng-model="loginPass" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
+									</div>
+									<div class="form-group text-center">
+										<input type="checkbox" tabindex="3" class="" name="remember" id="remember">
+										<label for="remember"> Remember Me</label>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6 col-sm-offset-3">
+												<input type="button" ng-click="login()" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" value="Log In">
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-lg-12">
+												<div class="text-center">
+													<a  tabindex="5" class="forgot-password a-prevent-default">Forgot Password?</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</form>
+								<form id="register-form"  method="post" role="form" style="display: none;">
+									<div class="form-group">
+										<input type="text" ng-model="username" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" value="">
+									</div>
+									<div class="form-group">
+										<input type="email" ng-model="email" name="email" id="email" tabindex="1" class="form-control" placeholder="Email Address" value="">
+									</div>
+									<div class="form-group">
+										<input type="password" ng-model="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password">
+									</div>
+									<div class="form-group">
+										<input type="password" ng-model="confirmPassword" name="confirmPassword" id="confirmPassword" tabindex="2" class="form-control" placeholder="Confirm Password">
+									</div>
+									<div class="form-group">
+										<div class="row">
+											<div class="col-sm-6 col-sm-offset-3">
+												<input type="button" ng-click="register()" name="register-submit" id="register-submit" tabindex="4" class="form-control btn btn-register" value="Register Now">
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+     <!-- Javascript Libs -->
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/angular.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/angular-route.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/angular-cookies.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/Chart.min.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/bootstrap-switch.min.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/jquery.matchHeight-min.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/select2.full.min.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/ace/ace.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/ace/mode-html.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/lib/ace/theme-github.js"></script>
+    
+    
+    <script type="text/javascript" src="/SociallBox/resources/js/app.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/modules/index/controllers.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/modules/auth/controllers.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/modules/auth/services.js"></script>
+    
+    <!-- /.container -->
+ 	<script type="text/javascript">
+	 	$( document ).ready(function() {
+		    
+		   $('#login-form-link').click(function(e) {
+				$("#login-form").delay(100).fadeIn(100);
+		 		$("#register-form").fadeOut(100);
+				$('#register-form-link').removeClass('active');
+				$(this).addClass('active');
+				e.preventDefault();
+			});
+			$('#register-form-link').click(function(e) {
+				$("#register-form").delay(100).fadeIn(100);
+		 		$("#login-form").fadeOut(100);
+				$('#login-form-link').removeClass('active');
+				$(this).addClass('active');
+				e.preventDefault();
+			});
+		});
+ 	</script>
+</body>
+
+</html>

@@ -222,7 +222,7 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 	}
 	
 	@Override
-	public List<EventResponse> getUpcomingEventsOfOrg(
+	public List<EventResponse> getUpcomingEventsOfOrg(Long userId,Map<String, Double> cordinatesMap,
 			Set<EventOrganizerAdmin> eventOrganizerAdmins,String filterEventId) {
 		
 		Criteria criteria = getSession().createCriteria(Event.class,"event")
@@ -236,9 +236,20 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 		List<Event> events = criteria.list();
 		List<EventResponse> eventsResponse = new ArrayList<EventResponse>();
 		if (events != null && !events.isEmpty()) {
+			List<String> userFavEvents = new ArrayList<String>();
+			if(userId!=null){
+				Criteria userFavEventsCrit = getSession().createCriteria(UserFavouriteEvents.class)
+									.setProjection(Projections.property("eventId"))
+									.add(Restrictions.eq("userId", userId));
+				userFavEvents = userFavEventsCrit.list();
+			}	
 			EventTransformer transformer = (EventTransformer) TransformerFactory
 					.getTransformer(TransformerTypes.EVENT_TRANS);
 			EventResponse eventInCity = null;
+			
+			Double sourceLatt = cordinatesMap.get(Constants.LATTITUDE_KEY);
+			Double sourceLng = cordinatesMap.get(Constants.LONGITUDE_KEY);
+			
 			for (Event event : events) {
 				// TODO: This is done to lazy load the tags.
 				event.getTags().size();
@@ -248,8 +259,15 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 				}
 				
 				eventInCity = transformer.transform(event);
-				
-				
+				if(userFavEvents.contains(event.getUuid())){
+					eventInCity.setUserFavEvent(Boolean.TRUE);
+				}
+				eventInCity.setDistanceFromSource(GeoUtils
+						.calculateDistance(sourceLatt, sourceLng,
+								event.getEventDetails().getLocation()
+										.getLattitude(), event
+										.getEventDetails().getLocation()
+										.getLongitude()));
 				eventsResponse.add(eventInCity);
 			}
 		}

@@ -44,6 +44,7 @@ import com.bitlogic.sociallbox.data.model.requests.CreateMeetupRequest;
 import com.bitlogic.sociallbox.data.model.requests.EditMeetupRequest;
 import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
+import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.business.EventService;
 import com.bitlogic.sociallbox.service.business.MeetupService;
@@ -433,10 +434,10 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 	public void saveAttendeeResponse(SaveAttendeeResponse attendeeResponse,String deviceId) {
 		String LOG_PREFIX = "MeetupServiceImpl-saveAttendeeResponse";
 		logInfo(LOG_PREFIX, "Attendee Response = {}", attendeeResponse);
-		
-		MeetupAttendeeEntity attendeeEntity = this.meetupDAO.getMeetupAttendeeByAttendeeId(attendeeResponse.getAttendeeId());
+
+		MeetupAttendeeEntity attendeeEntity = this.meetupDAO.getMeetupAttendee(attendeeResponse.getUserId(), attendeeResponse.getMeetupId());
 		if(attendeeEntity==null){
-			logError(LOG_PREFIX, "Invalid attendee {} for meetup {}", attendeeResponse.getAttendeeId(),attendeeResponse.getMeetupId());
+			logError(LOG_PREFIX, "Invalid user {} for meetup {}", attendeeResponse.getUserId(),attendeeResponse.getMeetupId());
 			return;
 		}
 		attendeeEntity.setAttendeeResponse(attendeeResponse.getAttendeeResponse());
@@ -457,14 +458,14 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 	 
 	 @Override
 	public void sendMessageInMeetup(MeetupMessage meetupMessage,
-			String meetupId, Long attendeeId) {
+			String meetupId, Long userId) {
 
 		String LOG_PREFIX = "MeetupServiceImpl-sendMessageInMeetup";
-		logInfo(LOG_PREFIX, "Getting attendee for Meetup = {}. Attendee Id = {}", meetupId,attendeeId);
+		logInfo(LOG_PREFIX, "Getting attendee for Meetup = {}. Attendee Id = {}", meetupId,userId);
 		
-		 MeetupAttendeeEntity meetupAttendee = this.meetupDAO.getMeetupAttendeeByAttendeeId(attendeeId);
+		 MeetupAttendeeEntity meetupAttendee = this.meetupDAO.getMeetupAttendee(userId, meetupId);
 		 if(meetupAttendee==null){
-			 logError(LOG_PREFIX, "Invalid Attendee Id");
+			 logError(LOG_PREFIX, "Invalid User Id");
 			 throw new ClientException(RestErrorCodes.ERR_003,ERROR_USER_NOT_ATTENDEE_OF_MEETUP);
 		 }else{
 			 Meetup meetup = meetupAttendee.getMeetup();
@@ -708,5 +709,38 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 		 
 		logInfo(LOG_PREFIX, "Found {} pending meetups", meetups.size());
 		 return pendingMeetups;
+	}
+	 
+	 @Override
+	public List<UserFriend> getFriendsForMeetup(String meetupId, String deviceId) {
+		 String LOG_PREFIX = "MeetupServiceImpl-getFriendsForMeetup";
+		User user = this.smartDeviceDAO.getUserInfoFromDeviceId(deviceId);
+		if(user==null){
+			logError(LOG_PREFIX, "User cannot be found");
+			throw new ClientException(RestErrorCodes.ERR_003,Constants.ERROR_USER_INVALID);
+		}
+			 
+		 Meetup meetup = this.meetupDAO.getMeetup(meetupId);
+		 if(meetup==null){
+			 logError(LOG_PREFIX, "Meetup not found for id {}", meetupId);
+			 throw new ClientException(RestErrorCodes.ERR_003,ERROR_INVALID_MEETUP_IN_REQUEST);
+		 }
+		List<Long> attendeeIds = this.meetupDAO.getAttendeeIdsExcept(meetup, 123456L);
+		List<User> friends = new ArrayList<User>(1);
+		Set<User> allFriends = user.getFriends();
+		if(attendeeIds!=null && attendeeIds.size()>0 && allFriends!=null){
+			for(User friend : allFriends){
+				if(!attendeeIds.contains(friend.getId())){
+					friends.add(friend);
+				}
+			}
+		}else{
+			friends = new ArrayList<>(allFriends);
+		}
+		Transformer<List<UserFriend>, List<User>> transformer = (Transformer<List<UserFriend>, List<User>>) TransformerFactory
+				.getTransformer(TransformerTypes.USER_TO_FRIEND_TRANSFORMER);
+		List<UserFriend> userFriends = transformer.transform(friends);
+			 
+		return userFriends;
 	}
 }

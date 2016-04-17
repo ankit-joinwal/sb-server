@@ -61,6 +61,10 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 		//http.addFilterAfter(csrfTokenFilter, CsrfFilter.class);
 		
 		http.authorizeRequests()
+				.antMatchers("/")
+				.permitAll()
+				.antMatchers("/eo/**")
+				.permitAll()
 				.antMatchers("/resources/public/**")
 				.permitAll()
 				.antMatchers("/resources/js/**")
@@ -85,14 +89,14 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 				.authenticated()
 				.and()
 				.formLogin()
-				.defaultSuccessUrl("/resources/public/home.html")
+				.defaultSuccessUrl("/")
 				.loginProcessingUrl("/authenticate")
 				.usernameParameter("username")
 				.passwordParameter("password")
 				.successHandler(
 						new AjaxAuthenticationSuccessHandler(
 								new SavedRequestAwareAuthenticationSuccessHandler()))
-				.loginPage("/resources/public/index.html")
+				.loginPage("/login")
 				.and().httpBasic()
 				.and().logout().logoutUrl("/logout")
 				.logoutSuccessUrl("/resources/public/index.html").permitAll()
@@ -103,7 +107,8 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		RestSecurityFilter restSecurityFilter = new RestSecurityFilter(authenticationManager());
 		http.addFilterBefore(restSecurityFilter, BasicAuthenticationFilter.class);
-		
+		CORSFilter corsFilter = new CORSFilter();
+		http.addFilterBefore(corsFilter, BasicAuthenticationFilter.class);
 		// if ("true".equals(System.getProperty("httpsOnly"))) {
 	/*	LOGGER.info("launching the application in HTTPS-only mode");
 		http.requiresChannel().anyRequest().requiresSecure();*/

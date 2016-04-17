@@ -136,7 +136,8 @@ public class EventPublicController extends BaseController implements Constants{
 	@RequestMapping(value="/{eventId}",method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public SingleEntityResponse<EventResponse> getEvent(@PathVariable String eventId,@RequestParam(value="user",required=false) Long userId) {
+	public SingleEntityResponse<EventResponse> getEvent(@PathVariable String eventId,
+			@RequestParam(value="user",required=false) Long userId) {
 		logRequestStart(GET_EVENT_API, PUBLIC_REQUEST_START_LOG, GET_EVENT_API);
 		logInfo(GET_EVENT_API, "event id = {}", eventId);
 		
@@ -981,11 +982,14 @@ public class EventPublicController extends BaseController implements Constants{
 	}
 	
 	/**
-	 *  @api {get} /api/public/events/upcoming/organizer/:id?filter=:eventId Get Upcoming Events by Organizer
+	 *  @api {get} /api/public/events/upcoming/organizer/:organizerId?id=:userId&&lat=:userLatitude&lon=:userLongitude&filter=:eventIdToFilter Get Upcoming Events by Organizer
 	 *  @apiName Get Upcoming events by organizer
 	 *  @apiGroup Events
-	 *  @apiParam {String} id Mandatory Organizer id
-	 *  @apiParam {String} id Optional Event id which should not be included in response
+	 *  @apiParam {String} organizerId Mandatory Organizer id
+	 *  @apiParam {Number} id Optional User Id
+	 *  @apiParam {Number} userLatitude Mandatory userLatitude
+	 *  @apiParam {Number} userLongitude Mandatory userLongitude
+	 *  @apiParam {String} eventIdToFilter Optional Event id which should not be included in response
 	 *  @apiHeader {String} accept application/json
 	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
 	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
@@ -1241,11 +1245,15 @@ public class EventPublicController extends BaseController implements Constants{
 			MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.OK)
 	public EntityCollectionResponse<EventResponse> getUpcomingEventsByOrganizer(
+			@RequestParam(required = true, value = "lat") String latitude,
+			@RequestParam(required = true, value = "lon") String longitude,
 			@PathVariable( value = "orgId") String organizerId,
+			@RequestParam(value="id",required=false) Long userId,
 			@RequestParam(required=false,value="filter") String filterEventId){
 		logRequestStart(GET_UPCOMING_EVENTS_BY_ORG_API, PUBLIC_REQUEST_START_LOG, GET_UPCOMING_EVENTS_BY_ORG_API);
 		logInfo(GET_UPCOMING_EVENTS_BY_ORG_API, "Organizer Id = {}", organizerId);
-		List<EventResponse> events = this.eventService.getUpcomingEventsByOrg(organizerId,filterEventId);
+		String userLocation = latitude+","+longitude;
+		List<EventResponse> events = this.eventService.getUpcomingEventsByOrg(userLocation,organizerId,filterEventId,userId);
 		
 		EntityCollectionResponse<EventResponse> collectionResponse = new EntityCollectionResponse<EventResponse>();
 		collectionResponse.setData(events);

@@ -27,7 +27,7 @@ public interface EventDAO {
 	
 	public List<EventResponse> getEventsByFilter(Long userId,Map<String,Double> cordinatesMap,List<Long> tagIds,String city,String country,Integer page) throws ServiceException;
 	
-	public List<EventResponse> getUpcomingEventsOfOrg(Set<EventOrganizerAdmin> eventOrganizerAdmins,String filterEventId);
+	public List<EventResponse> getUpcomingEventsOfOrg(Long userId,Map<String, Double> cordinatesMap,Set<EventOrganizerAdmin> eventOrganizerAdmins,String filterEventId);
 	
 	public void saveEventImages(List<EventImage> images);
 	

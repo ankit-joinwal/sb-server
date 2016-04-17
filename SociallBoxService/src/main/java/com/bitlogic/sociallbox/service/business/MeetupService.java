@@ -16,6 +16,7 @@ import com.bitlogic.sociallbox.data.model.requests.CreateMeetupRequest;
 import com.bitlogic.sociallbox.data.model.requests.EditMeetupRequest;
 import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
+import com.bitlogic.sociallbox.data.model.response.UserFriend;
 
 public interface MeetupService {
 
@@ -46,4 +47,6 @@ public interface MeetupService {
 	public List<UserSocialActivity<UserMeetupActivity>> getUserUpcomingMeetupActivities(User user);
 
 	public List<MeetupResponse> getPendingMeetupInvites(String deviceId);
+	
+	public List<UserFriend> getFriendsForMeetup(String meetupId,String deviceId);
 }

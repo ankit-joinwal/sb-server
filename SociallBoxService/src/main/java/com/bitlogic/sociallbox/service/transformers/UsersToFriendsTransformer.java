@@ -35,6 +35,7 @@ public class UsersToFriendsTransformer implements Transformer<List<UserFriend>, 
 				UserFriend userFriend = new UserFriend();
 				userFriend.setEmailId(user.getEmailId());
 				userFriend.setName(user.getName());
+				userFriend.setId(user.getId());
 				Set<UserSocialDetail> details = user.getSocialDetails();
 				if(details!=null && !details.isEmpty()){
 					for(UserSocialDetail socialDetail : details){

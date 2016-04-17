@@ -99,6 +99,13 @@ public class EventOrganizerServiceImpl extends LoggingService implements EventOr
 		return organizerAdmin;
 	}
 	
+	@Override
+	public EventOrganizerAdmin getEOAdminByUserId(Long userId) {
+		String LOG_PREFIX = "EventOrganizerServiceImpl-getEOAdminByUserId";
+		EventOrganizerAdmin organizerAdmin = this.eventOrganizerDAO.getEOAdminProfileByUserId(userId);
+		logInfo(LOG_PREFIX, "OrganizerAdmin Entity for User Id : {} = {}", userId,organizerAdmin);
+		return organizerAdmin;
+	}
 	
 	@Override
 	public List<EOAdminProfile> getPendingProfiles() {

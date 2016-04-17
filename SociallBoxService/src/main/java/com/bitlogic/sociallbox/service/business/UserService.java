@@ -8,6 +8,7 @@ import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserMessage;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.response.UserEventInterest;
@@ -44,6 +45,10 @@ public interface UserService {
 	public List<UserSetting> getUserSettings(Long userId);
 
 	public List<UserSetting> setUserSettings(Long userId,List<UserSetting> newSettings);
+	
+	public List<UserMessage> getMessagesForUser(Long userId);
+	
+	public String markMessageAsRead(Long userId,Long messageId);
 	
 	
 }

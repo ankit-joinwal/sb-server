@@ -36,6 +36,7 @@ import com.bitlogic.sociallbox.data.model.requests.MeetupResponse;
 import com.bitlogic.sociallbox.data.model.requests.SaveAttendeeResponse;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
+import com.bitlogic.sociallbox.data.model.response.UserFriend;
 import com.bitlogic.sociallbox.service.business.MeetupService;
 import com.bitlogic.sociallbox.service.controller.BaseController;
 import com.bitlogic.sociallbox.service.exception.ClientException;
@@ -59,6 +60,7 @@ public class MeetupSecuredController extends BaseController implements Constants
 	private static final String GET_MEETUP_IMAGES_API = "GetMeetupImages API";
 	private static final String ADD_ATTENDEES_API = "AddAttendees API";
 	private static final String GET_ATTENDEES_API = "GetMeetupAttendees API";
+	private static final String GET_FRIENDS_FOR_MEETUP_API = "GetFriendsForMeetup API";
 	private static final String SAVE_ATTENDEE_RESPONSE_API = "SaveResponse API";
 	private static final String POST_MESSAGE_TO_MEETUP_API = "PostMessageToMeetup API";
 	private static final String GET_MEETUP_MESSAGES_API = "GetMeetupMessages API";
@@ -819,11 +821,11 @@ public class MeetupSecuredController extends BaseController implements Constants
 	}
 	
 	/**
-	*  @api {post} /api/secured/meetups/:meetupId/attendees/:attendeeId/response Save Attendee Response
+	*  @api {post} /api/secured/meetups/:meetupId/attendees/:userId/response Save Attendee Response
 	*  @apiName Save Attendee Response
 	*  @apiGroup Meetups
 	*  @apiParam {String} meetupId Mandatory Meetup Id
-	*  @apiParam {Number} attendeeId Mandatory Attendee Id
+	*  @apiParam {Number} userId Mandatory User Id
 	*  @apiHeader {String} accept application/json
 	*  @apiHeader {String} Content-Type application/json
 	*  @apiHeader {Number} X-Auth-Date Current Epoch Date
@@ -842,17 +844,17 @@ public class MeetupSecuredController extends BaseController implements Constants
 		}
 		
 	*/
-	@RequestMapping(value="/{meetupId}/attendees/{attendeeId}/response",method = RequestMethod.POST,  consumes = {
+	@RequestMapping(value="/{meetupId}/attendees/{userId}/response",method = RequestMethod.POST,  consumes = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
 	public SingleEntityResponse<String> saveResponse(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
 							@Valid @RequestBody SaveAttendeeResponse saveAttendeeResponse,
 							@PathVariable String meetupId,
-							@PathVariable Long attendeeId){
+							@PathVariable Long userId){
 		logRequestStart(SAVE_ATTENDEE_RESPONSE_API, SECURED_REQUEST_START_LOG_MESSAGE, SAVE_ATTENDEE_RESPONSE_API);
 		logInfo(SAVE_ATTENDEE_RESPONSE_API, "Auth header = {}", auth);
-		logInfo(SAVE_ATTENDEE_RESPONSE_API, "Meetup id = {}, attendee = {} , response = {} ", meetupId,attendeeId,saveAttendeeResponse);
-		saveAttendeeResponse.setAttendeeId(attendeeId);
+		logInfo(SAVE_ATTENDEE_RESPONSE_API, "Meetup id = {}, attendee = {} , response = {} ", meetupId,userId,saveAttendeeResponse);
+		saveAttendeeResponse.setUserId(userId);
 		saveAttendeeResponse.setMeetupId(meetupId);
 		String userName = LoginUtil.getUserNameFromHeader(auth);
 		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
@@ -870,11 +872,11 @@ public class MeetupSecuredController extends BaseController implements Constants
 	}
 	
 	/**
-	*  @api {post} /api/secured/meetups/:meetupId/attendees/:attendeeId/message Send Message To Meetup
+	*  @api {post} /api/secured/meetups/:meetupId/attendees/:userId/message Send Message To Meetup
 	*  @apiName Send Message to meetup
 	*  @apiGroup Meetups
 	*  @apiParam {String} meetupId Mandatory Meetup Id
-	*  @apiParam {String} attendeeId Mandatory Attendee Id
+	*  @apiParam {Long} userId Mandatory User Id
 	*  @apiHeader {String} accept application/json
 	*  @apiHeader {String} Content-Type application/json
 	*  @apiHeader {Number} X-Auth-Date Current Epoch Date
@@ -892,17 +894,17 @@ public class MeetupSecuredController extends BaseController implements Constants
 		}
 		
 	*/
-	@RequestMapping(value="/{meetupId}/attendees/{attendeeId}/message",method = RequestMethod.POST,  consumes = {
+	@RequestMapping(value="/{meetupId}/attendees/{userId}/message",method = RequestMethod.POST,  consumes = {
 			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
 	public SingleEntityResponse<String> postMessageToMeetup(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
 									@Valid @RequestBody MeetupMessage meetupMessage,
 									@PathVariable String meetupId,
-									@PathVariable Long attendeeId){
+									@PathVariable Long userId){
 		logRequestStart(POST_MESSAGE_TO_MEETUP_API, SECURED_REQUEST_START_LOG_MESSAGE, POST_MESSAGE_TO_MEETUP_API);
 		logInfo(POST_MESSAGE_TO_MEETUP_API, "Auth header = {}", auth);
-		logInfo(POST_MESSAGE_TO_MEETUP_API, "Meetup = {} , AttendeeId = {} ",meetupId,attendeeId);
-		this.meetupService.sendMessageInMeetup(meetupMessage, meetupId, attendeeId);
+		logInfo(POST_MESSAGE_TO_MEETUP_API, "Meetup = {} , userId = {} ",meetupId,userId);
+		this.meetupService.sendMessageInMeetup(meetupMessage, meetupId, userId);
 		SingleEntityResponse<String> entityResponse = new SingleEntityResponse<String>();
 		entityResponse.setData("Posted message to meetup succesfully");
 		entityResponse.setStatus(SUCCESS_STATUS);
@@ -1035,5 +1037,73 @@ public class MeetupSecuredController extends BaseController implements Constants
 		collectionResponse.setTotalRecords(attendees.size());
 		logRequestEnd(GET_ATTENDEES_API, GET_ATTENDEES_API);
 		return collectionResponse;
+	}
+	
+	/**
+	 *  @api {get} /api/secured/meetups/:meetupId/friends Get Friends To invite for meetup
+	 *  @apiName Get Friends To invite for meetup
+	 *  @apiGroup Meetups
+	 *  @apiParam {String} meetupId Mandatory Meetup id
+	 *  @apiHeader {String} accept application/json
+	 *  @apiHeader {String} Content-Type application/json
+	 *  @apiHeader {Number} X-Auth-Date Current Epoch Date
+	 *  @apiHeader {String} Authorization Authentication Token
+	 *  @apiHeaderExample {json} Example Headers
+	 *  accept: application/json
+		Content-Type: application/json
+		X-Auth-Date: 1455988523724
+		Authorization: Basic U0R+U01BUlRfREVWSUNFXzI6NCtPU3JRN0tKMzZ2TW9iRmoxbmJEZG5ydVVJVTlwTWFVWmN1V0xxaUFaRT0=
+	 *  @apiSuccess (Success - OK 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - OK 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - OK 200) {Object}  response.data Friends
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  
+		{
+		  "status": "Success",
+		  "data": [
+			{
+			  "id": 12,
+			  "profilePic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/v/t1.0-1/p200x200/10712837_690026594399086_7729501495888015257_n.jpg?oh=dae7953515b52383b6e092e32da504c0&oe=578FF310&__gda__=1465312979_b8b37b205e83a5f8a8a2bbb681e0c640",
+			  "name": "Mayank Agarwal",
+			  "emailId": "agarwalmayank30@gmail.com"
+			},
+			{
+			  "id": 16,
+			  "profilePic": "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpa1/v/t1.0-1/s200x200/11224309_10153200429036366_3899281527807886630_n.jpg?oh=fbb67c694bc2bc6c21b7b70d0d25f53a&oe=574D6AFC&__gda__=1468826733_a181d28d9b3f9ed4bc72fac9d0b4d08a",
+			  "name": "Vardhan Singh",
+			  "emailId": "vardhansingh@yahoo.com"
+			}
+		  ],
+		  "page": 1,
+		  "nextPage": null,
+		  "total_records": 2
+		}
+	 */
+	@RequestMapping(value="/{meetupId}/friends",method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@ResponseStatus(HttpStatus.OK)
+	public EntityCollectionResponse<UserFriend> getFriendsForMeetup(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
+												@PathVariable String meetupId){
+		
+		logRequestStart(GET_FRIENDS_FOR_MEETUP_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_FRIENDS_FOR_MEETUP_API);
+		String userName = LoginUtil.getUserNameFromHeader(auth);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.MOBILE){
+			String deviceId = LoginUtil.getDeviceIdFromUserName(userName);
+			logInfo(GET_FRIENDS_FOR_MEETUP_API, " Device Id {} ", deviceId);
+			
+			List<UserFriend>  userFriends = this.meetupService.getFriendsForMeetup(meetupId, deviceId);
+			EntityCollectionResponse<UserFriend> entityResponse = new EntityCollectionResponse<UserFriend>();
+			entityResponse.setData(userFriends);
+			entityResponse.setStatus(SUCCESS_STATUS);
+			entityResponse.setTotalRecords(userFriends.size());
+			entityResponse.setPage(1);
+			logRequestEnd(GET_FRIENDS_FOR_MEETUP_API, GET_FRIENDS_FOR_MEETUP_API);
+			return entityResponse;
+			
+		}else{
+			logRequestEnd(GET_FRIENDS_FOR_MEETUP_API, GET_FRIENDS_FOR_MEETUP_API);
+			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_MOBILE_ONLY);
+		}
 	}
 }

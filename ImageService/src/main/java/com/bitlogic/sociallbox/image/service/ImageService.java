@@ -20,11 +20,15 @@ public class ImageService {
 		String bucketName = properties.getProperty(Constants.AWS_BUCKET_NAME_KEY);
 		String imageBaseUrl = properties.getProperty(Constants.AWS_IMAGES_BASE_URL_KEY);
 		String meetupsRootFolder = properties.getProperty(Constants.AWS_MEETUPS_ROOT_FOLDER_KEY);
+		String usersRootFolder = properties.getProperty(Constants.AWS_USERS_ROOT_FOLDER_KEY);
+		String companiesRootFolder = properties.getProperty(Constants.AWS_COMPANIES_ROOT_FOLDER_KEY);
 		amazonS3Config = new AmazonS3Config();
 		amazonS3Config.setBucketName(bucketName);
 		amazonS3Config.setEventsRootFolder(eventsRootFolder);
 		amazonS3Config.setImageBaseUrl(imageBaseUrl);
 		amazonS3Config.setMeetupsRootFolder(meetupsRootFolder);
+		amazonS3Config.setUserPicUrl(usersRootFolder);
+		amazonS3Config.setCompaniesRootFolder(companiesRootFolder);
 		LOGGER.info("###       AWS S3 Config       ###");
 		LOGGER.info("{}",amazonS3Config);
 		LOGGER.info("#################################");
@@ -50,6 +54,28 @@ public class ImageService {
 		LOGGER.info("S3Config {}",amazonS3Config);
 		AmazonS3ImageService s3ImageService = new AmazonS3ImageService(amazonS3Config);
 		Map<String,?> imageInfoMap = s3ImageService.uploadImage(ImageFolderType.MEETUP,meetupId, fileName, inputStream,contentType,contentLength);
+		return imageInfoMap;
+	}
+	
+	public static Map<String,?> uploadUserProfilePic(String userId, InputStream inputStream,
+			String contentType,
+			Integer contentLength,
+			String fileName){
+		LOGGER.info("Inside ImageService to upload image :{} for User Profile Pic : {} ",fileName,userId);
+		LOGGER.info("S3Config {}",amazonS3Config);
+		AmazonS3ImageService s3ImageService = new AmazonS3ImageService(amazonS3Config);
+		Map<String,?> imageInfoMap = s3ImageService.uploadImage(ImageFolderType.USER,userId, fileName, inputStream,contentType,contentLength);
+		return imageInfoMap;
+	}
+	
+	public static Map<String,?> uploadCompanyPic(String userId, InputStream inputStream,
+			String contentType,
+			Integer contentLength,
+			String fileName){
+		LOGGER.info("Inside ImageService to upload image :{} for Company Pic : {} ",fileName,userId);
+		LOGGER.info("S3Config {}",amazonS3Config);
+		AmazonS3ImageService s3ImageService = new AmazonS3ImageService(amazonS3Config);
+		Map<String,?> imageInfoMap = s3ImageService.uploadImage(ImageFolderType.COMPANIES,userId, fileName, inputStream,contentType,contentLength);
 		return imageInfoMap;
 	}
 }

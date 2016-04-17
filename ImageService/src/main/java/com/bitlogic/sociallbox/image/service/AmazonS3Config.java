@@ -6,7 +6,23 @@ public class AmazonS3Config {
 	private String meetupsRootFolder;
 	private String bucketName;
 	private String imageBaseUrl;
+	private String userPicUrl;
+	private String companiesRootFolder;
 	
+	
+	
+	public String getCompaniesRootFolder() {
+		return companiesRootFolder;
+	}
+	public void setCompaniesRootFolder(String companiesRootFolder) {
+		this.companiesRootFolder = companiesRootFolder;
+	}
+	public String getUserPicUrl() {
+		return userPicUrl;
+	}
+	public void setUserPicUrl(String userPicUrl) {
+		this.userPicUrl = userPicUrl;
+	}
 	public String getMeetupsRootFolder() {
 		return meetupsRootFolder;
 	}

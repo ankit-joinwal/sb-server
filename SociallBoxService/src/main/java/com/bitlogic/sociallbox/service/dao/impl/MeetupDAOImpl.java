@@ -114,9 +114,9 @@ public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{
 	
 	@Override
 	public void saveAttendeeResponse(SaveAttendeeResponse attendeeResponse) {
-		MeetupAttendeeEntity meetupAttendee = (MeetupAttendeeEntity) getSession().get(MeetupAttendeeEntity.class, attendeeResponse.getAttendeeId());
+		MeetupAttendeeEntity meetupAttendee = (MeetupAttendeeEntity) getSession().get(MeetupAttendeeEntity.class, attendeeResponse.getUserId());
 		if(meetupAttendee!=null){
-			logger.info("Storing attendee response for meetup {} for attendee {} ",attendeeResponse.getMeetupId(),attendeeResponse.getAttendeeId());
+			logger.info("Storing attendee response for meetup {} for attendee {} ",attendeeResponse.getMeetupId(),attendeeResponse.getUserId());
 			meetupAttendee.setAttendeeResponse(attendeeResponse.getAttendeeResponse());
 			getSession().saveOrUpdate(meetupAttendee);
 		}
@@ -281,7 +281,8 @@ public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{
 		String sql = "SELECT * FROM MEETUP MEETUP "
 						+ "	INNER JOIN MEETUP_ATTENDEES ATTENDEE ON MEETUP.ID = ATTENDEE.MEETUP_ID "
 						+ "	WHERE ATTENDEE.USER_ID = :userId "
-						+ "	AND ATTENDEE.ATTENDEE_RESPONSE = :attendeeResponse";
+						+ "	AND ATTENDEE.ATTENDEE_RESPONSE = :attendeeResponse"
+						+ "	ORDER BY CREATE_DT DESC";
 		SQLQuery query = getSession().createSQLQuery(sql);
 		query.addEntity(Meetup.class);
 		query.setParameter("userId", user.getId());
@@ -297,4 +298,6 @@ public class MeetupDAOImpl extends AbstractDAO implements MeetupDAO{
 		}
 		return meetups;
 	}
+	
+	
 }

@@ -1,6 +1,7 @@
 package com.bitlogic.sociallbox.service.security;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -18,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.filter.GenericFilterBean;
+
+import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 
 public class RestSecurityFilter extends GenericFilterBean{
 
@@ -109,6 +112,11 @@ public class RestSecurityFilter extends GenericFilterBean{
             // authentication entry point process.
             SecurityContextHolder.clearContext();
             authenticationEntryPoint.commence(request, response, authenticationException);
+        }catch(UnauthorizedException unauthorizedException){
+        	 SecurityContextHolder.clearContext();
+        	 PrintWriter writer = response.getWriter();
+        	 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+ 	        	writer.println("HTTP Status " + HttpServletResponse.SC_UNAUTHORIZED + " - " + unauthorizedException.getMessage());
         }
     }
 }

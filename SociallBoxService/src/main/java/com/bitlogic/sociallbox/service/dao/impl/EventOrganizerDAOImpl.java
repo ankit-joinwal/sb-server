@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
@@ -71,5 +72,18 @@ public class EventOrganizerDAOImpl extends AbstractDAO implements EventOrganizer
 		Criteria criteria = getSession().createCriteria(EventOrganizerAdmin.class)
 				.add(Restrictions.eq("id", profileId));
 		return (EventOrganizerAdmin) criteria.uniqueResult();
+	}
+	
+	@Override
+	public EventOrganizerAdmin getEOAdminProfileByUserId(Long userId) {
+		String sql = "SELECT * FROM ORGANIZER_ADMINS WHERE USER_ID = :userId";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.addEntity(EventOrganizerAdmin.class);
+		query.setParameter("userId", userId);
+		
+		Object result = query.uniqueResult();
+		EventOrganizerAdmin organizerAdmin = (EventOrganizerAdmin) result;
+		
+		return organizerAdmin;
 	}
 }

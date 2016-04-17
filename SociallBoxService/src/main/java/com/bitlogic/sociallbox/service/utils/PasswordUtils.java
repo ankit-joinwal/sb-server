@@ -9,7 +9,7 @@ public class PasswordUtils {
 	public static String encryptPass(String password){
 		 StringBuffer sb = new StringBuffer();
 		try{
-		 MessageDigest md = MessageDigest.getInstance("MD5");
+			MessageDigest md = MessageDigest.getInstance("MD5");
 	        md.update(password.getBytes());
 	        byte byteData[] = md.digest();
 	        
@@ -25,7 +25,7 @@ public class PasswordUtils {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(encryptPass("p@ssword"));
+		System.out.println(encryptPass("test"));
 	}
 	
 }

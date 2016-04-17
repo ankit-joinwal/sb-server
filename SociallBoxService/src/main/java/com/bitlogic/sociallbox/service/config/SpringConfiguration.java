@@ -17,6 +17,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.view.velocity.VelocityConfigurer;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.GAPIConfig;
@@ -145,9 +146,19 @@ public class SpringConfiguration extends LoggingService {
 		s3Properties.put(Constants.AWS_EVENTS_ROOT_FOLDER_KEY, environment.getRequiredProperty(Constants.AWS_EVENTS_ROOT_FOLDER_KEY));
 		s3Properties.put(Constants.AWS_IMAGES_BASE_URL_KEY, environment.getRequiredProperty(Constants.AWS_IMAGES_BASE_URL_KEY));
 		s3Properties.put(Constants.AWS_MEETUPS_ROOT_FOLDER_KEY, environment.getRequiredProperty(Constants.AWS_MEETUPS_ROOT_FOLDER_KEY));
+		s3Properties.put(Constants.AWS_USERS_ROOT_FOLDER_KEY, environment.getRequiredProperty(Constants.AWS_USERS_ROOT_FOLDER_KEY));
+		s3Properties.put(Constants.AWS_COMPANIES_ROOT_FOLDER_KEY, environment.getRequiredProperty(Constants.AWS_COMPANIES_ROOT_FOLDER_KEY));
 		imageService.setConfigProperties(s3Properties);
 		
 		return imageService;
 	}
+	
+	 @Bean
+    public VelocityConfigurer velocityConfig() {
+        VelocityConfigurer velocityConfigurer = new VelocityConfigurer();
+        velocityConfigurer.setResourceLoaderPath("/WEB-INF/pages/");
+        return velocityConfigurer;
+    }
+	 
 	
 }

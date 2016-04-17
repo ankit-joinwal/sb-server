@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.SocialSystem;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserMessage;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
 import com.bitlogic.sociallbox.data.model.UserSetting;
 import com.bitlogic.sociallbox.data.model.UserSettingType;
@@ -129,7 +132,6 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		Criteria criteria = getSession().createCriteria(UserSocialDetail.class)
 				.add(Restrictions.eq("user", user))
 				.add(Restrictions.eq("socialSystem", socialDetails.getSocialSystem()))
-				.add(Restrictions.eq("userSocialDetail", socialDetails.getUserSocialDetail()))
 				.add(Restrictions.eq("socialDetailType", socialDetails.getSocialDetailType()));
 		
 		UserSocialDetail existingDetail = (UserSocialDetail) criteria.uniqueResult();
@@ -287,10 +289,13 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		return new ArrayList<>(userWithFriends.getFriends());
 	}
 	
+	
+	
 	@Override
 	public List<User> getUserFriendsByIds(User user,List<Long> friendIds) {
 		Criteria criteria = getSession().createCriteria(User.class)
 				.add(Restrictions.in("id", friendIds))
+				.add(Restrictions.ne("id", user.getId()))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<User> friends = criteria.list();
 		return friends;
@@ -318,4 +323,48 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 		
 	}
 
+	
+	@Override
+	public void addMessageForUser(UserMessage userMessage) {
+
+		getSession().save(userMessage);
+	}
+	
+	@Override
+	public List<UserMessage> getUnreadMessages(Long userId) {
+		String sql  = "SELECT * FROM USER_MESSAGES WHERE USER_ID = :userId AND IS_READ = :isRead ORDER BY CREATE_DT DESC";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.addEntity(UserMessage.class);
+		query.setParameter("userId", userId);
+		query.setParameter("isRead", Boolean.FALSE);
+		
+		List results = query.list();
+		List<UserMessage> messages = new ArrayList<UserMessage>(results.size());
+
+		if(results!=null && !results.isEmpty()){
+			 for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				 UserMessage message = (UserMessage) iterator.next();
+				 messages.add(message);
+			 }
+		 }
+		return messages;
+	}
+	
+	@Override
+	public UserMessage getMessage(Long userId, Long messageId) {
+		String sql  = "SELECT * FROM USER_MESSAGES WHERE USER_ID = :userId AND MESSAGE_ID = :messageId AND IS_READ = :isRead ";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.addEntity(UserMessage.class);
+		query.setParameter("userId", userId);
+		query.setParameter("isRead", Boolean.FALSE);
+		query.setParameter("messageId", messageId);
+		
+		Object result = query.uniqueResult();
+		if(result!=null){
+			UserMessage message = (UserMessage) result;
+			return message;
+		}
+		
+		return null;
+	}
 }
