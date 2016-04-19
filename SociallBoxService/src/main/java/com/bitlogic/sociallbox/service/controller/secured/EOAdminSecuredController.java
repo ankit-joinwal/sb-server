@@ -29,6 +29,7 @@ import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.requests.AddCompanyToProfileRequest;
 import com.bitlogic.sociallbox.data.model.requests.UpdateEOAdminProfileRequest;
 import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
+import com.bitlogic.sociallbox.data.model.response.EODashboardResponse;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EOAdminService;
@@ -331,6 +332,40 @@ public class EOAdminSecuredController extends BaseController implements Constant
         return entityResponse;
 	}
 	
+	/**
+	 *  @api {get} /api/secured/users/organizers/admins/:userId/messages Get Unread Messages For EO Admin
+	 *  @apiName Get Unread Messages For EO Admin
+	 *  @apiGroup Dashboard
+	 *  @apiParam {Number} userId Mandatory User id
+	 *  @apiHeader {String} accept application/json
+	 *	@apiHeader {String} Authorization Auth Token 
+	 *	@apiHeader {String} X-Auth-Date	Epoch time 
+	 *  @apiHeaderExample {json} Example Headers
+	 *  accept: application/json
+		X-Auth-Date: 1455988523724
+		Authorization: Basic U0R+U01BUlRfREVWSUNFXzI6NCtPU3JRN0tKMzZ2TW9iRmoxbmJEZG5ydVVJVTlwTWFVWmN1V0xxaUFaRT0=
+	 *
+	 *  
+	 *	@apiSuccess (Success - Ok 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - Ok 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - Ok 200) {Object}  response.data Messages For User
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+			"status": "Success",
+			"data": [
+				{
+					"id": 2,
+					"message": "Hi Dummy EO, welcome to SociallBox. As a next step, please setup your company profile via \"Company Profile\" section in dashboard.",
+					"message_dt": 1460880156000,
+					"is_read": false
+				}
+			],
+			"page": 1,
+			"nextPage": null,
+			"total_records": 1
+		}
+	
+	 */
 	@RequestMapping(value="/{userId}/messages",method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
@@ -348,6 +383,31 @@ public class EOAdminSecuredController extends BaseController implements Constant
 		return collectionResponse;
 	}
 	
+	/**
+	 *  @api {post} /api/secured/users/organizers/admins/:userId/messages/:messageId Mark user message as read
+	 *  @apiName Mark user message as read
+	 *  @apiGroup Dashboard
+	 *  @apiParam {Number} userId Mandatory User id
+	 *  @apiParam {Number} messageId Mandatory Message id
+	 *  @apiHeader {String} accept application/json
+	 *	@apiHeader {String} Authorization Auth Token 
+	 *	@apiHeader {String} X-Auth-Date	Epoch time 
+	 *  @apiHeaderExample {json} Example Headers
+	 *  accept: application/json
+		X-Auth-Date: 1455988523724
+		Authorization: Basic U0R+U01BUlRfREVWSUNFXzI6NCtPU3JRN0tKMzZ2TW9iRmoxbmJEZG5ydVVJVTlwTWFVWmN1V0xxaUFaRT0=
+	 *
+	 *  
+	 *	@apiSuccess (Success - Ok 200) {Object}  response  Response.
+	 *  @apiSuccess (Success - Ok 200) {String}  response.status   Eg.Success.
+	 * 	@apiSuccess (Success - Ok 200) {Object}  response.data Result
+	 *  @apiSuccessExample {json} Success-Response:
+	 *  {
+		  "status": "Success",
+		  "data": "Message is marked as read"
+		}
+	
+	 */
 	@RequestMapping(value="/{userId}/messages/{messageId}",method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
@@ -466,7 +526,32 @@ public class EOAdminSecuredController extends BaseController implements Constant
 			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_WEB_ONLY);
 		}
 		
+	}
+	
+	@RequestMapping(value="/{userId}/dashboard",method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	@ResponseStatus(HttpStatus.OK)
+	public SingleEntityResponse<EODashboardResponse> getDashboardData(@PathVariable Long userId){
 		
+		EODashboardResponse dashboardResponse = this.eventOrganizerAdminService.getDashboardData(userId);
+		SingleEntityResponse<EODashboardResponse> entityResponse = new SingleEntityResponse<>();
+		entityResponse.setStatus(SUCCESS_STATUS);
+		entityResponse.setData(dashboardResponse);
+		
+		return entityResponse;
+	}
+	
+	@RequestMapping(value="/{userId}/dashboard/monthly/attendees",method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	@ResponseStatus(HttpStatus.OK)
+	public SingleEntityResponse<EODashboardResponse> getAttendeesData(@PathVariable Long userId){
+		
+		EODashboardResponse dashboardResponse = this.eventOrganizerAdminService.getAttendeesByMonth(userId);
+		SingleEntityResponse<EODashboardResponse> entityResponse = new SingleEntityResponse<>();
+		entityResponse.setStatus(SUCCESS_STATUS);
+		entityResponse.setData(dashboardResponse);
+		
+		return entityResponse;
 	}
 	
 }

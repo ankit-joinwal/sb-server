@@ -89,14 +89,14 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 				.authenticated()
 				.and()
 				.formLogin()
-				.defaultSuccessUrl("/")
+				.defaultSuccessUrl("/eo/dashboard")
 				.loginProcessingUrl("/authenticate")
 				.usernameParameter("username")
 				.passwordParameter("password")
 				.successHandler(
 						new AjaxAuthenticationSuccessHandler(
 								new SavedRequestAwareAuthenticationSuccessHandler()))
-				.loginPage("/login")
+				.loginPage("/eo/login")
 				.and().httpBasic()
 				.and().logout().logoutUrl("/logout")
 				.logoutSuccessUrl("/resources/public/index.html").permitAll()

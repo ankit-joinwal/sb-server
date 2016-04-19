@@ -10,6 +10,7 @@ import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.requests.AddCompanyToProfileRequest;
 import com.bitlogic.sociallbox.data.model.requests.UpdateEOAdminProfileRequest;
 import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
+import com.bitlogic.sociallbox.data.model.response.EODashboardResponse;
 
 public interface EOAdminService {
 
@@ -27,4 +28,9 @@ public interface EOAdminService {
 	public String updateProfilePic(Long userId,List<MultipartFile> images);
 	
 	public String updateCompanyPic(Long userId,String orgId,List<MultipartFile> images,String type);
+	
+	public EODashboardResponse getDashboardData(Long userId);
+	
+	public EODashboardResponse getAttendeesByMonth(Long profileId);
+	
 }

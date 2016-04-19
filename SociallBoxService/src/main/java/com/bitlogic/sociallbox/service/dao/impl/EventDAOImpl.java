@@ -1,8 +1,13 @@
 package com.bitlogic.sociallbox.service.dao.impl;
 
+import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,22 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-
-
-
-
-
-
-
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventAttendee;
 import com.bitlogic.sociallbox.data.model.EventImage;
-import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
 import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserFavouriteEvents;
+import com.bitlogic.sociallbox.data.model.response.EODashboardResponse.AttendeesInMonth;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.service.dao.AbstractDAO;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
@@ -46,6 +44,7 @@ import com.bitlogic.sociallbox.service.utils.GeoUtils;
 @Repository("eventDAO")
 public class EventDAOImpl extends AbstractDAO implements EventDAO {
 
+	
 	private static final Logger logger = LoggerFactory
 			.getLogger(EventDAOImpl.class);
 
@@ -549,5 +548,169 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 						
 		return events;
 	
+	}
+	
+	@Override
+	public List<String> getEventCountPastSixMonth(Long profileId) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MONTH, -6);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+        String dateBeforeSixMonthStr =  "" + cal.get(Calendar.DAY_OF_MONTH) +"/" +
+                (cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.YEAR);
+        List<String> eventIds = new ArrayList<>();
+        try{
+        	Date dateBeforeSixMonth = dateFormat.parse(dateBeforeSixMonthStr);
+        	Date now = new Date();
+        	
+        	String sql = "SELECT COUNT(1),EVENT.ID,DTLS.ORGANIZER_ADMIN_ID,EVENT.EVENT_STATUS,EVENT.START_DT"
+        			+ "		 FROM EVENT EVENT INNER JOIN EVENT_DETAILS DTLS  "+
+        					"	ON EVENT.ID = DTLS.EVENT_ID	" +
+        					"	GROUP BY EVENT.ID "+
+        					"	HAVING DTLS.ORGANIZER_ADMIN_ID = :profileId "
+        					+ "	AND EVENT.EVENT_STATUS = :status "
+        					+ " AND EVENT.START_DT > :dateStart "
+        					+ "	AND EVENT.START_DT < :dateEnd ";	
+        	SQLQuery query = getSession().createSQLQuery(sql);
+        	query.setParameter("profileId", profileId);
+        	query.setParameter("status", EventStatus.LIVE.name());
+        	query.setParameter("dateStart", dateBeforeSixMonth);
+        	query.setParameter("dateEnd", now);
+        	
+        	List results = query.list();
+        	
+        	
+        	 if(results!=null && !results.isEmpty()){
+    			 for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+    				 Object[] resultArr = (Object[]) iterator.next();
+    				 eventIds.add((String) resultArr[1]);
+    			 }
+        	 }
+        }catch(ParseException ex){
+        	ex.printStackTrace();
+        }
+		
+		
+		
+		return eventIds;
+	}
+	
+	@Override
+	public Integer getAttendeesCountForEvents(List<String> eventIds) {
+		String sql = "SELECT DISTINCT(USER_ID) FROM EVENT_ATTENDEES WHERE EVENT_ID IN ( :eventIds )";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.setParameterList("eventIds", eventIds);
+		
+		List result = query.list();
+		Integer count = 0;
+		count = result.size();
+		return count;
+	}
+	
+	@Override
+	public Integer getInterestedUsersCountForEvents(List<String> eventIds) {
+		String sql = "SELECT DISTINCT(USER_ID) FROM USER_FAVOURITE_EVENTS WHERE EVENT_ID IN ( :eventIds )";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.setParameterList("eventIds", eventIds);
+		
+		List result = query.list();
+		Integer count = 0;
+		count = result.size();
+		return count;
+	}
+	
+	@Override
+	public Integer getMeetupsAtEvents(List<String> eventIds) {
+		String sql = "SELECT DISTINCT(ID) FROM MEETUP WHERE EVENT_ID IN ( :eventIds )";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.setParameterList("eventIds", eventIds);
+		
+		List result = query.list();
+		Integer count = 0;
+		count = result.size();
+		return count;
+	}
+	
+	@Override
+	public List<AttendeesInMonth> getAttendeesByMonth(Long profileId) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MONTH, -6);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+        String dateBeforeSixMonthStr =  "" + cal.get(Calendar.DAY_OF_MONTH) +"/" +
+                (cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.YEAR);
+        Map<String,List<String>> monthAndEvents = new LinkedHashMap<>();
+        
+        for(int i = 5;i>=1;i--){
+	        Calendar cal1 =  Calendar.getInstance();
+	        cal1.add(Calendar.MONTH ,-i);
+	        //format it to MMM-yyyy // January-2012
+	        String previousMonthYear  = new SimpleDateFormat("MMM").format(cal1.getTime());
+	        List<String> dummyIds = new ArrayList<>();
+	        dummyIds.add("dummy");
+	        monthAndEvents.put(previousMonthYear, dummyIds);
+        }
+        List<AttendeesInMonth> attendees = new ArrayList<>();
+        
+        try{
+        	Date dateBeforeSixMonth = dateFormat.parse(dateBeforeSixMonthStr);
+        	Date now = new Date();
+        	String sql = "SELECT DATE_FORMAT(EVENT.START_DT,'%b') EVENT_DATE,EVENT.ID,DTLS.ORGANIZER_ADMIN_ID,EVENT.EVENT_STATUS,EVENT.START_DT "
+        			+ "		 FROM EVENT EVENT INNER JOIN EVENT_DETAILS DTLS  "+
+        					"	ON EVENT.ID = DTLS.EVENT_ID	" +
+        					"	GROUP BY EVENT_DATE,EVENT.ID "+
+        					"	HAVING DTLS.ORGANIZER_ADMIN_ID = :profileId "
+        					+ "	AND EVENT.EVENT_STATUS = :status "
+        					+ " AND EVENT.START_DT > :dateStart "
+        					+ "	AND EVENT.START_DT < :dateEnd "
+        					+ "	ORDER BY EVENT.START_DT ";	
+        	SQLQuery query = getSession().createSQLQuery(sql);
+        	query.setParameter("profileId", profileId);
+        	query.setParameter("status", EventStatus.LIVE.name());
+        	query.setParameter("dateStart", dateBeforeSixMonth);
+        	query.setParameter("dateEnd", now);
+        	
+        	List results = query.list();
+        	
+        	String attendeeSql = "SELECT DISTINCT(USER_ID) FROM EVENT_ATTENDEES WHERE EVENT_ID IN :eventIds";
+        	SQLQuery  query2 = getSession().createSQLQuery(attendeeSql);
+        	
+	       	 if(results!=null && !results.isEmpty()){
+	   			 for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+	   				 Object[] resultArr = (Object[]) iterator.next();
+	   				 String month = (String) resultArr[0];
+	   				 String eventId = (String) resultArr[1];
+	   				 
+	   				 if(monthAndEvents.containsKey(month)){
+	   					 List<String> eventIds = monthAndEvents.get(month);
+	   					 eventIds.add(eventId);
+	   				 }else{
+	   					 List<String> eventIds = new ArrayList<>();
+	   					 monthAndEvents.put(month, eventIds);
+	   				 }
+	   			 }
+	   			 
+	   			Iterator<Map.Entry<String, List<String>>> iter = monthAndEvents.entrySet().iterator();
+	   			while(iter.hasNext()){
+	   				Map.Entry<String, List<String>> entry = iter.next();
+	   				
+	   				query2.setParameterList("eventIds", entry.getValue());
+	   				
+	   				List attendeeResults = query2.list();
+	   				AttendeesInMonth attendeesInMonth = new AttendeesInMonth();
+	   				attendeesInMonth.setMonth(entry.getKey());
+	   				attendeesInMonth.setAttendees(attendeeResults.size());
+	   				attendees.add(attendeesInMonth);
+	   			}
+	   			
+	   			 
+	       	 }
+        	
+        }catch(ParseException ex){
+        	ex.printStackTrace();
+        }
+			
+        
+		return attendees;
 	}
 }

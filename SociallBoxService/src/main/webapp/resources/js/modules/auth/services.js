@@ -49,9 +49,14 @@ var app = angular.module('Authentication')
     	 };
     	 
     	 //Service Function to Signin User
-    	 service.signin = function(emailId,password){
+    	 service.signin = function(emailId,password,isPassEncrypted){
     		 var deferred = $q.defer();
-    		 var encPassword = MD5.genMD5(password);
+    		 var encPassword ;
+    		 if(isPassEncrypted){
+    			 encPassword = password;
+    		 }else{
+    			 encPassword = MD5.genMD5(password);
+    		 }
     		 var date = new Date();
     		 var epoch = date.getTime();
     		 
@@ -73,7 +78,7 @@ var app = angular.module('Authentication')
 	 	                    "X-Auth-Date" 		: 	epoch
 	 	            		}
 	    		 	}).then(function(response) {
-		                 if (response.status == 201) {
+		                 if (response.status == 200) {
 		                	//Store profile in cookies and return
 		                	 service.setUserProfile(response.data.data.id,response.data.data.name,response.data.data.email_id,
           							response.data.data.profile_id,response.data.data.profile_pic,encPassword)
@@ -104,9 +109,23 @@ var app = angular.module('Authentication')
  			return service.getUserProfile()
 		 			.then(function(userProfileResponse){
 		 				if(userProfileResponse.status == 200 && (typeof userProfileResponse.data !== 'undefined')){
-		 					response.status = 200;
-		 					deferred.resolve(response);
-		 					return deferred.promise;
+		 					var profile = userProfileResponse.data;
+		 					
+		 					var email = profile.emailId;
+		 					var encPassword = profile.password;
+		 					
+		 					return service.signin(email,encPassword,true)
+		 							.then(function(signinResponse){
+		 								if(signinResponse.status == 200 ){
+		 									response.status = 200;
+		 				 					deferred.resolve(response);
+		 				 					return deferred.promise;
+		 								}else{
+		 									response.status = 401;
+		 				 					 deferred.reject(response);
+		 				 					 return deferred.promise;
+		 								}
+		 							});
 		 				}else{
 		 					response.status = 401;
 		 					 deferred.reject(response);
@@ -116,6 +135,40 @@ var app = angular.module('Authentication')
  			
  		 };
     	 
+ 		 service.getAuthToken = function(){
+ 			 var deferred = $q.defer();
+ 			 var response = {};
+ 			return service.getUserProfile()
+		 			.then(function(userProfileResponse){
+		 				if(userProfileResponse.status == 200 && (typeof userProfileResponse.data !== 'undefined')){
+		 					var profile = userProfileResponse.data;
+		 					
+		 					var email = profile.emailId;
+		 					var encPassword = profile.password;
+		 					
+		 		    		
+		 		    		 var date = new Date();
+		 		    		 var epoch = date.getTime();
+		 		    		 
+		 		    		 var passAndTime = encPassword + '~' + epoch;
+		 		    		 var signature = Base64.encode(passAndTime);
+		 		    		 //Format is 'W~emailId'
+		 		    		 var username = 'W~'+ email;
+		 		    		 var token = 'Basic '+ Base64.encode(username + ":" + signature);
+		 		    		 
+		 		    		 response.status = 200;
+		 		    		 response.epoch = epoch;
+		 		    		 response.token = token;
+		 		    		 deferred.resolve(response);
+		 					 return deferred.promise;
+		 				}else{
+		 					 response.status = 401;
+		 					 deferred.reject(response);
+		 					 return deferred.promise;
+		 				}
+		 			});
+ 		 };
+ 		 
     	 //Service Function to Set User Profile in cookies
     	 service.setUserProfile = function(userId,name,emailId,profileId,profilePic,encPassword){
     		 var deferred = $q.defer();

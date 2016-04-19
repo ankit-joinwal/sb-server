@@ -11,6 +11,7 @@ import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.UserFavouriteEvents;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.data.model.response.EODashboardResponse.AttendeesInMonth;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 
 public interface EventDAO {
@@ -66,4 +67,14 @@ public interface EventDAO {
 	public List<Event> getUserUpcomingRegisteredEvents(User user);
 	
 	public List<Event> getUserUpcomingFavouriteEvents(User user);
+	
+	public List<String> getEventCountPastSixMonth(Long profileId);
+	
+	public Integer getAttendeesCountForEvents(List<String> eventIds);
+	
+	public Integer getInterestedUsersCountForEvents(List<String> eventIds);
+	
+	public Integer getMeetupsAtEvents(List<String> eventIds);
+	
+	public List<AttendeesInMonth> getAttendeesByMonth(Long userId);
 }

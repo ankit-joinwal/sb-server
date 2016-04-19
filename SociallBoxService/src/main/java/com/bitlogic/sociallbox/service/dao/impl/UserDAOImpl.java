@@ -331,12 +331,11 @@ public class UserDAOImpl extends AbstractDAO implements UserDAO {
 	}
 	
 	@Override
-	public List<UserMessage> getUnreadMessages(Long userId) {
-		String sql  = "SELECT * FROM USER_MESSAGES WHERE USER_ID = :userId AND IS_READ = :isRead ORDER BY CREATE_DT DESC";
+	public List<UserMessage> getMessages(Long userId) {
+		String sql  = "SELECT * FROM USER_MESSAGES WHERE USER_ID = :userId ORDER BY CREATE_DT DESC LIMIT 20";
 		SQLQuery query = getSession().createSQLQuery(sql);
 		query.addEntity(UserMessage.class);
 		query.setParameter("userId", userId);
-		query.setParameter("isRead", Boolean.FALSE);
 		
 		List results = query.list();
 		List<UserMessage> messages = new ArrayList<UserMessage>(results.size());

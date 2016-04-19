@@ -1,6 +1,9 @@
 package com.bitlogic.sociallbox.service.business.impl;
 
 import java.io.ByteArrayInputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +26,6 @@ import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.EOAdminStatus;
 import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
-import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.SocialSystem;
@@ -35,17 +37,19 @@ import com.bitlogic.sociallbox.data.model.requests.AddCompanyToProfileRequest;
 import com.bitlogic.sociallbox.data.model.requests.CreateEventOrganizerRequest;
 import com.bitlogic.sociallbox.data.model.requests.UpdateEOAdminProfileRequest;
 import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
+import com.bitlogic.sociallbox.data.model.response.EODashboardResponse;
+import com.bitlogic.sociallbox.data.model.response.EODashboardResponse.AttendeesInMonth;
 import com.bitlogic.sociallbox.data.model.response.EventOrganizerProfile;
 import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.business.EOAdminService;
 import com.bitlogic.sociallbox.service.business.EventOrganizerService;
+import com.bitlogic.sociallbox.service.dao.EventDAO;
 import com.bitlogic.sociallbox.service.dao.UserDAO;
 import com.bitlogic.sociallbox.service.exception.ClientException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 import com.bitlogic.sociallbox.service.transformers.EOToEOResponseTransformer;
-import com.bitlogic.sociallbox.service.transformers.Transformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
@@ -65,6 +69,9 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 	
 	@Autowired
 	private MessageSource msgSource;
+	
+	@Autowired
+	private EventDAO eventDAO;
 	
 	@Override
 	public Logger getLogger() {
@@ -406,5 +413,61 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 			
 		}
 		logInfo(LOG_PREFIX, "Validation completed successfully");
+	}
+	
+	@Override
+	public EODashboardResponse getDashboardData(Long userId) {
+		String LOG_PREFIX = "EOAdminServiceImpl-getDashboardData";
+		EODashboardResponse dashboardResponse = new EODashboardResponse();
+		EventOrganizerAdmin eventOrganizerAdmin = this.eventOrganizerService.getEOAdminByUserId(userId);
+		if(eventOrganizerAdmin!=null && eventOrganizerAdmin.getOrganizer()!=null){
+			//Find total events
+			List<String> events = this.eventDAO.getEventCountPastSixMonth(eventOrganizerAdmin.getId());
+			//Find total attendees
+			Integer attendees = 0;
+			Integer interestedUsers = 0;
+			Integer meetups = 0;
+			if(events!=null && !events.isEmpty()){
+				attendees = this.eventDAO.getAttendeesCountForEvents(events);
+				interestedUsers = this.eventDAO.getInterestedUsersCountForEvents(events);
+				meetups = this.eventDAO.getMeetupsAtEvents(events);
+				dashboardResponse.setEvents(events.size());
+				dashboardResponse.setInterestedUsers(interestedUsers);
+				dashboardResponse.setRegisteredUsers(attendees);
+				dashboardResponse.setMeetups(meetups);
+			}
+			
+		}
+		
+		/*List<UserMessage> messages = this.userDAO.getUnreadMessages(userId);
+		dashboardResponse.setMessages(messages);*/
+		
+		return dashboardResponse;
+	}
+	
+	@Override
+	public EODashboardResponse getAttendeesByMonth(Long userId) {
+		EODashboardResponse dashboardResponse = new EODashboardResponse();
+		EventOrganizerAdmin eventOrganizerAdmin = this.eventOrganizerService.getEOAdminByUserId(userId);
+		if(eventOrganizerAdmin!=null && eventOrganizerAdmin.getOrganizer()!=null){
+			List<AttendeesInMonth> attendeesInMonths = this.eventDAO.getAttendeesByMonth(eventOrganizerAdmin.getId());
+			dashboardResponse.setAttendeesInMonths(attendeesInMonths);
+		}else{
+			List<AttendeesInMonth> attendeesInMonths = new ArrayList<>();
+			 for(int i = 5;i>=1;i--){
+			        Calendar cal1 =  Calendar.getInstance();
+			        cal1.add(Calendar.MONTH ,-i);
+			        //format it to MMM-yyyy // January-2012
+			        String previousMonthYear  = new SimpleDateFormat("MMM").format(cal1.getTime());
+			        AttendeesInMonth attendeesInMonth = new AttendeesInMonth();
+			        attendeesInMonth.setAttendees(0);
+			        attendeesInMonth.setMonth(previousMonthYear);
+			        attendeesInMonths.add(attendeesInMonth);
+			        
+		        }
+			 
+			 dashboardResponse.setAttendeesInMonths(attendeesInMonths);
+		}
+		return dashboardResponse;
 	}
 }

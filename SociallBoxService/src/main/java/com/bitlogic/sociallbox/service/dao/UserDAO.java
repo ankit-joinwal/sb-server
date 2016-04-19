@@ -56,7 +56,7 @@ public interface UserDAO {
 	
 	public void addMessageForUser(UserMessage userMessage);
 	
-	public List<UserMessage> getUnreadMessages(Long userId);
+	public List<UserMessage> getMessages(Long userId);
 	
 	public UserMessage getMessage(Long userId,Long messageId);
 	

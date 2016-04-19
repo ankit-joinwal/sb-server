@@ -549,8 +549,33 @@ public class UserServiceImpl extends LoggingService implements UserService, Cons
 	@Override
 	public List<UserMessage> getMessagesForUser(Long userId) {
 		String LOG_PREFIX = "UserServiceImpl-getMessagesForUser";
-		List<UserMessage> messages = this.userDAO.getUnreadMessages(userId);
-		
+		List<UserMessage> messages = this.userDAO.getMessages(userId);
+		Date now = new Date();
+		if(messages!=null){
+			for(UserMessage userMessage : messages){
+				Date messageTime = userMessage.getCreateDt();
+				long diff = now.getTime() - messageTime.getTime();// in milliseconds
+
+				int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+
+				if (diffDays > 0) {
+					userMessage.setTime(diffDays + " Day(s) ago");
+					continue;
+				}
+
+				int diffHours = (int) (diff / (60 * 60 * 1000) % 24);
+				if (diffHours > 0) {
+					userMessage.setTime(diffHours + " Hour(s) ago");
+					continue;
+				}
+
+				int diffMinutes = (int) (diff / (60 * 1000) % 60);
+				if (diffMinutes > 0) {
+					userMessage.setTime(diffMinutes + " Min(s) ago");
+					continue;
+				}
+			}
+		}
 		return messages;
 	}
 	

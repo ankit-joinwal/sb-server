@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -32,13 +33,25 @@ public class UserMessage {
 	@Column(name="MESSAGE",nullable=false)
 	private String message;
 	
-	@JsonProperty("message_dt")
+	@JsonIgnore
 	@Column(name="CREATE_DT",nullable=false)
 	private Date createDt;
+	
+	@Transient
+	@JsonProperty("time")
+	private String time;
 	
 	@JsonProperty("is_read")
 	@Column(name="IS_READ",length=5)
 	private Boolean isRead;
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
 
 	public Long getId() {
 		return id;

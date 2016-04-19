@@ -494,8 +494,7 @@ public class MeetupServiceImpl extends LoggingService implements MeetupService,C
 			 Date now = new Date();
 			for (MeetupMessage meetupMessage : messages) {
 				Date messageTime = meetupMessage.getCreateDt();
-				long diff = now.getTime() - messageTime.getTime();// in
-																	// millisecons
+				long diff = now.getTime() - messageTime.getTime();// in milliseconds
 
 				int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
 
