@@ -77,66 +77,8 @@ public class EventOrganizerServiceImpl extends LoggingService implements EventOr
 		
 	}
 	
-	@Override
-	public EventOrganizerAdmin createEOAdmin(
-			EventOrganizerAdmin eventOrganizerAdmin) {
-		String LOG_PREFIX = "EventOrganizerServiceImpl-createEOAdmin";
-		EventOrganizerAdmin created = this.eventOrganizerDAO.createEOAdmin(eventOrganizerAdmin);
-		logInfo(LOG_PREFIX, "Created EO Admin {}", created);
-		
-		return created;
-	}
 	
-	@Override
-	public EventOrganizerAdmin getEOAdminById(Long eoAdminId) {
-		String LOG_PREFIX = "EventOrganizerServiceImpl-getEOAdminById";
-		EventOrganizerAdmin organizerAdmin = this.eventOrganizerDAO.getEOAdminProfileById(eoAdminId);
-		if(organizerAdmin==null){
-			logError(LOG_PREFIX, "No EO Admin found for Id {}", eoAdminId);
-			
-			throw new EntityNotFoundException(eoAdminId, RestErrorCodes.ERR_020, ERROR_INVALID_EOADMIN_ID);
-		}
-		return organizerAdmin;
-	}
 	
-	@Override
-	public EventOrganizerAdmin getEOAdminByUserId(Long userId) {
-		String LOG_PREFIX = "EventOrganizerServiceImpl-getEOAdminByUserId";
-		EventOrganizerAdmin organizerAdmin = this.eventOrganizerDAO.getEOAdminProfileByUserId(userId);
-		logInfo(LOG_PREFIX, "OrganizerAdmin Entity for User Id : {} = {}", userId,organizerAdmin);
-		return organizerAdmin;
-	}
 	
-	@Override
-	public List<EOAdminProfile> getPendingProfiles() {
-		String LOG_PREFIX = "EventOrganizerServiceImpl-getPendingProfiles";
-		List<EventOrganizerAdmin> pendingEOs = this.eventOrganizerDAO.getPendingEOAdminProfiles();
-		List<EOAdminProfile> pendingProfiles = new ArrayList<EOAdminProfile>();
-		logInfo(LOG_PREFIX, "Preparing Pending Profiles ");
-		for(EventOrganizerAdmin admin : pendingEOs){
-			User user = admin.getUser();
-			EventOrganizer organizer = admin.getOrganizer();
-			Transformer<EventOrganizerProfile, EventOrganizer> eoProfileTransformer = 
-					(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
-			EventOrganizerProfile eventOrganizerProfile = eoProfileTransformer.transform(organizer);
-			EOAdminProfile adminProfile = new EOAdminProfile(eventOrganizerProfile, admin, user);
-			pendingProfiles.add(adminProfile);
-		}
-		return pendingProfiles;
-	}
-	
-	@Override
-	public void approveOrRejectProfiles(List<Long> profileIds,EOAdminStatus status) {
-		String LOG_PREFIX = "EventOrganizerServiceImpl-approveOrRejectProfiles";
-		List<EventOrganizerAdmin> eoAdmins = this.eventOrganizerDAO.getEOAdminProfilesByIds(profileIds);
-		Date now = new Date();
-		if(eoAdmins!=null){
-			for(EventOrganizerAdmin organizerAdmin: eoAdmins){
-				organizerAdmin.setStatus(status);
-				organizerAdmin.setUpdateDt(now);
-			}
-		}
-		logInfo(LOG_PREFIX, "Updated profiles successfully");
-	}
 	
 }

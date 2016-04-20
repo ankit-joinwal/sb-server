@@ -11,7 +11,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import javax.transaction.Transactional;
+
+
+
+
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -20,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bitlogic.Constants;
@@ -44,8 +49,10 @@ import com.bitlogic.sociallbox.image.service.ImageService;
 import com.bitlogic.sociallbox.service.business.EOAdminService;
 import com.bitlogic.sociallbox.service.business.EventOrganizerService;
 import com.bitlogic.sociallbox.service.dao.EventDAO;
+import com.bitlogic.sociallbox.service.dao.EventOrganizerDAO;
 import com.bitlogic.sociallbox.service.dao.UserDAO;
 import com.bitlogic.sociallbox.service.exception.ClientException;
+import com.bitlogic.sociallbox.service.exception.EntityNotFoundException;
 import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
@@ -72,6 +79,9 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 	
 	@Autowired
 	private EventDAO eventDAO;
+	
+	@Autowired
+	private EventOrganizerDAO eventOrganizerDAO;
 	
 	@Override
 	public Logger getLogger() {
@@ -131,7 +141,7 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 		EOAdminProfile adminProfile = null;
 		if(userInDB!=null){
 			logInfo(LOG_PREFIX, "User Found");
-			EventOrganizerAdmin eventOrganizerAdmin = this.eventOrganizerService.getEOAdminByUserId(userInDB.getId());
+			EventOrganizerAdmin eventOrganizerAdmin = this.getEOAdminByUserId(userInDB.getId());
 			if(eventOrganizerAdmin==null){
 				adminProfile = new EOAdminProfile(null, null, userInDB);
 			}else{
@@ -155,7 +165,7 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 	@Override
 	public EOAdminProfile getProfile(Long id) {
 		String LOG_PREFIX = "EOAdminServiceImpl-getProfile";
-		EventOrganizerAdmin eventOrganizerAdmin = this.eventOrganizerService.getEOAdminById(id);
+		EventOrganizerAdmin eventOrganizerAdmin = this.getEOAdminById(id);
 		
 		EOToEOResponseTransformer eoProfileTransformer = 
 				(EOToEOResponseTransformer) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
@@ -175,7 +185,7 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 		EOAdminProfile adminProfile = null;
 		if(userInDB!=null){
 			logInfo(LOG_PREFIX, "User Found");
-			EventOrganizerAdmin eventOrganizerAdmin = this.eventOrganizerService.getEOAdminByUserId(userInDB.getId());
+			EventOrganizerAdmin eventOrganizerAdmin = this.getEOAdminByUserId(userInDB.getId());
 			User adminUser = userInDB;
 			if(updateProfileRequest.getNewPassword()!=null){
 				logInfo(LOG_PREFIX, "Password updated for User with id {}", updateProfileRequest.getUserId());
@@ -341,7 +351,10 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 			logError(LOG_PREFIX, "EOAdmin user not found");
 			throw new ClientException(RestErrorCodes.ERR_002,ERROR_USER_INVALID);
 		}
-		
+		EventOrganizerAdmin eventOrganizerAdmin = this.getEOAdminByUserId(userId);
+		if(eventOrganizerAdmin!=null && eventOrganizerAdmin.getOrganizer()!=null){
+			throw new ClientException(RestErrorCodes.ERR_003, EO_COMPANY_ALREADY_LINKED);
+		}
 		EventOrganizer organizer = this.eventOrganizerService.create(addCompanyRequest.getCreateEventOrganizerRequest());
 		logInfo(LOG_PREFIX, "Created Company {} ",organizer.getName());
 		EventOrganizerAdmin eoAdmin = new EventOrganizerAdmin();
@@ -349,7 +362,7 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 		eoAdmin.setOrganizer(organizer);
 		eoAdmin.setStatus(EOAdminStatus.PENDING);
 		eoAdmin.setCreateDt(new Date());
-		this.eventOrganizerService.createEOAdmin(eoAdmin);
+		this.createEOAdmin(eoAdmin);
 		
 		EOToEOResponseTransformer eoProfileTransformer = (EOToEOResponseTransformer) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
 		EventOrganizerProfile eventOrganizerProfile = eoProfileTransformer.transform(organizer);
@@ -419,7 +432,7 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 	public EODashboardResponse getDashboardData(Long userId) {
 		String LOG_PREFIX = "EOAdminServiceImpl-getDashboardData";
 		EODashboardResponse dashboardResponse = new EODashboardResponse();
-		EventOrganizerAdmin eventOrganizerAdmin = this.eventOrganizerService.getEOAdminByUserId(userId);
+		EventOrganizerAdmin eventOrganizerAdmin = this.getEOAdminByUserId(userId);
 		if(eventOrganizerAdmin!=null && eventOrganizerAdmin.getOrganizer()!=null){
 			//Find total events
 			List<String> events = this.eventDAO.getEventCountPastSixMonth(eventOrganizerAdmin.getId());
@@ -448,26 +461,64 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 	@Override
 	public EODashboardResponse getAttendeesByMonth(Long userId) {
 		EODashboardResponse dashboardResponse = new EODashboardResponse();
-		EventOrganizerAdmin eventOrganizerAdmin = this.eventOrganizerService.getEOAdminByUserId(userId);
+		EventOrganizerAdmin eventOrganizerAdmin = this.getEOAdminByUserId(userId);
 		if(eventOrganizerAdmin!=null && eventOrganizerAdmin.getOrganizer()!=null){
 			List<AttendeesInMonth> attendeesInMonths = this.eventDAO.getAttendeesByMonth(eventOrganizerAdmin.getId());
-			dashboardResponse.setAttendeesInMonths(attendeesInMonths);
+			if(attendeesInMonths!=null && !attendeesInMonths.isEmpty()){
+				dashboardResponse.setAttendeesInMonths(attendeesInMonths);
+			}else{
+				dashboardResponse.setAttendeesInMonths(getDefaultData());
+			}
 		}else{
-			List<AttendeesInMonth> attendeesInMonths = new ArrayList<>();
-			 for(int i = 5;i>=1;i--){
-			        Calendar cal1 =  Calendar.getInstance();
-			        cal1.add(Calendar.MONTH ,-i);
-			        //format it to MMM-yyyy // January-2012
-			        String previousMonthYear  = new SimpleDateFormat("MMM").format(cal1.getTime());
-			        AttendeesInMonth attendeesInMonth = new AttendeesInMonth();
-			        attendeesInMonth.setAttendees(0);
-			        attendeesInMonth.setMonth(previousMonthYear);
-			        attendeesInMonths.add(attendeesInMonth);
-			        
-		        }
-			 
-			 dashboardResponse.setAttendeesInMonths(attendeesInMonths);
+			
+			 dashboardResponse.setAttendeesInMonths(getDefaultData());
 		}
 		return dashboardResponse;
+	}
+	
+	private List<AttendeesInMonth> getDefaultData(){
+		List<AttendeesInMonth> attendeesInMonths = new ArrayList<>();
+		 for(int i = 5;i>=1;i--){
+		        Calendar cal1 =  Calendar.getInstance();
+		        cal1.add(Calendar.MONTH ,-i);
+		        //format it to MMM-yyyy // January-2012
+		        String previousMonthYear  = new SimpleDateFormat("MMM").format(cal1.getTime());
+		        AttendeesInMonth attendeesInMonth = new AttendeesInMonth();
+		        attendeesInMonth.setAttendees(0);
+		        attendeesInMonth.setMonth(previousMonthYear);
+		        attendeesInMonths.add(attendeesInMonth);
+		        
+	        }
+		 return attendeesInMonths;
+	}
+	
+	@Override
+	public EventOrganizerAdmin createEOAdmin(
+			EventOrganizerAdmin eventOrganizerAdmin) {
+		String LOG_PREFIX = "EOAdminServiceImpl-createEOAdmin";
+		EventOrganizerAdmin created = this.eventOrganizerDAO.createEOAdmin(eventOrganizerAdmin);
+		logInfo(LOG_PREFIX, "Created EO Admin {}", created);
+		
+		return created;
+	}
+	
+	@Override
+	public EventOrganizerAdmin getEOAdminById(Long eoAdminId) {
+		String LOG_PREFIX = "EOAdminServiceImpl-getEOAdminById";
+		EventOrganizerAdmin organizerAdmin = this.eventOrganizerDAO.getEOAdminProfileById(eoAdminId);
+		if(organizerAdmin==null){
+			logError(LOG_PREFIX, "No EO Admin found for Id {}", eoAdminId);
+			
+			throw new EntityNotFoundException(eoAdminId, RestErrorCodes.ERR_020, ERROR_INVALID_EOADMIN_ID);
+		}
+		return organizerAdmin;
+	}
+	
+	@Override
+	public EventOrganizerAdmin getEOAdminByUserId(Long userId) {
+		String LOG_PREFIX = "EOAdminServiceImpl-getEOAdminByUserId";
+		EventOrganizerAdmin organizerAdmin = this.eventOrganizerDAO.getEOAdminProfileByUserId(userId);
+		logInfo(LOG_PREFIX, "OrganizerAdmin Entity for User Id : {} = {}", userId,organizerAdmin);
+		return organizerAdmin;
 	}
 }

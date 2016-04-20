@@ -6,6 +6,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bitlogic.Constants;
+import com.bitlogic.sociallbox.data.model.EOAdminStatus;
+import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.requests.AddCompanyToProfileRequest;
 import com.bitlogic.sociallbox.data.model.requests.UpdateEOAdminProfileRequest;
@@ -32,5 +34,11 @@ public interface EOAdminService {
 	public EODashboardResponse getDashboardData(Long userId);
 	
 	public EODashboardResponse getAttendeesByMonth(Long profileId);
+	
+	public EventOrganizerAdmin createEOAdmin(EventOrganizerAdmin eventOrganizerAdmin);
+	
+	public EventOrganizerAdmin getEOAdminById(Long eoAdminId);
+	
+	public EventOrganizerAdmin getEOAdminByUserId(Long userId);
 	
 }

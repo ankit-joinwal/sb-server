@@ -18,16 +18,7 @@ public interface EventOrganizerService {
 	
 	public EventOrganizer getOrganizerDetails(String organizerId);
 	
-	@PreAuthorize("hasRole('"+Constants.ROLE_TYPE_ADMIN+"')")
-	public List<EOAdminProfile> getPendingProfiles();
 	
-	@PreAuthorize("hasRole('"+Constants.ROLE_TYPE_ADMIN+"')")
-	public void approveOrRejectProfiles(List<Long> profileIds,EOAdminStatus status);
 	
-	public EventOrganizerAdmin createEOAdmin(EventOrganizerAdmin eventOrganizerAdmin);
-	
-	public EventOrganizerAdmin getEOAdminById(Long eoAdminId);
-	
-	public EventOrganizerAdmin getEOAdminByUserId(Long userId);
 	
 }

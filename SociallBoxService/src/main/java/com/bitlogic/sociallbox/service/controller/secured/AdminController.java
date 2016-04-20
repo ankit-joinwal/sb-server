@@ -21,6 +21,7 @@ import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
+import com.bitlogic.sociallbox.service.business.AdminService;
 import com.bitlogic.sociallbox.service.business.EventOrganizerService;
 import com.bitlogic.sociallbox.service.business.EventService;
 import com.bitlogic.sociallbox.service.controller.BaseController;
@@ -37,7 +38,7 @@ public class AdminController extends BaseController implements Constants{
 	private static final String APPROVE_PENDING_EVENTS = "ApprovePendingEvents API";
 	
 	@Autowired
-	private EventOrganizerService eventOrganizerService;
+	private AdminService adminService;
 	
 	@Autowired
 	private EventService eventService;
@@ -53,7 +54,7 @@ public class AdminController extends BaseController implements Constants{
 	public EntityCollectionResponse<EOAdminProfile> getPendingProfiles(){
 		
 		logRequestStart(GET_PENDING_PROFILES_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_PENDING_PROFILES_API);
-		List<EOAdminProfile> pendingProfiles = eventOrganizerService.getPendingProfiles();
+		List<EOAdminProfile> pendingProfiles = adminService.getPendingProfiles();
 		logInfo(GET_PENDING_PROFILES_API, "{} Profiles found", pendingProfiles.size());
 		EntityCollectionResponse<EOAdminProfile> collectionResponse = new EntityCollectionResponse<EOAdminProfile>();
 		collectionResponse.setStatus(SUCCESS_STATUS);
@@ -71,7 +72,7 @@ public class AdminController extends BaseController implements Constants{
 	public SingleEntityResponse<String> approvePendingProfiles(@NotNull @RequestBody List<Long> profileIds){
 		logRequestStart(APPROVE_PENDING_PROFILES_API, SECURED_REQUEST_START_LOG_MESSAGE, APPROVE_PENDING_PROFILES_API);
 		logInfo(APPROVE_PENDING_PROFILES_API, "Profiles Recieved {} ", profileIds);
-		this.eventOrganizerService.approveOrRejectProfiles(profileIds,EOAdminStatus.APPROVED);
+		this.adminService.approveOrRejectProfiles(profileIds,EOAdminStatus.APPROVED);
 		SingleEntityResponse<String> entityResponse = new SingleEntityResponse<String>();
 		entityResponse.setStatus(SUCCESS_STATUS);
 		entityResponse.setData("Profiles approved successfully");
@@ -86,7 +87,7 @@ public class AdminController extends BaseController implements Constants{
 	public SingleEntityResponse<String> rejectPendingProfiles(@NotNull @RequestBody List<Long> profileIds){
 		logRequestStart(REJECT_PENDING_PROFILES_API, SECURED_REQUEST_START_LOG_MESSAGE, REJECT_PENDING_PROFILES_API);
 		logInfo(REJECT_PENDING_PROFILES_API, "Profiles Recieved {} ", profileIds);
-		this.eventOrganizerService.approveOrRejectProfiles(profileIds,EOAdminStatus.REJECTED);
+		this.adminService.approveOrRejectProfiles(profileIds,EOAdminStatus.REJECTED);
 		SingleEntityResponse<String> entityResponse = new SingleEntityResponse<String>();
 		entityResponse.setStatus(SUCCESS_STATUS);
 		entityResponse.setData("Profiles rejected successfully");

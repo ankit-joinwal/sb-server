@@ -36,4 +36,15 @@ public class ViewController extends BaseController{
 		
          return new ModelAndView("dashboard");
      }
+	 @RequestMapping(value="/eo/company",method = RequestMethod.GET)
+     public ModelAndView getCompanyPage() {
+		
+         return new ModelAndView("company");
+     }
+	 
+	 @RequestMapping(value="/eo/company/new",method = RequestMethod.GET)
+     public ModelAndView getNewCompanyPage() {
+		
+         return new ModelAndView("newCompany");
+     }
 }

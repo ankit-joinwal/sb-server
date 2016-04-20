@@ -193,4 +193,5 @@ public interface Constants {
 	String ERROR_INVALID_TIMELINE = "error.invalid.timeline";
 	String ERROR_INVALID_COMPANY_ID = "error.invalid.company.id";
 	String ERROR_INVALID_COMPANY_PIC_TYPE = "error.invalid.company.pic.type";
+	String EO_COMPANY_ALREADY_LINKED = "eo.company.already.linked";
 }
