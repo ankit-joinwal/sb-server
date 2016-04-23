@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html ng-app="sociallbox">
+<html ng-app="login">
 
 <head>
     <title>SociallBox | Login</title>
+    <link rel="icon" type="image/png" href="/SociallBox/resources/img/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Fonts -->
     <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:300,400' rel='stylesheet' type='text/css'>
@@ -20,6 +21,7 @@
     <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/style.css">
     <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/login.css">
     <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/themes/flat-blue.css">
+    
 </head>
 
 <body class="flat-blue login-page">
@@ -39,7 +41,13 @@
 						<hr>
 					</div>
 					<div class="panel-body">
-						<div class="row">
+						<div class="row" id="login-div">
+							<div class="loader-container text-center color-white">
+								<div>
+									<i class="fa fa-spinner fa-pulse fa-3x"></i>
+								</div>
+								<div>Please wait</div>
+							</div>
 							<div class="col-lg-12">
 								<form id="login-form" method="post" role="form" style="display: block;">
 									<div class="form-group">
@@ -114,7 +122,8 @@
     <script type="text/javascript" src="/SociallBox/resources/js/lib/ace/theme-github.js"></script>
     
     
-    <script type="text/javascript" src="/SociallBox/resources/js/app.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/loginapp.js"></script>
+    <script type="text/javascript" src="/SociallBox/resources/js/homeapp.js"></script>
     <script type="text/javascript" src="/SociallBox/resources/js/modules/index/controllers.js"></script>
     <script type="text/javascript" src="/SociallBox/resources/js/modules/auth/controllers.js"></script>
     <script type="text/javascript" src="/SociallBox/resources/js/modules/auth/services.js"></script>

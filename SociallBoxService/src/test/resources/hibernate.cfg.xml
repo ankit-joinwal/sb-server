@@ -49,5 +49,6 @@
 		<mapping class="com.bitlogic.sociallbox.data.model.EventOrganizer"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.UserAndPlaceMapping"></mapping>
 		<mapping class="com.bitlogic.sociallbox.data.model.EventOrganizerAdmin"></mapping>
+		<mapping class="com.bitlogic.sociallbox.data.model.EventAttendee"></mapping>
     </session-factory>
 </hibernate-configuration>

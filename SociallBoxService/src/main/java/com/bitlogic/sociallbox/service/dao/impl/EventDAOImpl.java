@@ -283,7 +283,7 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 				.setFetchMode("event.eventImages", FetchMode.JOIN)
 				.createAlias("event.eventImages", "image")
 				.add(Restrictions.eq("image.displayOrder", 1))
-				.add(Restrictions.eq("event.eventStatus", EventStatus.CREATED))
+				.add(Restrictions.eq("event.eventStatus", EventStatus.PENDING_APPROVAL))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<Event> events = criteria.list();
 		List<EventResponse> eventsResponse = new ArrayList<EventResponse>();
@@ -312,7 +312,7 @@ public class EventDAOImpl extends AbstractDAO implements EventDAO {
 	public List<Event> getEventsByIds(List<String> eventIds) {
 		Criteria criteria = getSession().createCriteria(Event.class)
 				.add(Restrictions.in("uuid", eventIds))
-				.add(Restrictions.eq("eventStatus", EventStatus.CREATED));
+				.add(Restrictions.eq("eventStatus", EventStatus.PENDING_APPROVAL));
 
 		return criteria.list();
 	}

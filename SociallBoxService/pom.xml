@@ -57,6 +57,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${springframework.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-logging</artifactId>
+					<groupId>commons-logging</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
 			<version>${springframework.version}</version>
 			<exclusions>
@@ -160,7 +171,11 @@
 			<scope>provided</scope>
 		</dependency>
 
-
+		<dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
 
 		<!-- MySQL -->
 		<dependency>
@@ -229,7 +244,12 @@
 		</dependency>
 
 		<!-- Sprint REST Test Dependecies End -->
-
+		<dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+        </dependency>
+ 
 		<dependency>
 			<groupId>com.bitlogic</groupId>
 			<artifactId>Constants</artifactId>

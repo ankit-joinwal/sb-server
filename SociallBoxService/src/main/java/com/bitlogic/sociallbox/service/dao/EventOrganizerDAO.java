@@ -1,9 +1,12 @@
 package com.bitlogic.sociallbox.service.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
+import com.bitlogic.sociallbox.data.model.EventStatus;
+import com.bitlogic.sociallbox.data.model.response.EventResponse;
 
 
 public interface EventOrganizerDAO {
@@ -23,4 +26,6 @@ public interface EventOrganizerDAO {
 	public EventOrganizerAdmin getEOAdminProfileById(Long profileId);
 	
 	public EventOrganizerAdmin getEOAdminProfileByUserId(Long userId);
+	
+	public Map<String, ?> getEventsForOrganizer(String timeline,EventStatus eventStatus,Integer page,Long adminProfileId);
 }

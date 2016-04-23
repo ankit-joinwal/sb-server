@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.bitlogic.Constants;
+import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.UserMessage;
 import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.requests.AddCompanyToProfileRequest;
@@ -31,6 +32,7 @@ import com.bitlogic.sociallbox.data.model.requests.UpdateEOAdminProfileRequest;
 import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
 import com.bitlogic.sociallbox.data.model.response.EODashboardResponse;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
+import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EOAdminService;
 import com.bitlogic.sociallbox.service.business.UserService;
@@ -51,6 +53,7 @@ public class EOAdminSecuredController extends BaseController implements Constant
 	private static final String UPDATE_EO_ADMIN_PROFILE_PIC_API = "UpdateEOAdminProfilePic API";
 	private static final String GET_USER_MESSAGES_API = "GetUserMessages API";
 	private static final String MARK_USER_MESSAGE_AS_READ_API = "MarkMessageAsRead API";
+	private static final String GET_ORGANIZER_EVENTS_API = "GetEventsForOrganizer API";
 	
 	@Autowired
 	private EOAdminService eventOrganizerAdminService;
@@ -552,6 +555,45 @@ public class EOAdminSecuredController extends BaseController implements Constant
 		entityResponse.setData(dashboardResponse);
 		
 		return entityResponse;
+	}
+	
+	@RequestMapping(value="/{userId}/events",method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	@ResponseStatus(HttpStatus.OK)
+	public EntityCollectionResponse<EventResponse> getUserEvents(@PathVariable Long userId ,
+									@RequestParam(value="timeline",required=true)String timeline,
+									@RequestParam(value="status",required=false) String status,
+									@RequestParam(value="page",required=false) Integer page){
+		logRequestStart(GET_ORGANIZER_EVENTS_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_ORGANIZER_EVENTS_API);
+		if(page==null){
+			page = new Integer(1);
+		}
+		
+		if(timeline.equalsIgnoreCase(TIMELINE_UPCOMING)){
+			timeline = TIMELINE_UPCOMING;
+		}else if(timeline.equalsIgnoreCase(TIMELINE_PAST)){
+			timeline = TIMELINE_PAST;
+		}else{
+			throw new ClientException(RestErrorCodes.ERR_001, ERROR_INVALID_TIMELINE);
+		}
+		
+		EventStatus eventStatus = null;
+		if(status!=null){
+			eventStatus = EventStatus.getStatusFromValue(status);
+			if(eventStatus==null){
+				throw new ClientException(RestErrorCodes.ERR_001, ERROR_INVALID_EVENT_STATUS);
+			}
+		}
+		Map<String,?> resultsMap = this.eventOrganizerAdminService.getMyEvents(userId, timeline, eventStatus, page);
+		
+		
+		EntityCollectionResponse<EventResponse> collectionResponse = new EntityCollectionResponse<>();
+		collectionResponse.setData((List<EventResponse>)resultsMap.get("EVENTS"));
+		collectionResponse.setStatus("Success");
+		collectionResponse.setPage(page);
+		collectionResponse.setTotalRecords((Integer)resultsMap.get("TOTAL_RECORDS"));
+		logRequestEnd(GET_ORGANIZER_EVENTS_API, GET_ORGANIZER_ADMIN_INFO_API);
+		return collectionResponse;
 	}
 	
 }

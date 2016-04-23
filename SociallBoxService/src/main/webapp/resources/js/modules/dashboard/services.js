@@ -125,4 +125,4 @@ app.factory('DashboardService',
 	    	};
 	    	return service;
 	    }
-	])
+	]);

@@ -25,7 +25,7 @@ public class PasswordUtils {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(encryptPass("p@ssword"));
+		System.out.println(encryptPass("test"));
 	}
 	
 }

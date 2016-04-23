@@ -172,7 +172,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 
 		event.setTitle(createEventRequest.getTitle());
 		event.setDescription(createEventRequest.getDescription());
-		event.setEventStatus(EventStatus.CREATED);
+		event.setEventStatus(EventStatus.PENDING_APPROVAL);
 		event.setIsAllowedEventToGoLive(Boolean.FALSE);
 		event.setIsFreeEvent(createEventRequest.getIsFree());
 
@@ -481,7 +481,7 @@ public class EventServiceImpl extends LoggingService implements EventService,
 			for (Event event : events) {
 				eventNames.add(event.getTitle());
 				event.setIsAllowedEventToGoLive(Boolean.TRUE);
-				event.setEventStatus(EventStatus.READY_TO_GO_LIVE);
+				event.setEventStatus(EventStatus.APPROVED);
 			}
 		}
 		logInfo(LOG_PREFIX, "Following events approved : {}", eventNames);

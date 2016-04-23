@@ -31,11 +31,22 @@ public class ViewController extends BaseController{
          return new ModelAndView("login");
      }
 	 
+	 @RequestMapping(value="/eo/home",method = RequestMethod.GET)
+     public ModelAndView getHomePage() {
+         return new ModelAndView("home");
+     }
+	 
 	 @RequestMapping(value="/eo/dashboard",method = RequestMethod.GET)
      public ModelAndView getDashboardPage() {
-		
          return new ModelAndView("dashboard");
      }
+	 
+	 @RequestMapping(value="/eo/profile",method = RequestMethod.GET)
+     public ModelAndView getProfilePage() {
+		
+         return new ModelAndView("profile");
+     }
+	 
 	 @RequestMapping(value="/eo/company",method = RequestMethod.GET)
      public ModelAndView getCompanyPage() {
 		

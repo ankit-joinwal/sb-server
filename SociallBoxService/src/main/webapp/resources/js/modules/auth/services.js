@@ -29,7 +29,7 @@ var app = angular.module('Authentication')
 	                	//Store User Profile in cookies and return
 	                	var encPassword = MD5.genMD5(password);
 	                 	service.setUserProfile(response.data.data.id,response.data.data.name,response.data.data.email_id,
-	                 							response.data.data.profile_id,response.data.data.profile_pic,encPassword)
+	                 							response.data.data.profile_id,response.data.data.profile_pic,response.data.data.status,encPassword,null)
 	                 	.then(function(userProfileResponse){
 							if(userProfileResponse.status == 200){
 								console.log('AuthenticationService.registerUser : Succesfully stored user profile in cookies');
@@ -46,6 +46,13 @@ var app = angular.module('Authentication')
 	 					 return deferred.promise;
 	                 }
 	             });
+    	 };
+    	 
+    	 service.encryptPass = function(password){
+    		 var deferred = $q.defer();
+    		 var  encPassword = MD5.genMD5(password);
+    		 deferred.resolve(encPassword);
+			 return deferred.promise;
     	 };
     	 
     	 //Service Function to Signin User
@@ -81,7 +88,7 @@ var app = angular.module('Authentication')
 		                 if (response.status == 200) {
 		                	//Store profile in cookies and return
 		                	 service.setUserProfile(response.data.data.id,response.data.data.name,response.data.data.email_id,
-          							response.data.data.profile_id,response.data.data.profile_pic,encPassword)
+          							response.data.data.profile_id,response.data.data.profile_pic,response.data.data.status,encPassword,response.data.data.company_profile)
 				          	 .then(function(userProfileResponse){
 									if(userProfileResponse.status == 200){
 										console.log('AuthenticationService.registerUser : Succesfully stored user profile in cookies');
@@ -170,22 +177,40 @@ var app = angular.module('Authentication')
  		 };
  		 
     	 //Service Function to Set User Profile in cookies
-    	 service.setUserProfile = function(userId,name,emailId,profileId,profilePic,encPassword){
+    	 service.setUserProfile = function(userId,name,emailId,profileId,profilePic,status,encPassword,companyProfile){
     		 var deferred = $q.defer();
     		 //Clear current profile from cookies
     		 $rootScope.userProfile = {};
  			 $cookieStore.remove('userProfile');
- 			 console.log('user id :'+userId);
- 			 console.log('profile pic : '+profilePic);
- 			 //Create profile
- 			$rootScope.userProfile = {
- 					userId: userId,
-					name: name,
-					emailId: emailId,
-					profileId: profileId,
-					profilePic : profilePic,
-					password : encPassword
-			};
+ 			 
+ 			 if(companyProfile ==null){
+	 			 //Create profile
+ 				console.log("Company Profile : "+companyProfile);
+	 			$rootScope.userProfile = {
+	 					userId: userId,
+						name: name,
+						emailId: emailId,
+						profileId: profileId,
+						profilePic : profilePic,
+						status : status,
+						password : encPassword
+						
+				};
+ 			 }else{
+ 				console.log("Company Profile : "+JSON.stringify(companyProfile));
+ 				 //Create profile
+ 	 			$rootScope.userProfile = {
+ 	 					userId: userId,
+ 						name: name,
+ 						emailId: emailId,
+ 						profileId: profileId,
+ 						profilePic : profilePic,
+ 						status : status,
+ 						password : encPassword,
+ 						companyProfile : companyProfile
+ 						
+ 				};
+ 			 }
  			
  			//Store in cookies
  			$cookieStore.put('userProfile', $rootScope.userProfile);
@@ -213,6 +238,72 @@ var app = angular.module('Authentication')
  			$cookieStore.remove('userProfile');
  		};
  		
+ 		service.editUserProfile = function(userId,userName,newPassword,profilePic){
+ 			var deferred = $q.defer();
+ 			var editProfileUrl = "/SociallBox/api/secured/users/organizers/admins/"+userId+"/profile";
+ 			return service.getAuthToken()
+    		.then(function(tokenResponse){
+    			//Extract epoch time and token from response
+    			var epoch = tokenResponse.epoch;
+    			var token = tokenResponse.token;
+    			if(newPassword == null){
+    				newPassword = null;
+    			}
+    			if(userName==null){
+    				userName  = null;
+    			}
+    			var postData = '{ 	"name" : "' +userName+ '",'+
+									'"new_password" : "' + newPassword+'" '+
+								'}';
+    			//Make API call to edit profile
+    			return $http({
+ 	 				method:'POST',
+ 	 				url: editProfileUrl,
+ 	 	            data: postData,
+ 	 	            headers: {
+ 	 	                    "Content-Type"		: 	"application/json",
+ 	 						"accept"			:	"application/json",
+ 	 	                    "X-Login-Ajax-call"	: 	'true',
+ 	 	                    "Authorization"		:	token , 
+	 	                    "X-Auth-Date" 		: 	epoch
+ 	 	            }
+ 	    		 }).then(function(response) {
+	 	                 if (response.status == 200) {
+	 	                	 if(profilePic!=null){
+	 	                	 	var uploadUrl = "/SociallBox/api/secured/users/organizers/admins/"+userId+"/profile/picture";
+	 	                	 	 var fd = new FormData();
+				    		        fd.append('files', profilePic);
+				    		        return $http.post(uploadUrl, fd, {
+				    		            transformRequest: angular.identity,
+				    		            headers: {'Content-Type': undefined, "X-Login-Ajax-call"	: 	'true',"accept"			:	"application/json",
+				 	 	                    "Authorization"		:	token , 
+					 	                    "X-Auth-Date" 		: 	epoch}
+				    		        })
+				    		        .then(function(uploadResponse) {
+				    		        	if (uploadResponse.status == 201) {
+					 	                	
+					 	                 	deferred.resolve(response);
+					 	 					return deferred.promise;
+				    		        	}else{
+					 	                	 
+					 	 					 deferred.reject(response);
+					 	 					 return deferred.promise;
+				    		        	}
+				    		        });
+	 	                	 }
+	 	                 	deferred.resolve(response);
+	 	 					return deferred.promise;
+	 	                 }else{
+	 	                	 
+	 	 					 deferred.reject(response);
+	 	 					 return deferred.promise;
+	 	                 }
+	 	             });
+    		}).catch(function(tokenResponse){
+    			//If unable to get auth token, then redirect to login page
+    			console.log('Inside AuthService.editUserProfile to gen token.Response :'+tokenResponse.status);
+    		});
+ 		};
  		
  		//Return Service Object
     	return service;

@@ -78,6 +78,8 @@ public interface Constants {
 	String DEFAULT_USER_PICTURE = "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xla1/v/t1.0-1/c15.0.50.50/p50x50/1379841_10150004552801901_469209496895221757_n.jpg?oh=1ecfea0dda4f046e7d518ce2243c1a61&oe=57789C33&__gda__=1471731386_863525fcdf1cee40b0e9562b633a5197";
 	//Default Radius for Nearby Search
 	String DEFAULT_RADIUS = "5000";
+	String TIMELINE_UPCOMING = "upcoming";
+	String TIMELINE_PAST = "past";
 	
 	//Date Formats 
 	String MEETUP_DATE_FORMAT = "dd/MM/yyyy hh:mm aa";
@@ -194,4 +196,5 @@ public interface Constants {
 	String ERROR_INVALID_COMPANY_ID = "error.invalid.company.id";
 	String ERROR_INVALID_COMPANY_PIC_TYPE = "error.invalid.company.pic.type";
 	String EO_COMPANY_ALREADY_LINKED = "eo.company.already.linked";
+	String ERROR_INVALID_EVENT_STATUS = "error.invalid.event.status";
 }

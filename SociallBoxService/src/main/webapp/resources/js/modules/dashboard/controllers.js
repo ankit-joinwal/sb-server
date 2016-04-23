@@ -8,25 +8,57 @@ app.controller('DashboardController',
 	
 	console.log("Inside DashboardController");
 	
+	$scope.editProfile = function(){
+		$window.location.href = "/SociallBox/eo/home#/profile";
+	};
 	
-	
-	AuthenticationService.isUserLoggedIn()
-	.then(function(response){
-		console.log('Inside DashboardController.isUserLoggedIn Response :'+response.status);
-		AuthenticationService.getUserProfile()
-		.then(function(profileResponse){
-			var profile = profileResponse.data;
-			$scope.userName = profile.name;
-			$scope.emailId = profile.emailId;
-			$scope.profilePic = profile.profilePic;
-			$scope.userId = profile.userId;
+	$scope.initCompanyPage = function(){
+		AuthenticationService.isUserLoggedIn()
+		.then(function(response){
+			console.log('Inside DashboardController.isUserLoggedIn Response :'+response.status);
+			AuthenticationService.getUserProfile()
+			.then(function(profileResponse){
+				var profile = profileResponse.data;
+				$scope.userName = profile.name;
+				$scope.emailId = profile.emailId;
+				$scope.profilePic = profile.profilePic;
+				$scope.userId = profile.userId;
+				
+				if(profile.status == 'COMPANY_NOT_LINKED'){
+					$window.location.href = "/SociallBox/eo/home#/company/new";
+				}else{
+					$window.location.href = "/SociallBox/eo/home#/company";
+				}
+			});
+			
+		})
+		.catch(function(response){
+			console.log('Inside DashboardController.isUserLoggedIn Response :'+response.status);
+			$window.location.href = "/SociallBox/eo/login";
 		});
-		
-	})
-	.catch(function(response){
-		console.log('Inside DashboardController.isUserLoggedIn Response :'+response.status);
-		$window.location.href = "/SociallBox/eo/login";
-	});
+	};
+	
+	$scope.getProfileData = function(){
+		AuthenticationService.isUserLoggedIn()
+		.then(function(response){
+			console.log('Inside DashboardController.isUserLoggedIn Response :'+response.status);
+			AuthenticationService.getUserProfile()
+			.then(function(profileResponse){
+				var profile = profileResponse.data;
+				$scope.userName = profile.name;
+				$scope.emailId = profile.emailId;
+				$scope.profilePic = profile.profilePic;
+				$scope.userId = profile.userId;
+			});
+			
+		})
+		.catch(function(response){
+			console.log('Inside DashboardController.isUserLoggedIn Response :'+response.status);
+			$window.location.href = "/SociallBox/eo/login";
+		});
+	};
+	
+	
 	
 	$scope.initDashboardCards = function(){
 		var userId ;

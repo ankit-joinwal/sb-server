@@ -5,16 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-
-
-
-
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -23,14 +19,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.EOAdminStatus;
+import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventOrganizer;
 import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
+import com.bitlogic.sociallbox.data.model.EventStatus;
 import com.bitlogic.sociallbox.data.model.Role;
 import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.SocialSystem;
@@ -43,6 +40,7 @@ import com.bitlogic.sociallbox.data.model.requests.CreateEventOrganizerRequest;
 import com.bitlogic.sociallbox.data.model.requests.UpdateEOAdminProfileRequest;
 import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
 import com.bitlogic.sociallbox.data.model.response.EODashboardResponse;
+import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.data.model.response.EODashboardResponse.AttendeesInMonth;
 import com.bitlogic.sociallbox.data.model.response.EventOrganizerProfile;
 import com.bitlogic.sociallbox.image.service.ImageService;
@@ -187,11 +185,13 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 			logInfo(LOG_PREFIX, "User Found");
 			EventOrganizerAdmin eventOrganizerAdmin = this.getEOAdminByUserId(userInDB.getId());
 			User adminUser = userInDB;
-			if(updateProfileRequest.getNewPassword()!=null){
+			if(updateProfileRequest!=null && StringUtils.isNotBlank(updateProfileRequest.getNewPassword())&&
+					!updateProfileRequest.getNewPassword().equalsIgnoreCase("null")){
 				logInfo(LOG_PREFIX, "Password updated for User with id {}", updateProfileRequest.getUserId());
 				adminUser.setPassword(PasswordUtils.encryptPass(updateProfileRequest.getNewPassword()));
 			}
-			if(updateProfileRequest.getName()!=null){
+			if(updateProfileRequest!=null  && StringUtils.isNotBlank(updateProfileRequest.getName())&&
+					!updateProfileRequest.getName().equalsIgnoreCase("null")){
 				if(!adminUser.getName().equals(updateProfileRequest.getName())){
 					logInfo(LOG_PREFIX, "Name updated for user with id {}",adminUser.getId());
 					adminUser.setName(updateProfileRequest.getName());
@@ -520,5 +520,23 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 		EventOrganizerAdmin organizerAdmin = this.eventOrganizerDAO.getEOAdminProfileByUserId(userId);
 		logInfo(LOG_PREFIX, "OrganizerAdmin Entity for User Id : {} = {}", userId,organizerAdmin);
 		return organizerAdmin;
+	}
+	
+	@Override
+	public Map<String, ?> getMyEvents(Long userId, String timeline,
+			EventStatus status, Integer page) {
+		String LOG_PREFIX = "EOAdminServiceImpl-getMyEvents";
+		
+		List<Event> events = new ArrayList<>();
+		Map<String,Object> responseMap = new HashMap<String,Object>();
+		EventOrganizerAdmin organizerAdmin = this.eventOrganizerDAO.getEOAdminProfileByUserId(userId);
+		if(organizerAdmin==null){
+			responseMap.put("EVENTS", events);
+			responseMap.put("TOTAL_RECORDS", events.size());
+			return responseMap;
+		}
+		
+		
+		return this.eventOrganizerDAO.getEventsForOrganizer(timeline, status, page, organizerAdmin.getId());
 	}
 }

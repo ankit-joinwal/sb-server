@@ -1,35 +1,38 @@
 package com.bitlogic.sociallbox.test.util;
 
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.service.ServiceRegistry;
 
+import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Category;
 import com.bitlogic.sociallbox.data.model.Event;
 import com.bitlogic.sociallbox.data.model.EventStatus;
+import com.bitlogic.sociallbox.data.model.Meetup;
+import com.bitlogic.sociallbox.data.model.MeetupMessage;
 import com.bitlogic.sociallbox.data.model.PushNotificationSettingMaster;
 import com.bitlogic.sociallbox.data.model.Role;
+import com.bitlogic.sociallbox.data.model.SocialDetailType;
 import com.bitlogic.sociallbox.data.model.SourceSystemForPlaces;
 import com.bitlogic.sociallbox.data.model.UserRoleType;
+import com.bitlogic.sociallbox.service.transformers.EventTransformer;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
+import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 
 public class DBSetup {
 	private static Session session = null;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Configuration configuration = new Configuration().configure();
 		StandardServiceRegistryBuilder srb = new StandardServiceRegistryBuilder();
 		srb.applySettings(configuration.getProperties());
@@ -42,25 +45,41 @@ public class DBSetup {
 		// setupRoleData();
 		// setupCategories();
 		// setupPushSettingTypes();
-		Criteria criteria = session.createCriteria(Event.class, "event")
-				.setFetchMode("event.eventDetails.organizer", FetchMode.JOIN)
-				.setFetchMode("event.tags", FetchMode.JOIN)
-				.createAlias("event.eventDetails", "ed")
-				.createAlias("event.tags", "eventTag")
-				.setFetchMode("event.eventImages", FetchMode.JOIN)
-				.createAlias("event.eventImages", "image")
-				.add(Restrictions.eq("image.displayOrder", 1))
-				.add(Restrictions.eq("event.eventStatus", EventStatus.CREATED))
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-		List<Event> events = criteria.list();
-	 for(Event event : events){
-		 System.out.println(event.getTitle());
-	 }
+		Date now = new Date();
+		String sql = "SELECT * FROM EVENT EVENT"
+				+ "	INNER JOIN EVENT_DETAILS ED ON EVENT.ID = ED.EVENT_ID "
+				+ " INNER JOIN EVENT_IMAGES EI ON EVENT.ID = EI.EVENT_ID "
+				+ "	INNER JOIN USER_FAVOURITE_EVENTS UFE ON EVENT.ID = UFE.EVENT_ID "
+				+ "	WHERE EVENT.EVENT_STATUS = :eventStatus "
+				+ "	AND EI.DISPLAY_ORDER = 1 " + "	AND UFE.USER_ID = :userId "
+				+ "	AND EVENT.END_DT < :startDt ";
+		SQLQuery sqlQuery = session.createSQLQuery(sql);
+		sqlQuery.addEntity(Event.class);
+		sqlQuery.setParameter("eventStatus", EventStatus.LIVE.name());
+		sqlQuery.setParameter("userId", 17L);
+		sqlQuery.setParameter("startDt", now);
+		List results = sqlQuery.list();
+		List<Event> events = new ArrayList<Event>();
+		if (results != null && !results.isEmpty()) {
+			for (Iterator iterator = results.iterator(); iterator.hasNext();) {
+				Event event = (Event) iterator.next();
+				event.getTags().size();
+				events.add(event);
+			}
+		}
 		System.out.println(events);
+		
+		
+		
+		EventTransformer transformer = (EventTransformer) TransformerFactory
+				.getTransformer(TransformerTypes.EVENT_TRANS);
+		for(Event event : events){
+			System.out.println(transformer.transform(event));
+		}
 		session.getTransaction().commit();
 		session.close();
 		factory.close();
-
+		System.out.println(events.get(0).getTags().size());
 	}
 
 	private static void setupRoleData() {
