@@ -1,7 +1,6 @@
 package com.bitlogic.sociallbox.data.model.notifications;
 
 import java.util.List;
-import java.util.Set;
 
 import com.bitlogic.sociallbox.data.model.notifications.NotificationMessage.DataPayload;
 import com.bitlogic.sociallbox.data.model.notifications.NotificationMessage.NotificationPayload;
