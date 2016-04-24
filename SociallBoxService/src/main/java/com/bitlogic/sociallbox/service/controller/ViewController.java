@@ -58,4 +58,23 @@ public class ViewController extends BaseController{
 		
          return new ModelAndView("newCompany");
      }
+	 
+	 @RequestMapping(value="/eo/events/create",method = RequestMethod.GET)
+     public ModelAndView getCreateEventPage() {
+		
+         return new ModelAndView("newEvent");
+     }
+	 
+	 @RequestMapping(value="/eo/events/list",method = RequestMethod.GET)
+     public ModelAndView getEventsListPage() {
+		
+         return new ModelAndView("eventsHome");
+     }
+	 
+	 @RequestMapping(value="/eo/events/details",method = RequestMethod.GET)
+     public ModelAndView getEventsDetailsPage() {
+		
+         return new ModelAndView("eventDetails");
+     }
+	 
 }

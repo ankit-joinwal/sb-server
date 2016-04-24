@@ -1,5 +1,13 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700);
 
+.tab-pane.inactive{
+	display:none;
+}
+
+.tab-pane.active{
+	display:block;
+}
+
 .board {
     width: 75%;
     margin: 60px auto;
@@ -29,7 +37,7 @@ p.narrow {
     height: 2px;
     background: #ddd;
     position: absolute;
-    width: 80%;
+    width: 72%;
     margin: 0 auto;
     left: 0;
     right: 0;
@@ -108,7 +116,7 @@ li.active span.round-tabs.five {
     background: #fafafa;
 }
 .nav-tabs-process > li {
-    width: 20%;
+    width: 33%;
      float:left;
 }
 /*li.active:before { content: " "; position: absolute; left: 45%; opacity:0; margin: 0 auto; bottom: -2px; border: 10px solid transparent; border-bottom-color: #fff; z-index: 1; transition:0.2s ease-in-out; }*/
@@ -132,7 +140,7 @@ li.active.step:after {
     margin: 0 auto;
     bottom: 0px;
     border: 10px solid transparent;
-    border-bottom-color: #ddd;
+    border-bottom-color: #fff;
 }
 .nav-tabs-process > li a {
     width: 70px;

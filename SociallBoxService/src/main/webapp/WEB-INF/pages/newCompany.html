@@ -39,7 +39,7 @@
 								</ul>
 							</div>
 							<div class="tab-content">
-								<div class="tab-pane fade in active" id="details">
+								<div class="tab-pane  active" id="details">
 									<h3 class="head text-center">Company Details</h3>
 									<form class="form-horizontal" id="details_form"
 										name="details_form" role="form">
@@ -132,7 +132,7 @@
 										</div>
 									</form>
 								</div>
-								<div class="tab-pane fade" id="images">
+								<div class="tab-pane inactive" id="images">
 									<h3 class="head text-center">Cover Photo</h3>
 									<form class="form-horizontal" id="images_form"
 										name="profile_form" role="form">
@@ -144,6 +144,13 @@
 											</div>
 										</div>
 										<div class="row" align="center">
+										<div class=" col-md-4  col-sm-3"></div>
+											<div class="col-md-2 col-sm-3">
+											<fieldset>
+												<button type="button" class="previous-button btn btn-primary">Previous</button>
+											</fieldset>
+											</div>
+											<div class="col-md-2 col-sm-3">
 											<fieldset>
 												<button  href="#review" name="images_form"
 													class="btn-next btn btn-success">
@@ -151,10 +158,11 @@
 														class="icon fa fa-location-arrow"></span>
 												</button>
 											</fieldset>
+											</div>
 										</div>
 									</form>
 								</div>
-								<div class="tab-pane fade" id="review">
+								<div class="tab-pane inactive" id="review">
 
 									<h3 class="head text-center">Please review the details</h3>
 									<form class="form-horizontal" id="review_form"
@@ -240,25 +248,36 @@ $( document ).ready(function() {
 	$('.btn-next').on('click', function(e) {
 		
 			var formname = $(this).attr('name'); 
-			var tabname = $(this).attr('href');
-			alert(tabname)
+			var actived_nav = $('#myTab > li.active');
+			var contentSection = $(".tab-pane.active");
+			
 			var inpObj = document.getElementById(formname);
 			if (inpObj.checkValidity()) { 
-				alert(12);
-					/* Only works in Firefox/Chrome need polyfill for IE9, Safari. http://afarkas.github.io/webshim/demos/ */ 
-					e.preventDefault(); 
-					
-					$('ul.nav-tabs-process li a[href="' + tabname + '"]').parent().removeClass('disabled');
-					alert($('ul.nav-tabs-process li a[href="' + tabname + '"]').attr('href'));
-					
-					$('ul.nav-tabs-process li a[href="' + tabname + '"]').trigger('click'); 
+				
+				/* Only works in Firefox/Chrome need polyfill for IE9, Safari. http://afarkas.github.io/webshim/demos/ */ 
+				e.preventDefault();
+				$('#myTab > li').removeClass("disabled");
+				//if(tabname == "#details")
+				//	tabIndex =1;
+				actived_nav.next("li").addClass('active');
+				actived_nav.removeClass('active');
+				contentSection.removeClass("active").addClass("inactive");
+				contentSection.next("div").removeClass("inactive").addClass("active");
 				} 
 			}); 
+	$(".previous-button").click(function(){
+		var actived_nav = $('#myTab > li.active');
+		var contentSection = $(".tab-pane.active");
+		
+		actived_nav.prev("li").addClass('active');
+		actived_nav.removeClass('active');
+		contentSection.removeClass("active").addClass("inactive");
+		contentSection.prev("div").removeClass("inactive").addClass("active");
+		
+	});
 	
 	$('ul.nav-tabs-process li').on('click', function(e) {
-		if ($(this).hasClass('disabled')) { 
-				e.preventDefault(); return false;
-			}
+		e.preventDefault();		
 		}); 
 	});
 </script>

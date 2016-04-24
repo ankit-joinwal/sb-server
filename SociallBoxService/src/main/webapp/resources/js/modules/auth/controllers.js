@@ -44,6 +44,11 @@ app.controller('AuthController',['$window','$scope', '$rootScope', '$routeParams
 			});
     	};
     	
+    	$scope.logout = function(){
+    		AuthenticationService.clearProfile();
+    		$window.location.href = "/SociallBox/eo/login";
+  		      	};
+    	
     	$scope.initUserProfilePage = function(){
     		AuthenticationService.getUserProfile()
 			.then(function(profileResponse){

@@ -62,7 +62,7 @@
 											<button type="button" ng-click="editProfile()" class="btn btn-default">
 												<i class="fa fa-user"></i> Profile
 											</button>
-											<button type="button" class="btn btn-default">
+											<button type="button" ng-controller ="AuthController" ng-click= "logout()"  class="btn btn-default">
 												<i class="fa fa-sign-out"></i> Logout
 											</button>
 										</div>
@@ -88,7 +88,7 @@
 								<i class="fa fa-times icon"></i>
 							</button>
 						</div>
-						<ul class="nav navbar-nav">
+						<ul class="nav navbar-nav" id="sideBar">
 							<li class="active"><a href="/SociallBox/eo/home#/dashboard">
 									<span class="icon fa fa-tachometer"></span><span class="title">Dashboard</span>
 							</a></li>
@@ -147,6 +147,17 @@
             <script type="text/javascript" src="/SociallBox/resources/js/modules/dashboard/services.js"></script>
             <script type="text/javascript" src="/SociallBox/resources/js/modules/company/controllers.js"></script>
             <script type="text/javascript" src="/SociallBox/resources/js/modules/company/services.js"></script>
+            
+            <script>
+            $(document).ready(function() 
+            		{
+            		   $('ul#sideBar li').click(function(e) 
+            		   { 
+            			   $('ul#sideBar li').removeClass("active");
+            		   $(this).addClass("active");
+            		   });
+            		});
+            </script>
            	
 </body>
 

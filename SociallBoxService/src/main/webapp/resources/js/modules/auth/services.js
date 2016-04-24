@@ -7,6 +7,11 @@ var app = angular.module('Authentication')
     function (Base64,$http, $cookieStore, $rootScope, $q,MD5) {
     	 var service = {};
     	
+    	 service.clearProfile = function(){
+    		$rootScope.userProfile = {};
+  			$cookieStore.remove('userProfile');
+  		};
+    	 
     	 //Service Function to Register User
     	 service.register = function(name,emailId,password){
     		 var deferred = $q.defer();
