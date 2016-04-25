@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,14 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.EOAdminStatus;
+import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.UserTypeBasedOnDevice;
 import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.AdminService;
-import com.bitlogic.sociallbox.service.business.EventOrganizerService;
 import com.bitlogic.sociallbox.service.business.EventService;
 import com.bitlogic.sociallbox.service.controller.BaseController;
+import com.bitlogic.sociallbox.service.exception.ClientException;
+import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
+import com.bitlogic.sociallbox.service.exception.ServiceException;
+import com.bitlogic.sociallbox.service.utils.LoginUtil;
 
 @RestController
 @RequestMapping("/api/secured/admin/")
@@ -36,6 +42,7 @@ public class AdminController extends BaseController implements Constants{
 	private static final String REJECT_PENDING_PROFILES_API = "RejectPendingProfiles API";
 	private static final String GET_EVENTS_PENDING_APPROVAL_API = "GetEventsPendingForApproval API";
 	private static final String APPROVE_PENDING_EVENTS = "ApprovePendingEvents API";
+	private static final String ADMIN_SIGNIN_API = "AdminSignin API";
 	
 	@Autowired
 	private AdminService adminService;
@@ -48,7 +55,36 @@ public class AdminController extends BaseController implements Constants{
 		return LOGGER;
 	}
 	
-	@RequestMapping(value="/eo/profiles/pending",method = RequestMethod.GET, produces = {
+	@RequestMapping(value="/signin",method = RequestMethod.POST, produces = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, consumes = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@ResponseStatus(HttpStatus.OK)
+	public SingleEntityResponse<User> signinOrSignupUser(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth) throws ServiceException{
+
+		logRequestStart(ADMIN_SIGNIN_API, PUBLIC_REQUEST_START_LOG, ADMIN_SIGNIN_API);
+		
+		String userName = LoginUtil.getUserNameFromHeader(auth);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		UserTypeBasedOnDevice userTypeBasedOnDevice = null;
+		
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.WEB){
+			String userEmail = LoginUtil.getUserEmailIdFromUserName(userName);
+			User userObj = adminService.signupOrSignin(userEmail,userTypeBasedOnDevice);
+			SingleEntityResponse<User> entityResponse = new SingleEntityResponse<>();
+			entityResponse.setData(userObj);
+			entityResponse.setStatus(SUCCESS_STATUS);
+			logRequestEnd(ADMIN_SIGNIN_API, ADMIN_SIGNIN_API);
+			return entityResponse;
+			
+		}else{
+			throw new ClientException(RestErrorCodes.ERR_001,ERROR_USER_TYPE_INVALID);
+		}
+		
+		
+		
+	}
+	
+	@RequestMapping(value="/organizers/profiles/pending",method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
 	public EntityCollectionResponse<EOAdminProfile> getPendingProfiles(){
@@ -65,7 +101,7 @@ public class AdminController extends BaseController implements Constants{
 		return collectionResponse;
 	}
 	
-	@RequestMapping(value="/eo/profiles/approve",method = RequestMethod.POST, produces = {
+	@RequestMapping(value="/organizers/profiles/approve",method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE}, consumes = {
 					MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)

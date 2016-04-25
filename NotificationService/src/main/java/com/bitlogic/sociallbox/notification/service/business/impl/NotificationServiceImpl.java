@@ -30,6 +30,7 @@ import com.bitlogic.sociallbox.notification.service.business.NotificationService
 import com.bitlogic.sociallbox.notification.service.dao.NotificationDAO;
 import com.bitlogic.sociallbox.notification.service.dao.SmartDeviceDAO;
 import com.bitlogic.sociallbox.notification.service.util.LoggingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service("notificationService")
 @Transactional
@@ -116,6 +117,13 @@ public class NotificationServiceImpl extends LoggingService implements Notificat
 		 * Data Payload
 		 */
 		gcmNotification.setDataPayload(outputMessage.getDataPayload());
+		ObjectMapper objectMapper = new ObjectMapper();
+		logInfo(LOG_PREFIX, "GCM NotificationBody for {} :", notificationType);
+		try{
+		logInfo(LOG_PREFIX, "{}", objectMapper.writeValueAsString(gcmNotification));
+		}catch(Exception ex){
+			logError(LOG_PREFIX, "Exception while printing notification body ", ex);
+		}
 		Date now = new Date();
 		GCMNotificationResponse notificationResponse = this.messagingService.sendNotification(gcmNotification);
 		logInfo(LOG_PREFIX, "Response recieved for Notification {}", notificationResponse);

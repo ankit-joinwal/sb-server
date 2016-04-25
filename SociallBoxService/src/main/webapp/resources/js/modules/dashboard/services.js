@@ -42,7 +42,7 @@ app.factory('DashboardService',
 			 	    			 deferred.reject(dashboardResponse);
 			 					 return deferred.promise;
 			 	    		});
-	    		}).catch(function(response){
+	    		}).catch(function(tokenResponse){
 	    			//If unable to get auth token, then redirect to login page
 	    			console.log('Inside DashboardService.dashboardCards to gen token.Response :'+tokenResponse.status);
 	    			

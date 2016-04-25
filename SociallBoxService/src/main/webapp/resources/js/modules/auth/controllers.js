@@ -1,8 +1,8 @@
 'use strict';
 
-var app = angular.module('Authentication');
+angular.module('Authentication')
 
-app.controller('AuthController',['$window','$scope', '$rootScope', '$routeParams','$location','AuthenticationService',
+.controller('AuthController',['$window','$scope', '$rootScope', '$routeParams','$location','AuthenticationService',
     function ($window,$scope, $rootScope, $routeParams,$location,AuthenticationService) {
 	
     	console.log("Inside Auth Controller");
@@ -106,5 +106,6 @@ app.controller('AuthController',['$window','$scope', '$rootScope', '$routeParams
 			});
     		
     	}
+    	
 	}
 ]);

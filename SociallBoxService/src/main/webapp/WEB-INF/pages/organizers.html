@@ -1,0 +1,39 @@
+<div class="container-fluid" ng-controller="AdminController">
+	<div class="side-body">
+          <div class="row">
+            <div class="col-xs-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                        <div class="title">Pending Organizer Profiles</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="datatable table table-striped" ng-init="getPendingProfiles()" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Company Name</th>
+                                    <th>Create Date</th>
+                                    <th>Company Admin User</th>
+                                    <th>Website</th>
+                                    <th>Contact No</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="profile in pending_profiles">
+                                	<td><input type="checkbox"></td>
+                                    <td>{{profile.company_profile.name}}</td>
+                                    <td>Edinburgh</td>
+                                    <td>{{profile.name}}</td>
+                                    <td>{{profile.company_profile.website}}</td>
+                                    <td>{{profile.company_profile.phone1}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>

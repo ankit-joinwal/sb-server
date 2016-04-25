@@ -20,7 +20,6 @@ public class ViewController extends BaseController{
 	
 	 @RequestMapping(method = RequestMethod.GET)
      public ModelAndView getIndexPage() {
-		 
          return new ModelAndView("index");
      }
     
@@ -31,14 +30,30 @@ public class ViewController extends BaseController{
          return new ModelAndView("login");
      }
 	 
+	 @RequestMapping(value="/nimda/login",method = RequestMethod.GET)
+     public ModelAndView getAdminLoginPage() {
+		
+         return new ModelAndView("adminLogin");
+     }
+	 
 	 @RequestMapping(value="/eo/home",method = RequestMethod.GET)
      public ModelAndView getHomePage() {
          return new ModelAndView("home");
      }
 	 
+	 @RequestMapping(value="/nimda/home",method = RequestMethod.GET)
+     public ModelAndView getAdminHomePage() {
+         return new ModelAndView("adminHome");
+     }
+	 
 	 @RequestMapping(value="/eo/dashboard",method = RequestMethod.GET)
      public ModelAndView getDashboardPage() {
          return new ModelAndView("dashboard");
+     }
+	 
+	 @RequestMapping(value="/nimda/organizers",method = RequestMethod.GET)
+     public ModelAndView getAdminDashboardPage() {
+         return new ModelAndView("organizers");
      }
 	 
 	 @RequestMapping(value="/eo/profile",method = RequestMethod.GET)

@@ -10,8 +10,8 @@ import org.springframework.security.crypto.codec.Base64;
 public class AuthHeaderGenerator {
 	public static void main(String[] args)throws Exception {
 		
-		generateAuthorization("8343e1aff9e9e440", "11542765-e3fd-45a4-b274-362abb418f21");
-		//generateHeaderForWeb("test.eo@gmail.com", "098f6bcd4621d373cade4e832627b4f6");
+		//generateAuthorization("6bbdec87e8198cf4", "da578f45-48cd-421e-81c2-9fd005c623bc");
+		generateHeaderForWeb("test.admin@gmail.com", "90f2c9c53f66540e67349e0ab83d8cd0");
 	}
 	
 	public static void generateHeaderForWeb(String userId,String password){
