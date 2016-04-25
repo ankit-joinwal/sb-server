@@ -1,0 +1,250 @@
+<style>
+
+#search input{width:150px}
+	#search button{
+	margin-left:-5px;
+	}
+	.flat-blue .btn.btn-primary {
+    background-color: #5bc0de;
+    color: #FFF;
+    border-color: #5bc0de;
+}
+  
+
+        #search:hover input, #search input:focus {
+            width: 250px;
+            
+            -webkit-transition: all 0.7s ease-in-out;
+        -moz-transition: all 0.7s ease-in-out;
+        -o-transition: all 0.7s ease-in-out;
+        transition: all 0.7s ease-in-out;
+        }
+
+/* Tabs panel */
+.tabbable-panel {
+  border:1px solid #CCC;
+  padding:10px;
+}
+
+/* Default mode */
+.tabbable-line > .nav-tabs {
+  border: none;
+  margin: 0px;
+  background-color: #fff;
+}
+.tabbable-line > .nav-tabs > li {
+  margin-right: 2px;
+}
+.tabbable-line > .nav-tabs > li > a {
+  border: 0;
+  margin-right: 0;
+  color: #737373;
+}
+
+.tabbable-line > .nav-tabs > li.open, .tabbable-line > .nav-tabs > li:hover {
+  border-bottom: 4px solid #fbcdcf;
+}
+.tabbable-line > .nav-tabs > li.open > a, .tabbable-line > .nav-tabs > li:hover > a {
+  border: 0;
+  background: none !important;
+  color: #333333;
+}
+
+.tabbable-line > .nav-tabs > li.active {
+  border-bottom: 4px solid #f3565d;
+  position: relative;
+}
+.tabbable-line > .nav-tabs > li.active > a {
+  border: 0;
+  color: #333333;
+}
+
+.tabbable-line > .tab-content {
+  margin-top: -3px;
+  background-color: #fff;
+  border: 0;
+  border-top: 1px solid #eee;
+  padding: 15px 0;
+}
+
+.sectionRow{
+    overflow: hidden;
+    padding: 20px 5px 0px 0px;
+}
+.sectionRow :first-child{float:left;}
+.sectionRow :last-child{float:left;margin-left:15px}
+.eventSection{overflow: hidden;
+    background-color: #f9f9f9;
+    border: 1px solid #eee}
+    .status.sectionRow button{margin-top:0px;}
+    .status.sectionRow div{margin-left:5px;}
+   .eventSection .btn {padding :2px 12px}
+   .sectionRow label{width:75px}
+   .tab-content > div {
+    padding: 20px 20px 0;
+}
+.row > [class*="col-"] {
+    margin-bottom: 0px;
+}
+.board {
+    margin: 25px auto;}
+</style>
+<div class="container-fluid" ng-controller="EventsController">
+	<div class="side-body">
+		<div class="page-title">
+			<span class="title">My Events</span>
+		</div>
+		<div class="row">
+			<section style="background: #efefe9;">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-4"></div>
+       					 <div class="col-md-4" id="search">
+							<form class="navbar-form navbar-left" role="search">
+  								<div class="form-group">
+    								<input type="text" class="form-control" placeholder="Search">
+    								<button type="submit" class="btn btn-primary">Search</button>
+ 								 </div>
+							</form>
+					   	</div>
+						 <div class="col-md-4" style="margin-top:8px;text-align:center;">
+						 	<button type="submit" ng-click="initNewEvent()" class="btn btn-primary">Create Event</button>
+						 </div>
+					</div>
+					<div class="row">
+						<div class="board">
+							
+								<div class="tabbable-panel">
+									<div class="tabbable-line">
+										<ul class="nav nav-tabs ">
+											<li class="active">
+												<a href="#tab_upcoming" data-toggle="tab">UPCOMING EVENTS </a>
+											</li>
+											<li>
+												<a href="#tab_past" data-toggle="tab">PAST EVENTS </a>
+											</li>
+										</ul>
+								    <div class="tab-content">
+								    
+								    	<div class="row">
+								    		<div class=" eventSection">
+								    			<div class="col-md-6">
+								    				<div class="title sectionRow">
+								    					<label class="text-primary">Title</label>
+								    					<p>Mega Sale </p>
+								    				</div>
+								    				<div class="startDate sectionRow">
+								    					<label class="text-primary">Start Date</label>
+								    					<p>12/78/8989</p>
+								    				</div>
+								    				<div class="endDate sectionRow">
+								    					<label class="text-primary">End Date</label>
+								    					<p>12/12/1222</p>
+								    				</div>
+								    				
+								    			</div>
+								    			
+								    			<div class="col-md-6">
+								    				<div class="status sectionRow">
+								    					<label class="text-primary">Status</label>
+								    					<div><button type="button" class="btn btn-primary">Pending</button></div>
+								    				</div>
+								    				<div class="viewDetails" style="margin-top:10px">
+								    				<div><button type="button" class="btn btn-success">View Details</button></div>
+													</div>
+								    				
+								    			</div>
+								    		</div>
+							
+									    </div>
+									
+										<div class="row">
+								    		<div class=" eventSection">
+								    			<div class="col-md-6">
+								    				<div class="title sectionRow">
+								    					<label class="text-primary">Title</label>
+								    					<p>Music Festival</p>
+								    				</div>
+								    				<div class="startDate sectionRow">
+								    					<label class="text-primary">Start Date</label>
+								    					<p>14/78/7888</p>
+								    				</div>
+								    				<div class="endDate sectionRow">
+								    					<label class="text-primary">End Date</label>
+								    					<p>45/78/8998</p>
+								    				</div>
+								    				
+								    			</div>
+								    			
+								    			<div class="col-md-6">
+								    				<div class="status sectionRow">
+								    					<label class="text-primary">Status</label>
+								    					<div><button type="button" class="btn btn-default">Pending</button></div>
+								    				</div>
+								    				<div class="viewDetails" style="margin-top:10px">
+								    				<div><button type="button" class="btn btn-success">View Details</button></div>
+													</div>
+								    				
+								    			</div>
+								    		</div>
+							
+									    </div>
+									    
+									    <div class="row">
+								    		<div class=" eventSection">
+								    			<div class="col-md-6">
+								    				<div class="title sectionRow">
+								    					<label class="text-primary">Title</label>
+								    					<p>Food Festival</p>
+								    				</div>
+								    				<div class="startDate sectionRow">
+								    					<label class="text-primary">Start Date</label>
+								    					<p>12/78/1254</p>
+								    				</div>
+								    				<div class="endDate sectionRow">
+								    					<label class="text-primary">End Date</label>
+								    					<p>99/36/1254</p>
+								    				</div>
+								    				
+								    			</div>
+								    			
+								    			<div class="col-md-6">
+								    				<div class="status sectionRow">
+								    					<label class="text-primary">Status</label>
+								    					<div><button type="button" class="btn btn-primary">Pending</button></div>
+								    				</div>
+								    				<div class="viewDetails" style="margin-top:10px">
+								    				<div><button type="button" class="btn btn-success">View Details</button></div>
+													</div>
+								    				
+								    			</div>
+								    		</div>
+							
+									    </div>
+									
+									
+												<div class="tab-pane" id="#tab_past">
+													<p>
+														Howdy, I'm in Tab 2.
+													</p>
+								
+												</div>
+						
+								 </div>
+								</div>
+							</div>
+							
+						
+					</div>
+				</div>
+					
+				</div>
+			</section>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$( document ).ready(function() {
+	
+	});
+</script>

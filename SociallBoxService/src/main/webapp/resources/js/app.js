@@ -5,8 +5,9 @@ angular.module('index', []);
 angular.module('Authentication', []);
 angular.module('Dashboard', []);
 angular.module('Company', []);
+angular.module('Events', []);
 
-var App = angular.module('sociallbox',['ngRoute','ngCookies','index','Authentication','Dashboard','Company']);
+var App = angular.module('sociallbox',['ngRoute','ngCookies','index','Authentication','Dashboard','Company','Events']);
 
 App.config(['$routeProvider', function($routeProvider) {
 	$routeProvider
@@ -29,6 +30,14 @@ App.config(['$routeProvider', function($routeProvider) {
 		.when('/company/new', {
 			controller : "CompanyController",
 			templateUrl: '/SociallBox/eo/company/new'
+		})
+		.when('/events', {
+			controller : "EventsController",
+			templateUrl: '/SociallBox/eo/events/list'
+		})
+		.when('/events/new', {
+			controller : "EventsController",
+			templateUrl: '/SociallBox/eo/events/new'
 		})
 		.otherwise({redirectTo:'/'});		
 }]);

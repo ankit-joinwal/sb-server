@@ -74,10 +74,10 @@ public class ViewController extends BaseController{
          return new ModelAndView("newCompany");
      }
 	 
-	 @RequestMapping(value="/eo/events/create",method = RequestMethod.GET)
+	 @RequestMapping(value="/eo/events/new",method = RequestMethod.GET)
      public ModelAndView getCreateEventPage() {
 		
-         return new ModelAndView("newEvent");
+         return new ModelAndView("createEvent");
      }
 	 
 	 @RequestMapping(value="/eo/events/list",method = RequestMethod.GET)
