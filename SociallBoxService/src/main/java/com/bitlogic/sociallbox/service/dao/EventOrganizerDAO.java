@@ -28,4 +28,7 @@ public interface EventOrganizerDAO {
 	public EventOrganizerAdmin getEOAdminProfileByUserId(Long userId);
 	
 	public Map<String, ?> getEventsForOrganizer(String timeline,EventStatus eventStatus,Integer page,Long adminProfileId);
+	
+	public List<EventOrganizerAdmin> getAllOrganizers();
+	
 }

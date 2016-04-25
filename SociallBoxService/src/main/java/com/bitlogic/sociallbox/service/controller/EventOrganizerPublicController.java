@@ -35,9 +35,8 @@ public class EventOrganizerPublicController extends BaseController implements Co
 	private EventOrganizerService eventOrganizerService;
 	
 	@RequestMapping(value="/{id}",method = RequestMethod.GET, produces = {
-			MediaType.APPLICATION_JSON_VALUE}, consumes = {
 			MediaType.APPLICATION_JSON_VALUE})
-	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseStatus(HttpStatus.OK)
 	public SingleEntityResponse<EventOrganizerProfile> getOrganizerProfile(@PathVariable String id){
 		logRequestStart(GET_ORGANIZER_PROFILE_API, PUBLIC_REQUEST_START_LOG, GET_ORGANIZER_PROFILE_API);
 		logInfo(GET_ORGANIZER_PROFILE_API, "Organizer Profile Id = {}", id);
@@ -51,4 +50,6 @@ public class EventOrganizerPublicController extends BaseController implements Co
 		logRequestEnd(GET_ORGANIZER_PROFILE_API, GET_ORGANIZER_PROFILE_API);
 		return entityResponse;
 	}
+	
+	
 }

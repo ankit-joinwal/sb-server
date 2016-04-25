@@ -84,6 +84,31 @@ public class AdminController extends BaseController implements Constants{
 		
 	}
 	
+	@RequestMapping(value="/organizers/profiles",method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	@ResponseStatus(HttpStatus.OK)
+	public EntityCollectionResponse<EOAdminProfile> getAllProfiles(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth){
+		
+		logRequestStart(GET_PENDING_PROFILES_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_PENDING_PROFILES_API);
+		String userName = LoginUtil.getUserNameFromHeader(auth);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.WEB){
+			String userEmail = LoginUtil.getUserEmailIdFromUserName(userName);
+			List<EOAdminProfile> pendingProfiles = adminService.getAllOrganizers(userEmail);
+			logInfo(GET_PENDING_PROFILES_API, "{} Profiles found", pendingProfiles.size());
+			EntityCollectionResponse<EOAdminProfile> collectionResponse = new EntityCollectionResponse<EOAdminProfile>();
+			collectionResponse.setStatus(SUCCESS_STATUS);
+			collectionResponse.setTotalRecords(pendingProfiles.size());
+			collectionResponse.setPage(1);
+			collectionResponse.setData(pendingProfiles);
+			logRequestEnd(GET_PENDING_PROFILES_API, GET_PENDING_PROFILES_API);
+			return collectionResponse;
+		}else{
+			throw new ClientException(RestErrorCodes.ERR_001,ERROR_USER_TYPE_INVALID);
+		}
+	}
+	
 	@RequestMapping(value="/organizers/profiles/pending",method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
@@ -100,6 +125,8 @@ public class AdminController extends BaseController implements Constants{
 		logRequestEnd(GET_PENDING_PROFILES_API, GET_PENDING_PROFILES_API);
 		return collectionResponse;
 	}
+	
+	
 	
 	@RequestMapping(value="/organizers/profiles/approve",method = RequestMethod.POST, produces = {
 			MediaType.APPLICATION_JSON_VALUE}, consumes = {

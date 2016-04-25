@@ -56,6 +56,11 @@ public class ViewController extends BaseController{
          return new ModelAndView("organizers");
      }
 	 
+	 @RequestMapping(value="/nimda/organizers/search",method = RequestMethod.GET)
+     public ModelAndView getSearchOrganizersPage() {
+         return new ModelAndView("searchOrganizers");
+     }
+	 
 	 @RequestMapping(value="/eo/profile",method = RequestMethod.GET)
      public ModelAndView getProfilePage() {
 		
@@ -66,6 +71,12 @@ public class ViewController extends BaseController{
      public ModelAndView getCompanyPage() {
 		
          return new ModelAndView("company");
+     }
+	 
+	 @RequestMapping(value="/nimda/organizers/detail",method = RequestMethod.GET)
+     public ModelAndView getCompanyDetailsForAdminPage() {
+		
+         return new ModelAndView("companyDetails");
      }
 	 
 	 @RequestMapping(value="/eo/company/new",method = RequestMethod.GET)

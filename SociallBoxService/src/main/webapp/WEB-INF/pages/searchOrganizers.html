@@ -1,16 +1,15 @@
 <div class="container-fluid" ng-controller="AdminController">
 	<div class="side-body">
-		
           <div class="row">
             <div class="col-xs-12">
                 <div class="card">
-                    <div class="card-header">
+                 <div class="card-header">
                         <div class="card-title">
-                        <div class="title">Pending Organizer Profiles</div>
+                        <div class="title">All Organizer Profiles</div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="datatable table table-striped" ng-init="getPendingProfiles()" cellspacing="0" width="100%">
+                        <table class="datatable table table-striped" ng-init="getAllEOProfiles()" cellspacing="0" width="100%">
                             <thead>
                                 <tr>
                                     <th>Company Name</th>
@@ -18,21 +17,20 @@
                                     <th>Company Admin User</th>
                                     <th>Website</th>
                                     <th>Contact No</th>
+                                    <th>Status</th>
                                     <th>Details</th>
-                                    <th></th>
-                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="profile in pending_profiles">
+                                <tr ng-repeat="profile in profiles">
                                     <td>{{profile.company_profile.name}}</td>
                                     <td>{{profile.create_dt}}</td>
                                     <td>{{profile.name}}</td>
                                     <td>{{profile.company_profile.website}}</td>
                                     <td>{{profile.company_profile.phone1}}</td>
+                                    <td>{{profile.status}}</td>
                                     <td><button type="button" ng-click="goToCompanyDetails(profile.profile_id)" class="btn btn-info">Details</button></td>
-                                    <td><button type="button" ng-click="approveProfile(profile.profile_id)" class="btn btn-success">Approve</button></td>
-                                    <td><button type="button" ng-click="rejectProfile(profile.profile_id)" class="btn btn-danger">Reject</button></td>
+                                   
                                 </tr>
                             </tbody>
                         </table>

@@ -215,6 +215,121 @@ var adminAuthApp = angular.module('Admin')
     			
     		});
  		 };
+ 		 
+ 		service.getEOProfiles = function(){
+ 			var deferred = $q.defer();
+ 			var allProfilesURL = "/SociallBox/api/secured/admin/organizers/profiles";
+ 			return service.getAuthToken()
+    		.then(function(tokenResponse){
+    			//Extract epoch time and token from response
+    			var epoch = tokenResponse.epoch;
+    			var token = tokenResponse.token;
+    			return $http({
+ 	 				method:'GET',
+ 	 				url: allProfilesURL,
+ 	 	            headers: {
+ 	 	                    "Content-Type"		: 	"application/json",
+ 	 						"accept"			:	"application/json",
+ 	 	                    "X-Login-Ajax-call"	: 	'true',
+ 	 	                    "Authorization"		:	token , 
+	 	                    "X-Auth-Date" 		: 	epoch
+ 	 	            }
+ 	    		 })
+ 	    		 .then(function(response) {
+	                 if (response.status == 200) {
+	                	 deferred.resolve(response);
+	 					 return deferred.promise;
+	                 }
+ 	    		 }).catch(function(response){
+ 	    			 console.log('Unable to get all profiles data . Response :'+response.status);
+ 	    			 deferred.reject(response);
+ 					 return deferred.promise;
+ 	    		});
+    		}).catch(function(tokenResponse){
+    			//If unable to get auth token, then redirect to login page
+    			console.log('Unable to gen token in AdminService.getEOProfiles.Response :'+tokenResponse.status);
+    			
+    		});
+ 		 };
+ 		 
+ 		 
+ 		 service.getCompanyDetails = function(profileId){
+ 			var deferred = $q.defer();
+ 			var organizerProfileUrl = "/SociallBox/api/secured/users/organizers/admins/"+profileId;
+ 			return service.getAuthToken()
+    		.then(function(tokenResponse){
+    			//Extract epoch time and token from response
+    			var epoch = tokenResponse.epoch;
+    			var token = tokenResponse.token;
+    			
+    			return $http({
+ 	 				method:'GET',
+ 	 				url: organizerProfileUrl,
+ 	 	            headers: {
+ 	 	                    "Content-Type"		: 	"application/json",
+ 	 						"accept"			:	"application/json",
+ 	 	                    "X-Login-Ajax-call"	: 	'true',
+ 	 	                    "Authorization"		:	token , 
+	 	                    "X-Auth-Date" 		: 	epoch
+ 	 	            }
+ 	    		 })
+ 	    		 .then(function(response) {
+	                 if (response.status == 200) {
+	                	 deferred.resolve(response);
+	 					 return deferred.promise;
+	                 }
+ 	    		 }).catch(function(response){
+ 	    			 console.log('Unable to get organizer profile . Response :'+response.status);
+ 	    			 deferred.reject(response);
+ 					 return deferred.promise;
+ 	    		});
+    		
+	 		}).catch(function(tokenResponse){
+	 			//If unable to get auth token, then redirect to login page
+	 			console.log('Unable to gen token in AdminService.getCompanyDetails.Response :'+tokenResponse.status);
+	 			
+	 		});
+ 		 };
+ 		 
+ 		 
+ 		 service.approveCompanyProfile = function(profileIds){
+ 			var deferred = $q.defer();
+ 			var approveProfileUrl = "/SociallBox/api/secured/admin/organizers/profiles/approve";
+ 			return service.getAuthToken()
+    		.then(function(tokenResponse){
+    			//Extract epoch time and token from response
+    			var epoch = tokenResponse.epoch;
+    			var token = tokenResponse.token;
+    			
+    			return $http({
+ 	 				method:'POST',
+ 	 				url: approveProfileUrl,
+ 	 				data: profileIds,
+ 	 	            headers: {
+ 	 	                    "Content-Type"		: 	"application/json",
+ 	 						"accept"			:	"application/json",
+ 	 	                    "X-Login-Ajax-call"	: 	'true',
+ 	 	                    "Authorization"		:	token , 
+	 	                    "X-Auth-Date" 		: 	epoch
+ 	 	            }
+ 	    		 })
+ 	    		 .then(function(response) {
+	                 if (response.status == 200) {
+	                	 deferred.resolve(response);
+	 					 return deferred.promise;
+	                 }
+ 	    		 }).catch(function(response){
+ 	    			 console.log('Unable to approve organizer profile . Response :'+response.status);
+ 	    			 deferred.reject(response);
+ 					 return deferred.promise;
+ 	    		});
+    			
+    		}).catch(function(tokenResponse){
+	 			//If unable to get auth token, then redirect to login page
+	 			console.log('Unable to gen token in AdminService.approveCompanyProfile.Response :'+tokenResponse.status);
+	 			
+	 		});
+ 		 }
     	return service;
     }
     ])

@@ -19,4 +19,7 @@ public interface AdminService {
 	public void approveOrRejectProfiles(List<Long> profileIds,EOAdminStatus status);
 	@PreAuthorize("hasRole('"+Constants.ROLE_TYPE_ADMIN+"')")
 	public User signupOrSignin(String emailId,UserTypeBasedOnDevice userTypeBasedOnDevice);
+	
+	@PreAuthorize("hasRole('"+Constants.ROLE_TYPE_ADMIN+"')")
+	public List<EOAdminProfile> getAllOrganizers(String emailId);
 }

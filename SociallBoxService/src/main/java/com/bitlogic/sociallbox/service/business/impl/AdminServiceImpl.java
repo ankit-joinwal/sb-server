@@ -59,16 +59,17 @@ public class AdminServiceImpl extends LoggingService implements AdminService,Con
 		logInfo(LOG_PREFIX, "User exists.Returning user details");
 		User userToReturn = null;
 		try {
-			Set<Role> roles = userInDB.getUserroles();
-			if(roles!=null){
-				for(Role role : roles){
-					if(UserRoleType.ADMIN == role.getUserRoleType()){
-						userToReturn = (User) userInDB.clone();
-						return userToReturn;
+			if(userInDB!=null){
+				Set<Role> roles = userInDB.getUserroles();
+				if(roles!=null){
+					for(Role role : roles){
+						if(UserRoleType.ADMIN == role.getUserRoleType()){
+							userToReturn = (User) userInDB.clone();
+							return userToReturn;
+						}
 					}
 				}
 			}
-			
 			throw new UnauthorizedException(RestErrorCodes.ERR_002, ERROR_USER_INVALID);
 			
 			
@@ -109,5 +110,37 @@ public class AdminServiceImpl extends LoggingService implements AdminService,Con
 			}
 		}
 		logInfo(LOG_PREFIX, "Updated profiles successfully");
+	}
+	
+	@Override
+	public List<EOAdminProfile> getAllOrganizers(String emailId) {
+		String LOG_PREFIX = "AdminServiceImpl-getAllOrganizers";
+		User userInDB = this.userDAO.getUserByEmailId(emailId, false);
+		if(userInDB!=null){
+			Set<Role> roles = userInDB.getUserroles();
+			if(roles!=null){
+				for(Role role : roles){
+					if(UserRoleType.ADMIN == role.getUserRoleType()){
+						List<EventOrganizerAdmin> eoAdmins = this.eventOrganizerDAO.getAllOrganizers();
+						List<EOAdminProfile> profiles = new ArrayList<EOAdminProfile>();
+						for(EventOrganizerAdmin admin : eoAdmins){
+							User user = admin.getUser();
+							EventOrganizer organizer = admin.getOrganizer();
+							Transformer<EventOrganizerProfile, EventOrganizer> eoProfileTransformer = 
+									(Transformer<EventOrganizerProfile, EventOrganizer>) TransformerFactory.getTransformer(TransformerTypes.EO_TO_EO_RESPONSE_TRANSFORMER);
+							EventOrganizerProfile eventOrganizerProfile = eoProfileTransformer.transform(organizer);
+							EOAdminProfile adminProfile = new EOAdminProfile(eventOrganizerProfile, admin, user);
+							profiles.add(adminProfile);
+							
+						}
+						return profiles;
+						
+					}
+				}
+			}
+		}
+		
+		throw new UnauthorizedException(RestErrorCodes.ERR_003, ERROR_USER_INVALID);
+		
 	}
 }

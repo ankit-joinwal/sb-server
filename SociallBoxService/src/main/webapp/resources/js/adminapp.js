@@ -15,6 +15,14 @@ App.config(['$routeProvider', function($routeProvider) {
 			controller : "AdminController",
 			templateUrl: '/SociallBox/nimda/organizers'
 		})
+		.when('/organizers/:profileId', {
+            controller: 'AdminController',
+            templateUrl: '/SociallBox/nimda/organizers/detail'
+        })
+        .when('/organizerlist', {
+			controller : "AdminController",
+			templateUrl: '/SociallBox/nimda/organizers/search'
+		})
 		.otherwise({redirectTo:'/'});		
 }]);
 

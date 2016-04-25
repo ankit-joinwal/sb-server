@@ -11,6 +11,7 @@ import java.util.Map;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SQLQuery;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
@@ -167,5 +168,15 @@ public class EventOrganizerDAOImpl extends AbstractDAO implements EventOrganizer
 		resultMap.put("EVENTS", events);
 		resultMap.put("TOTAL_RECORDS", totalRecords);
 		return resultMap;
+	}
+	
+	@Override
+	public List<EventOrganizerAdmin> getAllOrganizers() {
+		Criteria criteria = getSession().createCriteria(EventOrganizerAdmin.class)
+				.setFetchMode("user", FetchMode.JOIN)
+				.setFetchMode("organizer", FetchMode.JOIN)
+				.addOrder(Order.desc("createDt"));
+		
+		return criteria.list();
 	}
 }

@@ -46,6 +46,12 @@ angular.module('Admin')
 		});
 	};
   	
+	$scope.getAllEOProfiles = function(){
+		AdminService.getEOProfiles()
+		.then(function(response){
+			$scope.profiles = response.data.data;
+		});
+	};
 	
 	$scope.getPendingProfiles = function(){
 		AdminService.getPendingProfiles()
@@ -53,5 +59,51 @@ angular.module('Admin')
 			$scope.pending_profiles = response.data.data;
 		});
 	};
+	
+	$scope.goToCompanyDetails = function(profileId){
+		$window.location.href = "/SociallBox/nimda/home#/organizers/"+profileId;
+	};
+	
+	$scope.goToAdminHome = function(organizerId){
+		$window.location.href = "/SociallBox/nimda/home#/organizers";
+	};
+	
+	$scope.getCompanyDetails = function(){
+		var profileId = $routeParams.profileId;
+		
+		AdminService.getCompanyDetails(profileId)
+		.then(function(companyResponse){
+			$scope.companyProfile = companyResponse.data.data.company_profile;
+			$scope.eoAdminProfile = companyResponse.data.data;
+			$('#company-profile-div').removeClass('loader');
+		})
+		.catch(function(response){
+			console.log('Inside AdminController.getCompanyDetails Response :'+response.status);
+			$window.location.href = "/SociallBox/nimda/home";
+		});
+	};
+	
+	$scope.approveProfile = function(profileId){
+		$scope.msg = null;
+		var profileIds = [];
+		profileIds.push(profileId);
+		AdminService.approveCompanyProfile(profileIds)
+		.then(function(approveResponse){
+			console.log(JSON.stringify(approveResponse.data));
+			AdminService.getPendingProfiles()
+			.then(function(response){
+				$scope.pending_profiles = response.data.data;
+				alert('Profile approved succesfully')
+				$window.location.href = "/SociallBox/nimda/home#/organizers";
+				
+			});
+			
+		})
+		.catch(function(approveResponse){
+			console.log('Inside AdminController.approveProfile Response :'+approveResponse.status);
+			alert('Unable to approve profile.Error occured');
+			$window.location.href = "/SociallBox/nimda/home#/organizers";
+		});
+	}
   }
   ]);

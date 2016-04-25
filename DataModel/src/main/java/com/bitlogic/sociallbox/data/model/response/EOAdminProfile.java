@@ -1,5 +1,7 @@
 package com.bitlogic.sociallbox.data.model.response;
 
+import java.text.SimpleDateFormat;
+
 import com.bitlogic.sociallbox.data.model.EOAdminStatus;
 import com.bitlogic.sociallbox.data.model.EventOrganizerAdmin;
 import com.bitlogic.sociallbox.data.model.User;
@@ -7,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EOAdminProfile extends UserPublicProfile{
 
+	SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy hh:mm aa");
 	public EOAdminProfile(){
 		
 	}
@@ -19,6 +22,10 @@ public class EOAdminProfile extends UserPublicProfile{
 		this.setEmailId(user.getEmailId());
 		this.setStatus(eoAdmin==null ? EOAdminStatus.COMPANY_NOT_LINKED : eoAdmin.getStatus());
 		this.setProfileId(eoAdmin ==null ? null : eoAdmin.getId());
+		if(eoAdmin!=null){
+			
+			setCreateDt(dateFormat.format(eoAdmin.getCreateDt()));
+		}
 	}
 	
 	@JsonProperty("profile_id")
@@ -33,9 +40,20 @@ public class EOAdminProfile extends UserPublicProfile{
 	@JsonProperty("company_profile")
 	private EventOrganizerProfile eventOrganizerProfile;
 	
+	@JsonProperty("create_dt")
+	private String createDt;
+	
 	@JsonProperty("status")
 	private EOAdminStatus status;
 	
+	public String getCreateDt() {
+		return createDt;
+	}
+
+	public void setCreateDt(String createDt) {
+		this.createDt = createDt;
+	}
+
 	public String getEmailId() {
 		return emailId;
 	}

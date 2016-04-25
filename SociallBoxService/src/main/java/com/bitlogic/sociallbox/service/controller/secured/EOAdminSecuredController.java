@@ -433,7 +433,7 @@ public class EOAdminSecuredController extends BaseController implements Constant
 	@RequestMapping(value="/{profileId}",method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
-	public SingleEntityResponse<EOAdminProfile> getAdminInfo(@PathVariable Long profileId){
+	public SingleEntityResponse<EOAdminProfile> getAdminProfile(@PathVariable Long profileId){
 		logRequestStart(GET_ORGANIZER_ADMIN_INFO_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_ORGANIZER_ADMIN_INFO_API);
 		EOAdminProfile admin = this.eventOrganizerAdminService.getProfile(profileId);
 		SingleEntityResponse<EOAdminProfile> entityResponse = new SingleEntityResponse<EOAdminProfile>();

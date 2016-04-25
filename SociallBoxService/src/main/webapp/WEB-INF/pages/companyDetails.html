@@ -1,0 +1,121 @@
+<div class="container-fluid" ng-controller="AdminController" ng-init="getCompanyDetails()">
+	<div class="side-body loader" id="company-profile-div">
+		<div class="loader-container text-center color-white">
+			<div>
+				<i class="fa fa-spinner fa-pulse fa-3x"></i>
+			</div>
+			<div>Loading</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="fb-profile">
+				<div class="container-fluid company-profile-img">
+					<div class="row">
+						<div class="col-md-12">
+							<img align="left" class="fb-image-lg"
+								src="{{companyProfile.cover_pic}}" alt="{{companyProfile.name}}" />
+						</div>
+					</div>
+				</div>
+				<div align="left" class="fb-company-profile">
+					<div class="container">
+						<div class="row">
+							<div class="row">
+								<div class="col-md-12">
+									<label for="companyName" class="text-primary">Name</label>
+									<h3 id="companyName">{{companyProfile.name}}</h3>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<label for="street" class="text-primary">Street</label>
+									<h3 id="street">{{companyProfile.address.street}}</h3>
+								</div>
+								<div class="col-md-6">
+									<label for="city" class="text-primary">City</label>
+									<h3 id="city">{{companyProfile.address.city}}</h3>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<label for="state" class="text-primary">State</label>
+									<h3 id="state">{{companyProfile.address.state}}</h3>
+								</div>
+								<div class="col-md-6">
+									<label for="zip" class="text-primary">ZipCode</label>
+									<h3 id="zip">{{companyProfile.address.zip_code}}</h3>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<label for="country" class="text-primary">Country</label>
+									<h3 id="country">{{companyProfile.address.country}}</h3>
+								</div>
+								<div class="col-md-6">
+									<label for="phone1" class="text-primary">Phone 1</label>
+									<h3 id="phone1">{{companyProfile.phone1}}</h3>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<label for="phone2" class="text-primary">Phone2</label>
+									<h3 id="phone2">{{companyProfile.phone2}}</h3>
+								</div>
+								<div class="col-md-6">
+									<label for="phone3" class="text-primary">Phone 3</label>
+									<h3 id="phone3">{{companyProfile.phone3}}</h3>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<label for="email" class="text-primary">Email ID</label>
+									<h3 id="email">{{companyProfile.email_id}}</h3>
+								</div>
+								<div class="col-md-6">
+									<label for="website" class="text-primary">Website</label>
+									<h3 id="website">{{companyProfile.website}}</h3>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr>
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<h4><span class="text-primary">Company Admin User Details</span></h4>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-1">
+							<img alt="" style="width:50px;height:50px" src="{{eoAdminProfile.profile_pic}}">
+						</div>
+						<div class="col-md-5">
+							<h4 id="street">{{eoAdminProfile.name}}</h4>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<label for="emailId" class="text-primary">Email Id</label>
+							<h6 id="emailId">{{eoAdminProfile.email_id}}</h6>
+						</div>
+					</div>
+				</div>
+				<hr>
+				<div class="container">
+					<div class="row" align="center">
+						<div class="col-md-12">
+							<button type="submit"
+								ng-click="goToAdminHome()" class="btn-next btn btn-primary">
+								Back</button>
+						
+							<button type="submit"
+								ng-click="approveProfile(eoAdminProfile.profile_id)" class="btn-next btn btn-success">
+								Approve</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
