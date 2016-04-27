@@ -5,12 +5,14 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.stereotype.Repository;
 
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.notifications.NotificationEntity;
 import com.bitlogic.sociallbox.service.dao.AbstractDAO;
 import com.bitlogic.sociallbox.service.dao.NotificationDAO;
 
+@Repository("notificationDAO")
 public class NotificationDAOImpl extends AbstractDAO implements NotificationDAO{
 	
 	@Override

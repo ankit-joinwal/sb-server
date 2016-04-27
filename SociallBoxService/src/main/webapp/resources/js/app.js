@@ -6,8 +6,9 @@ angular.module('Authentication', []);
 angular.module('Dashboard', []);
 angular.module('Company', []);
 angular.module('Events', []);
+angular.module('DateTime', []);
 
-var App = angular.module('sociallbox',['ngRoute','ngCookies','index','Authentication','Dashboard','Company','Events']);
+var App = angular.module('sociallbox',['ui.bootstrap', 'ui.bootstrap.datetimepicker','ngRoute','ngCookies','index','Authentication','Dashboard','Company','Events','DateTime']);
 
 App.config(['$routeProvider', function($routeProvider) {
 	$routeProvider

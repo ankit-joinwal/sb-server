@@ -4,19 +4,23 @@
 			<span class="title">Create New Event</span>
 		</div>
 		<div class="row">
-			<div class="col-md-6">
-				<label>Start Date</label>
+			<div class="col-md-6" ng-controller="DateTimeController as ctrl">
+			    <form class="form-inline">    
+			        <div class="form-group">
+			        		<label for="startDate">Starts</label>
+			                <input type="text" id="startDate" class="form-control" datetime-picker="MM/dd/yyyy HH:mm a" ng-model="ctrl.dates.startDate" is-open="ctrl.open.startDate" />
+			                <button type="button" class="btn btn-default" ng-click="ctrl.openCalendar($event, 'startDate')"><i class="fa fa-calendar"></i></button>
+			        </div>
+			     </form>
 			</div>
-			<div class="col-md-6">
-				<label>End Date</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-6">
-				
-			</div>
-			<div class="col-md-6">
-				
+			<div class="col-md-6" ng-controller="DateTimeController as ctrl">
+				 <form class="form-inline">    
+			        <div class="form-group">
+			        	<label for="endDate">Ends</label>
+			            <input type="text" class="form-control" datetime-picker="MM/dd/yyyy HH:mm a" ng-model="ctrl.dates.endDate" is-open="ctrl.open.endDate" />
+			            <button type="button" class="btn btn-default" ng-click="ctrl.openCalendar($event, 'endDate')"><i class="fa fa-calendar"></i></button>
+			        </div>
+			     </form>
 			</div>
 		</div>
 		

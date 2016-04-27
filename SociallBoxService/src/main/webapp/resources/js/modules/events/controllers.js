@@ -10,7 +10,6 @@ app.controller('EventsController',
 				$window.location.href = "/SociallBox/eo/home#/events/new";
 			};
 		
-		
 		}
 		
 		]);
