@@ -27,7 +27,7 @@ public class GCMNotification {
 	private String restrictedPackageName ;
 	
 	@JsonProperty("dry_run")
-	private Boolean dryRun = Boolean.TRUE;
+	private Boolean dryRun = Boolean.FALSE;
 
 	@JsonProperty("notification")
 	private NotificationPayload notificationPayload;

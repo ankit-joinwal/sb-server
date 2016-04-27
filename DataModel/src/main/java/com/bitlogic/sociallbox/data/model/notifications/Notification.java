@@ -8,6 +8,22 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 @JsonRootName(value="notification")
 public class Notification {
 
+	public Notification(){
+		
+	}
+	
+	public Notification(NotificationEntity notificationEntity){
+		this.id = notificationEntity.getId();
+		this.notificationMessage = new NotificationMessage();
+		
+		notificationMessage.setDataPayload(notificationEntity.getDataPayload());
+		notificationMessage.setNotificationPayload(notificationEntity.getNotificationPayload());
+		this.type = notificationMessage.getDataPayload().getType();
+	}
+	
+	@JsonProperty
+	private Long id;
+	
 	@JsonProperty("type")
 	private String type;
 	
@@ -16,6 +32,14 @@ public class Notification {
 	
 	@JsonProperty(value="message")
 	private NotificationMessage notificationMessage;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public String getType() {
 		return type;

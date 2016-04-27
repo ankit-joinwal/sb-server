@@ -1,187 +1,24 @@
-<head>
-	
-    <link rel="stylesheet" type="text/css" href="/SociallBox/resources/css/lib/datePicker.css">
-    </head>
-<style>
-    .form-horizontal .form-group {
-  
-     margin-left: 0px; 
-}
-    .form-group input[type="checkbox"] {
-    display: none;
-}
-
-.form-group input[type="checkbox"] + .btn-group > label span {
-    width: 20px;
-}
-
-.form-group input[type="checkbox"] + .btn-group > label span:first-child {
-    display: none;
-}
-.form-group input[type="checkbox"] + .btn-group > label span:last-child {
-    display: inline-block;   
-}
-
-.form-group input[type="checkbox"]:checked + .btn-group > label span:first-child {
-    display: inline-block;
-}
-.form-group input[type="checkbox"]:checked + .btn-group > label span:last-child {
-    display: none;   
-}
-
-.glyphicon-ok:before {
-    content: "\e013";
-}
-.flat-blue .btn.btn-primary {
-    background-color: #5bc0de;
-    color: #FFF;
-    border-color: #5bc0de;
-}
-#tags button {
-border-radius: 5px;
-    width: 12%;
-}
-</style>
-<body>
 <div class="container-fluid" ng-controller="EventsController">
 	<div class="side-body">
 		<div class="page-title">
 			<span class="title">Create New Event</span>
 		</div>
 		<div class="row">
-			<section style="background: #efefe9;">
-				<div class="container" id="company_process_div">
-					<div class="loader-container text-center color-white">
-						<div>
-							<i class="fa fa-spinner fa-pulse fa-3x"></i>
-						</div>
-					</div>
-					<div class="row">
-						<div class="board">
-							
-							
-							<div class="tab-content">
-								<div class="tab-pane  active" id="details">
-									<h3 class="head text-center">Event Details</h3>
-									<form class="form-horizontal" id="eventdetails_form"
-										name="eventdetails_form" role="form">
-										<div class="row">
-											<div class="col-md-12">
-												<label for="eventTitle" class="text-primary">Event Title</label> 
-												<input type="text"
-													required class="form-control" ng-model="eventTitle"
-													id="eventTitle" placeholder="Event Title">
-											</div>
-										</div>
-										<div class="row">
-											<div class="col-md-12">
-												<label for="eventDescription" class="text-primary">Event Description</label>
-												<textarea class="form-control" ng-model="eventDescription" rows="5" id="eventDescription" placeholder="Event Description"></textarea>
-											</div>
-											
-										</div>
-										<div class="row">
-											<div class="col-md-12">
-												<label for="eventLocation" class="text-primary">Location</label>
-												 <input type="text" required
-													class="form-control" ng-model="eventLocation" id="eventLocation"
-													placeholder="Location">
-											</div>
-										</div>
-										
-										<div class="row">
-											<div class="col-md-6">
-											<div class="form-group">
-												<label for="startDatePicker" class="text-primary">Start Date</label>												         
-												   <div class='input-group date' id='startDatePicker'>
-												     <input type='text' class="form-control" na-model="startDatePicker" >
-												       <span class="input-group-addon">
-												        <span class="fa fa-calendar">
-												         </span>
-												        </span>
-											</div>
-											</div>
-											</div>
-											<div class="col-md-6">
-												<label for="endDatePicker" class="text-primary">End Date</label>												         
-												   <div class='input-group date' id='endDatePicker'>
-												     <input type='text' class="form-control" ng-model=endDatePicker"">
-												       <span class="input-group-addon">
-												        <span class="fa fa-calendar">
-												         </span>
-												        </span>
-											</div>
-											</div>
-										</div>
-										<div class="row">
-											<div class="col-md-12" id="tags">
-											<label for="tags" class="text-primary">Tags</label> 
-												<div>
-												 <button type="button" class="btn btn-default">Sale</button>
-												  <button type="button" class="btn btn-default">Fashion</button>
-												  <button type="button" class="btn btn-default">Success</button>
-												  <button type="button" class="btn btn-default">Info</button>
-												  <button type="button" class="btn btn-default">Warning</button>
-												  <button type="button" class="btn btn-default">Danger</button>
-												</div>
-											</div>
-										</div>
-										<div class="row">
-											<div class="col-md-6">
-												<div class="[ form-group ]">
-           										 <input type="checkbox" name="fancy-checkbox-primary" id="fancy-checkbox-primary" autocomplete="off" />
-           											 <div class="[ btn-group ]">
-                										<label for="fancy-checkbox-primary" class="[ btn btn-primary ]">
-                   											 <span class="[ glyphicon glyphicon-ok ]"></span>
-                    										<span> </span>
-             										   </label>
-               										 <label for="fancy-checkbox-primary" class="[ btn btn-default active ]">
-                  									  Is Free
-									                </label>
-									            </div>
-									        </div>
-										</div>
-										</div>
-										<div class="row" align="center">
-											<fieldset>
-												<button type="submit"   href="#images" name="eventdetails_form"
-													class="btn-save btn btn-success" >
-													Save <span style="margin-left: 10px;" ng-click="createEvent()
-														class="icon fa fa-location-arrow"></span>
-												</button>
-											</fieldset>
-										</div>
-									</form>
-								</div>
-								
-							
-								<div class="clearfix"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
+			<div class="col-md-6">
+				<label>Start Date</label>
+			</div>
+			<div class="col-md-6">
+				<label>End Date</label>
+			</div>
 		</div>
+		<div class="row">
+			<div class="col-md-6">
+				
+			</div>
+			<div class="col-md-6">
+				
+			</div>
+		</div>
+		
 	</div>
 </div>
-  <script type="text/javascript" src="/SociallBox/resources/js/lib/datePicker.js"></script>
-<script type="text/javascript">
-$( document ).ready(function() {
-	
-	$(function ($) {
-        $('#startDatePicker').datetimepicker({
-            icons: {
-                time: "fa fa-clock-o",
-                date: "fa fa-calendar",
-                up: "fa fa-arrow-up",
-                down: "fa fa-arrow-down"
-            }
-        });
-        
-        $(".btn-save").click(function(){
-        	alert("save")
-        });
-        }
-    });
-</script>
-</body>

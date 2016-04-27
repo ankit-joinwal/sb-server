@@ -14,14 +14,20 @@ import org.springframework.web.client.RestTemplate;
 import com.bitlogic.Constants;
 import com.bitlogic.sociallbox.data.model.Meetup;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
+import com.bitlogic.sociallbox.data.model.SmartDevice;
 import com.bitlogic.sociallbox.data.model.SocialBoxConfig;
 import com.bitlogic.sociallbox.data.model.User;
 import com.bitlogic.sociallbox.data.model.notifications.Notification;
+import com.bitlogic.sociallbox.data.model.notifications.NotificationEntity;
 import com.bitlogic.sociallbox.data.model.notifications.NotificationMessage;
 import com.bitlogic.sociallbox.data.model.notifications.NotificationType;
 import com.bitlogic.sociallbox.service.business.NotificationService;
 import com.bitlogic.sociallbox.service.dao.MeetupDAO;
+import com.bitlogic.sociallbox.service.dao.NotificationDAO;
+import com.bitlogic.sociallbox.service.dao.SmartDeviceDAO;
 import com.bitlogic.sociallbox.service.dao.UserDAO;
+import com.bitlogic.sociallbox.service.exception.ClientException;
+import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
 import com.bitlogic.sociallbox.service.utils.NotificationUtils;
 
@@ -46,6 +52,12 @@ public class NotificationServiceImpl extends LoggingService implements Notificat
 	
 	@Autowired
 	private MeetupDAO meetupDAO;
+	
+	@Autowired
+	private SmartDeviceDAO smartDeviceDAO;
+	
+	@Autowired
+	private NotificationDAO notificationDAO;
 	
 	@Override
 	public void notifyAboutNewFriend(User actor , List<User> friends){
@@ -333,5 +345,20 @@ public class NotificationServiceImpl extends LoggingService implements Notificat
 		NotificationUtils.send(restTemplate, meetupMessageNotification, socialBoxConfig);
 		
 		logInfo(LOG_PREFIX, "Notification sent");
+	}
+	
+	
+	@Override
+	public List<Notification> getNotificationsForDevice(String deviceId,
+			Integer page, Long fromId) {
+		String LOG_PREFIX = "NotificationServiceImpl-getNotificationsForDevice";
+		SmartDevice smartDevice = this.smartDeviceDAO.getSmartDeviceByDeviceId(deviceId);
+		
+		if(smartDevice==null){
+			throw new ClientException(RestErrorCodes.ERR_003, ERROR_INVALID_DEVICE);
+		}
+		
+		List<NotificationEntity> entities =  this.notificationDAO.getNotificationsForDevice(smartDevice.getId(), page, fromId);
+		return null;
 	}
 }

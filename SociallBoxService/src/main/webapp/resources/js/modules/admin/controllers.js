@@ -104,6 +104,40 @@ angular.module('Admin')
 			alert('Unable to approve profile.Error occured');
 			$window.location.href = "/SociallBox/nimda/home#/organizers";
 		});
-	}
+	};
+	
+	$scope.getPendingEvents = function(){
+		AdminService.getPendingEvents()
+		.then(function(response){
+			$scope.pending_events = response.data.data;
+		});
+	};
+	
+	$scope.goToEventDetails = function(eventId){
+		$window.location.href = "/SociallBox/nimda/home#/events/"+eventId;
+	};
+	
+	$scope.getEventDetails = function(){
+		var eventId = $routeParams.eventId;
+		
+		AdminService.getUserProfile()
+		.then(function(profileResponse){
+			var userId = profileResponse.data.userId;
+			AdminService.getEventDetails(userId,eventId)
+			.then(function(eventResponse){
+				$scope.eventDetails = eventResponse.data.data.event;
+				
+			})
+			.catch(function(response){
+				console.log('Inside AdminController.getEventDetails Response :'+response.status);
+				$window.location.href = "/SociallBox/nimda/home";
+			});
+		})
+		.catch(function(profileResponse){
+			console.log('Inside AdminController.getEventDetails Response :'+profileResponse.status);
+			$window.location.href = "/SociallBox/nimda/home";
+		});
+	};
+	
   }
   ]);

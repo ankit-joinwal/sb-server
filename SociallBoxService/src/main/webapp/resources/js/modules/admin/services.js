@@ -39,7 +39,7 @@ var adminAuthApp = angular.module('Admin')
 		    		 	}).then(function(response) {
 			                 if (response.status == 200) {
 			                	//Store profile in cookies and return
-			                	return service.setUserProfile(response.data.data.name,response.data.data.emailId,
+			                	return service.setUserProfile(response.data.data.id,response.data.data.name,response.data.data.emailId,
 	         							encPassword)
 					          	 .then(function(userProfileResponse){
 										if(userProfileResponse.status == 200){
@@ -65,7 +65,7 @@ var adminAuthApp = angular.module('Admin')
 	   		 
 	   	 };
     	//Service Function to Set User Profile in cookies
-	   	 service.setUserProfile = function(name,emailId,encPassword){
+	   	 service.setUserProfile = function(userId,name,emailId,encPassword){
 	   		 var deferred = $q.defer();
 	   		 //Clear current profile from cookies
 	   		 //$rootScope.adminProfile = {};
@@ -73,6 +73,7 @@ var adminAuthApp = angular.module('Admin')
 				 
 	 			//Create profile
 	 			$rootScope.adminProfile = {
+	 					userId : userId,
 						name: name,
 						emailId: emailId,
 						password : encPassword
@@ -329,7 +330,82 @@ var adminAuthApp = angular.module('Admin')
 	 			console.log('Unable to gen token in AdminService.approveCompanyProfile.Response :'+tokenResponse.status);
 	 			
 	 		});
- 		 }
+ 		 };
+ 		 
+ 		service.getPendingEvents = function(){
+ 			var deferred = $q.defer();
+ 			var pendingProfilesURL = "/SociallBox/api/secured/admin/events/pending";
+ 			return service.getAuthToken()
+    		.then(function(tokenResponse){
+    			//Extract epoch time and token from response
+    			var epoch = tokenResponse.epoch;
+    			var token = tokenResponse.token;
+    			return $http({
+ 	 				method:'GET',
+ 	 				url: pendingProfilesURL,
+ 	 	            headers: {
+ 	 	                    "Content-Type"		: 	"application/json",
+ 	 						"accept"			:	"application/json",
+ 	 	                    "X-Login-Ajax-call"	: 	'true',
+ 	 	                    "Authorization"		:	token , 
+	 	                    "X-Auth-Date" 		: 	epoch
+ 	 	            }
+ 	    		 })
+ 	    		 .then(function(response) {
+	                 if (response.status == 200) {
+	                	 deferred.resolve(response);
+	 					 return deferred.promise;
+	                 }
+ 	    		 }).catch(function(response){
+ 	    			 console.log('Unable to get pending profiles data . Response :'+response.status);
+ 	    			 deferred.reject(response);
+ 					 return deferred.promise;
+ 	    		});
+    		}).catch(function(tokenResponse){
+    			//If unable to get auth token, then redirect to login page
+    			console.log('Unable to gen token in AdminService.getPendingProfiles.Response :'+tokenResponse.status);
+    			
+    		});
+ 		 };
+ 		 
+ 		service.getEventDetails = function(userId,eventId){
+ 			var deferred = $q.defer();
+ 			var eventDetailsUrl = "/SociallBox/api/secured/users/organizers/admins/"+userId+"/events/"+eventId;
+ 			return service.getAuthToken()
+    		.then(function(tokenResponse){
+    			//Extract epoch time and token from response
+    			var epoch = tokenResponse.epoch;
+    			var token = tokenResponse.token;
+    			
+    			return $http({
+ 	 				method:'GET',
+ 	 				url: eventDetailsUrl,
+ 	 	            headers: {
+ 	 	                    "Content-Type"		: 	"application/json",
+ 	 						"accept"			:	"application/json",
+ 	 	                    "X-Login-Ajax-call"	: 	'true',
+ 	 	                    "Authorization"		:	token , 
+	 	                    "X-Auth-Date" 		: 	epoch
+ 	 	            }
+ 	    		 })
+ 	    		 .then(function(response) {
+	                 if (response.status == 200) {
+	                	 deferred.resolve(response);
+	 					 return deferred.promise;
+	                 }
+ 	    		 }).catch(function(response){
+ 	    			 console.log('Unable to getEventDetails. Response :'+response.status);
+ 	    			 deferred.reject(response);
+ 					 return deferred.promise;
+ 	    		});
+    		
+	 		}).catch(function(tokenResponse){
+	 			//If unable to get auth token, then redirect to login page
+	 			console.log('Unable to gen token in AdminService.getEventDetails.Response :'+tokenResponse.status);
+	 			
+	 		});
+ 		 };
+ 		 
     	return service;
     }
     ])

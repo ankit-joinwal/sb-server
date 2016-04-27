@@ -32,7 +32,6 @@ public class ViewController extends BaseController{
 	 
 	 @RequestMapping(value="/nimda/login",method = RequestMethod.GET)
      public ModelAndView getAdminLoginPage() {
-		
          return new ModelAndView("adminLogin");
      }
 	 
@@ -99,8 +98,13 @@ public class ViewController extends BaseController{
 	 
 	 @RequestMapping(value="/eo/events/details",method = RequestMethod.GET)
      public ModelAndView getEventsDetailsPage() {
-		
          return new ModelAndView("eventDetails");
+     }
+	 
+	 
+	 @RequestMapping(value="/nimda/events/details",method = RequestMethod.GET)
+     public ModelAndView getEventsDetailsPageForAdmin() {
+         return new ModelAndView("eventDetailsForAdmin");
      }
 	 
 }

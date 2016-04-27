@@ -23,6 +23,10 @@ App.config(['$routeProvider', function($routeProvider) {
 			controller : "AdminController",
 			templateUrl: '/SociallBox/nimda/organizers/search'
 		})
+		.when('/events/:eventId', {
+            controller: 'AdminController',
+            templateUrl: '/SociallBox/nimda/events/details'
+        })
 		.otherwise({redirectTo:'/'});		
 }]);
 

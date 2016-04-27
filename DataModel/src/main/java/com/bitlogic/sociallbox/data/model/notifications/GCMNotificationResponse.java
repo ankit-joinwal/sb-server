@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class GCMNotificationResponse {
 
 	@JsonProperty("multicast_id")
-	private Integer multicastId;
+	private String multicastId;
 	
 	@JsonProperty("status")
 	private ResponseStatus status;
@@ -32,12 +32,12 @@ public class GCMNotificationResponse {
 	}
 
 
-	public Integer getMulticastId() {
+	public String getMulticastId() {
 		return multicastId;
 	}
 
 
-	public void setMulticastId(Integer multicastId) {
+	public void setMulticastId(String multicastId) {
 		this.multicastId = multicastId;
 	}
 

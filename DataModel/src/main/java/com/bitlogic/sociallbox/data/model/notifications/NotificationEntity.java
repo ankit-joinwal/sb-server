@@ -22,7 +22,7 @@ public class NotificationEntity {
 	private Long id;
 	
 	@Column(name="GCM_NOTIFICATION_ID")
-	private Integer gcmNotificationId;
+	private String gcmNotificationId;
 	
 	@Column(name="DEVICE_ID",nullable=false)
 	private Long deviceId;
@@ -98,11 +98,11 @@ public class NotificationEntity {
 		this.errorMessage = errorMessage;
 	}
 
-	public Integer getGcmNotificationId() {
+	public String getGcmNotificationId() {
 		return gcmNotificationId;
 	}
 
-	public void setGcmNotificationId(Integer gcmNotificationId) {
+	public void setGcmNotificationId(String gcmNotificationId) {
 		this.gcmNotificationId = gcmNotificationId;
 	}
 	

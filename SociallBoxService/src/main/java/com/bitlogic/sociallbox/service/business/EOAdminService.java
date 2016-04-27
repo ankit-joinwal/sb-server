@@ -14,6 +14,7 @@ import com.bitlogic.sociallbox.data.model.requests.AddCompanyToProfileRequest;
 import com.bitlogic.sociallbox.data.model.requests.UpdateEOAdminProfileRequest;
 import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
 import com.bitlogic.sociallbox.data.model.response.EODashboardResponse;
+import com.bitlogic.sociallbox.data.model.response.EventResponseForAdmin;
 
 public interface EOAdminService {
 
@@ -43,4 +44,6 @@ public interface EOAdminService {
 	public EventOrganizerAdmin getEOAdminByUserId(Long userId);
 	
 	public Map<String,?> getMyEvents(Long userId ,String timeline,EventStatus status,Integer page);
+	
+	public EventResponseForAdmin getEventDetails(String userEmail,String eventId);
 }

@@ -142,7 +142,7 @@ public class NotificationServiceImpl extends LoggingService implements Notificat
 	private void processResponse(GCMNotificationResponse gcmNotificationResponse , List<SmartDevice> deviceList,GCMNotification notification,Date notificationDate){
 		String LOG_PREFIX = "NotificationServiceImpl-processResponse";
 		List<Result> results = gcmNotificationResponse.getResults();
-		Integer notificationId = gcmNotificationResponse.getMulticastId();
+		String notificationId = gcmNotificationResponse.getMulticastId();
 		logInfo(LOG_PREFIX, "Success Message Count {}", gcmNotificationResponse.getSuccessMessageCount());
 		logInfo(LOG_PREFIX, "Failed Message Count {}", gcmNotificationResponse.getFailedMessageCount());
 		Integer count = 0;

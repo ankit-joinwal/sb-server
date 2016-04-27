@@ -160,8 +160,7 @@ public class AdminController extends BaseController implements Constants{
 	}
 	
 	@RequestMapping(value="/events/pending",method = RequestMethod.GET, produces = {
-			MediaType.APPLICATION_JSON_VALUE}, consumes = {
-					MediaType.APPLICATION_JSON_VALUE})
+			MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.OK)
 	public EntityCollectionResponse<EventResponse> getEventsPendingForApproval(){
 		logRequestStart(GET_EVENTS_PENDING_APPROVAL_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_EVENTS_PENDING_APPROVAL_API);

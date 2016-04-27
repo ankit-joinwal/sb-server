@@ -41,6 +41,7 @@ import com.bitlogic.sociallbox.data.model.requests.UpdateEOAdminProfileRequest;
 import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
 import com.bitlogic.sociallbox.data.model.response.EODashboardResponse;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.data.model.response.EventResponseForAdmin;
 import com.bitlogic.sociallbox.data.model.response.EODashboardResponse.AttendeesInMonth;
 import com.bitlogic.sociallbox.data.model.response.EventOrganizerProfile;
 import com.bitlogic.sociallbox.image.service.ImageService;
@@ -55,6 +56,7 @@ import com.bitlogic.sociallbox.service.exception.RestErrorCodes;
 import com.bitlogic.sociallbox.service.exception.ServiceException;
 import com.bitlogic.sociallbox.service.exception.UnauthorizedException;
 import com.bitlogic.sociallbox.service.transformers.EOToEOResponseTransformer;
+import com.bitlogic.sociallbox.service.transformers.EventTransformer;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory;
 import com.bitlogic.sociallbox.service.transformers.TransformerFactory.TransformerTypes;
 import com.bitlogic.sociallbox.service.utils.LoggingService;
@@ -538,5 +540,32 @@ public class EOAdminServiceImpl extends LoggingService implements EOAdminService
 		
 		
 		return this.eventOrganizerDAO.getEventsForOrganizer(timeline, status, page, organizerAdmin.getId());
+	}
+	
+	@Override
+	public EventResponseForAdmin getEventDetails(String userEmail,
+			String eventId) {
+		String LOG_PREFIX = "EOAdminServiceImpl-getEventDetails";
+		User userInDB = this.userDAO.getUserByEmailId(userEmail, false);
+		if(userInDB!=null){
+			Set<Role> roles = userInDB.getUserroles();
+			for(Role role : roles){
+				if(UserRoleType.ADMIN == role.getUserRoleType() || UserRoleType.EVENT_ORGANIZER == role.getUserRoleType()){
+					EventResponseForAdmin eventResponseForAdmin = new EventResponseForAdmin();
+					Event event = this.eventDAO.getEvent(eventId);
+					if(event ==null){
+						throw new EntityNotFoundException(eventId,RestErrorCodes.ERR_020, ERROR_MEETUP_NOT_FOUND);
+					}
+					
+					EventTransformer transformer = (EventTransformer) TransformerFactory.getTransformer(TransformerTypes.EVENT_TRANS);
+					EventResponse eventResponse = transformer.transform(event);
+					eventResponseForAdmin.setEventResponse(eventResponse);
+					
+					return eventResponseForAdmin;
+				}
+			}
+		}
+		
+		throw new UnauthorizedException(RestErrorCodes.ERR_003, ERROR_USER_INVALID);
 	}
 }

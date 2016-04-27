@@ -5,6 +5,7 @@ import java.util.List;
 import com.bitlogic.sociallbox.data.model.Meetup;
 import com.bitlogic.sociallbox.data.model.MeetupImage;
 import com.bitlogic.sociallbox.data.model.User;
+import com.bitlogic.sociallbox.data.model.notifications.Notification;
 
 public interface NotificationService {
 
@@ -19,4 +20,6 @@ public interface NotificationService {
 	public void notifyAboutMeetupCancellation(User actor , Meetup meetup);
 	
 	public void notifyAboutMeetupMessage(User actor,Meetup meetup);
+	
+	public List<Notification> getNotificationsForDevice(String deviceId,Integer page, Long fromId);
 }

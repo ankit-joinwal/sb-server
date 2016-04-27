@@ -33,6 +33,7 @@ import com.bitlogic.sociallbox.data.model.response.EOAdminProfile;
 import com.bitlogic.sociallbox.data.model.response.EODashboardResponse;
 import com.bitlogic.sociallbox.data.model.response.EntityCollectionResponse;
 import com.bitlogic.sociallbox.data.model.response.EventResponse;
+import com.bitlogic.sociallbox.data.model.response.EventResponseForAdmin;
 import com.bitlogic.sociallbox.data.model.response.SingleEntityResponse;
 import com.bitlogic.sociallbox.service.business.EOAdminService;
 import com.bitlogic.sociallbox.service.business.UserService;
@@ -54,6 +55,7 @@ public class EOAdminSecuredController extends BaseController implements Constant
 	private static final String GET_USER_MESSAGES_API = "GetUserMessages API";
 	private static final String MARK_USER_MESSAGE_AS_READ_API = "MarkMessageAsRead API";
 	private static final String GET_ORGANIZER_EVENTS_API = "GetEventsForOrganizer API";
+	private static final String GET_EVENTS_FOR_ADMIN_API = "GetEventsDetailsForAdmin API";
 	
 	@Autowired
 	private EOAdminService eventOrganizerAdminService;
@@ -555,6 +557,29 @@ public class EOAdminSecuredController extends BaseController implements Constant
 		entityResponse.setData(dashboardResponse);
 		
 		return entityResponse;
+	}
+	
+	@RequestMapping(value="/{userId}/events/{eventId}",method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	@ResponseStatus(HttpStatus.OK)
+	public SingleEntityResponse<EventResponseForAdmin> getEventDetails(@RequestHeader(value=Constants.AUTHORIZATION_HEADER)String auth,
+			@PathVariable Long userId,@PathVariable String eventId){
+		logRequestStart(GET_EVENTS_FOR_ADMIN_API, SECURED_REQUEST_START_LOG_MESSAGE, GET_EVENTS_FOR_ADMIN_API);
+		
+		String userName = LoginUtil.getUserNameFromHeader(auth);
+		UserTypeBasedOnDevice typeBasedOnDevice = LoginUtil.identifyUserType(userName);
+		if(typeBasedOnDevice==UserTypeBasedOnDevice.WEB){
+			String userEmail = LoginUtil.getUserEmailIdFromUserName(userName);
+			EventResponseForAdmin eventResponse = this.eventOrganizerAdminService.getEventDetails(userEmail, eventId);
+			SingleEntityResponse<EventResponseForAdmin> entityResponse = new SingleEntityResponse<>();
+			entityResponse.setStatus(SUCCESS_STATUS);
+			entityResponse.setData(eventResponse);
+			
+			return entityResponse;
+		}else{
+			logRequestEnd(GET_EVENTS_FOR_ADMIN_API, GET_EVENTS_FOR_ADMIN_API);
+			throw new ClientException(RestErrorCodes.ERR_003,ERROR_FEATURE_AVAILABLE_TO_WEB_ONLY);
+		}
 	}
 	
 	@RequestMapping(value="/{userId}/events",method = RequestMethod.GET, produces = {
