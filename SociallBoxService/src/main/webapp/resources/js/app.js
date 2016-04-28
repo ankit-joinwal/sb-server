@@ -5,10 +5,11 @@ angular.module('index', []);
 angular.module('Authentication', []);
 angular.module('Dashboard', []);
 angular.module('Company', []);
-angular.module('Events', []);
+angular.module('Events', ['textAngular']);
 angular.module('DateTime', []);
 
-var App = angular.module('sociallbox',['ui.bootstrap', 'ui.bootstrap.datetimepicker','ngRoute','ngCookies','index','Authentication','Dashboard','Company','Events','DateTime']);
+
+var App = angular.module('sociallbox',['ui.bootstrap', 'ui.bootstrap.datetimepicker','textAngular','ngRoute','ngCookies','index','Authentication','Dashboard','Company','Events','DateTime']);
 
 App.config(['$routeProvider', function($routeProvider) {
 	$routeProvider
@@ -59,3 +60,32 @@ App.directive('fileModel', ['$parse', function ($parse) {
     };
 }]);
 
+App.directive('googleplace', function() {
+    return {
+        require: 'ngModel',
+        link: function(scope, element, attrs, model) {
+            var options = {
+                types: [],
+                componentRestrictions: {}
+            };
+            scope.gPlace = new google.maps.places.Autocomplete(element[0], options);
+
+            google.maps.event.addListener(scope.gPlace, 'place_changed', function() {
+				 var geoComponents = scope.gPlace.getPlace();
+                var latitude = geoComponents.geometry.location.lat();
+                var longitude = geoComponents.geometry.location.lng();
+				console.log('Location Lat '+latitude+' , lng '+longitude);
+				
+				scope.meetup_address_components = geoComponents.address_components;
+				scope.event_address_components = geoComponents.address_components;
+				scope.meetup_place_lat = latitude;
+				scope.meetup_place_lng = longitude;
+				scope.event_place_lat = latitude;
+				scope.event_place_lng = longitude;
+                scope.$apply(function() {
+                    model.$setViewValue(element.val());                
+                });
+            });
+        }
+    };
+});

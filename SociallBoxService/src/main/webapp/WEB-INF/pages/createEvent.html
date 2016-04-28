@@ -23,6 +23,28 @@
 			     </form>
 			</div>
 		</div>
-		
+		<hr>
+		<div class="row">
+			<div class="col-md-12"><h4>Details</h4></div>
+		</div>
+		<div class="row" >
+			<div class="col-md-12" ng-controller="EventsController">
+				<div text-angular ng-model="eventDetails"></div>
+			</div>
+			<div class="col-md-2"><button ng-click="getDetails()">Get HTML Content</button></div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-md-6">
+				<h4 class="pull-left font-black">Location</h4>
+			</div>
+			<div class="col-md-8">
+				<input class="form-control input-lg"  ng-model="eventPlace" googleplace type="text">
+			</div>
+			<div class="col-md-6">
+				<button ng-click="getEventLocation()">Print Event Location on console</button>
+			</div>
+		</div>
 	</div>
 </div>
+ 
