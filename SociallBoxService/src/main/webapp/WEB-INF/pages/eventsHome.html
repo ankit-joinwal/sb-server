@@ -11,9 +11,9 @@
 }
   
 
-        #search:hover input, #search input:focus {
+      #search:hover input, #search input:focus {
             width: 250px;
-            
+           
             -webkit-transition: all 0.7s ease-in-out;
         -moz-transition: all 0.7s ease-in-out;
         -o-transition: all 0.7s ease-in-out;
@@ -67,30 +67,19 @@
   padding: 15px 0;
 }
 
-.sectionRow{
-    overflow: hidden;
-    padding: 20px 5px 0px 0px;
-}
-.sectionRow :first-child{float:left;}
-.sectionRow :last-child{float:left;margin-left:15px}
-.eventSection{overflow: hidden;
-    background-color: #f9f9f9;
-    border: 1px solid #eee}
-    .status.sectionRow button{margin-top:0px;}
-    .status.sectionRow div{margin-left:5px;}
-   .eventSection .btn {padding :2px 12px}
-   .sectionRow label{width:75px}
-   .tab-content > div {
-    padding: 20px 20px 0;
-}
+
 .row > [class*="col-"] {
     margin-bottom: 0px;
 }
 .board {
     margin: 25px auto;}
+    .table>tbody>tr>td{vertical-align:middle;}
+    
+    
 </style>
-<div class="container-fluid" ng-controller="EventsController">
-	<div class="side-body">
+
+<div class="container-fluid" ng-controller="EventsController" ng-init="myevents_upcoming()">
+	<div class="side-body" ng-init="myevents_past()">
 		<div class="page-title">
 			<span class="title">My Events</span>
 		</div>
@@ -98,11 +87,12 @@
 			<section style="background: #efefe9;">
 				<div class="container">
 					<div class="row">
-						<div class="col-md-4"></div>
+						<div class="col-md-4">
+						</div>
        					 <div class="col-md-4" id="search">
 							<form class="navbar-form navbar-left" role="search">
   								<div class="form-group">
-    								<input type="text" class="form-control" placeholder="Search">
+    								<input type="text" class="form-control"  ng-model="searchKeyword" placeholder="Search">
     								<button type="submit" class="btn btn-primary">Search</button>
  								 </div>
 							</form>
@@ -116,117 +106,69 @@
 							
 								<div class="tabbable-panel">
 									<div class="tabbable-line">
-										<ul class="nav nav-tabs ">
+										<ul class="nav nav-tabs" id="eventTab">
 											<li class="active">
-												<a href="#tab_upcoming" data-toggle="tab">UPCOMING EVENTS </a>
+												<a href="tab_upcoming" data-toggle="tab">UPCOMING EVENTS </a>
 											</li>
 											<li>
-												<a href="#tab_past" data-toggle="tab">PAST EVENTS </a>
+												<a href="tab_past" data-toggle="tab">PAST EVENTS </a>
 											</li>
 										</ul>
 								    <div class="tab-content">
-								    
+								    <div class="tab-pane active" id="tab_upcoming">
 								    	<div class="row">
 								    		<div class=" eventSection">
-								    			<div class="col-md-6">
-								    				<div class="title sectionRow">
-								    					<label class="text-primary">Title</label>
-								    					<p>Mega Sale </p>
-								    				</div>
-								    				<div class="startDate sectionRow">
-								    					<label class="text-primary">Start Date</label>
-								    					<p>12/78/8989</p>
-								    				</div>
-								    				<div class="endDate sectionRow">
-								    					<label class="text-primary">End Date</label>
-								    					<p>12/12/1222</p>
-								    				</div>
-								    				
-								    			</div>
-								    			
-								    			<div class="col-md-6">
-								    				<div class="status sectionRow">
-								    					<label class="text-primary">Status</label>
-								    					<div><button type="button" class="btn btn-primary">Pending</button></div>
-								    				</div>
-								    				<div class="viewDetails" style="margin-top:10px">
-								    				<div><button type="button" class="btn btn-success">View Details</button></div>
-													</div>
-								    				
-								    			</div>
+								    			<table class="table table-striped">
+												    <thead>
+												      <tr >
+												        <th>Event Title</th>
+												        <th>Start Date & Time</th>
+												        <th>End Date & Time</th>
+												        <th>Status</th>
+												        <th></th>
+												      </tr>
+												    </thead>
+												    <tbody>
+												      <tr ng-repeat= "event in myEventsData_upcoming | filter: searchKeyword">
+												        <td>{{event.title}}</td>
+												        <td>{{event.start_date}}</td>
+												        <td>{{event.end_date}}</td>
+												        <td>{{event.status}}</td>
+												        <td ><button class="details btn btn-success">View Details</button></td>
+												      </tr>
+
+												    </tbody>
+												  </table>
 								    		</div>
-							
 									    </div>
+									   </div> 
 									
-										<div class="row">
+										<div class="tab-pane" id="tab_past">
+											<div class="row">
 								    		<div class=" eventSection">
-								    			<div class="col-md-6">
-								    				<div class="title sectionRow">
-								    					<label class="text-primary">Title</label>
-								    					<p>Music Festival</p>
-								    				</div>
-								    				<div class="startDate sectionRow">
-								    					<label class="text-primary">Start Date</label>
-								    					<p>14/78/7888</p>
-								    				</div>
-								    				<div class="endDate sectionRow">
-								    					<label class="text-primary">End Date</label>
-								    					<p>45/78/8998</p>
-								    				</div>
-								    				
-								    			</div>
-								    			
-								    			<div class="col-md-6">
-								    				<div class="status sectionRow">
-								    					<label class="text-primary">Status</label>
-								    					<div><button type="button" class="btn btn-default">Pending</button></div>
-								    				</div>
-								    				<div class="viewDetails" style="margin-top:10px">
-								    				<div><button type="button" class="btn btn-success">View Details</button></div>
-													</div>
-								    				
-								    			</div>
+								    			<table class="table table-striped">
+												    <thead>
+												      <tr>
+												        <th>Event Title</th>
+												        <th>Start Date & Time</th>
+												        <th>End Date & Time</th>
+												        <th>Status</th>
+												        <th></th>
+												      </tr>
+												    </thead>
+												    <tbody>
+												       <tr ng-repeat= "event in myEventsData_past | filter: searchKeyword">
+												        <td>{{event.title}}</td>
+												        <td>{{event.start_date}}</td>
+												        <td>{{event.end_date}}</td>
+												        <td>{{event.status}}</td>
+												        <td ><button class="details btn btn-success">View Details</button></td>
+												      </tr>
+												    </tbody>
+												  </table>
 								    		</div>
 							
 									    </div>
-									    
-									    <div class="row">
-								    		<div class=" eventSection">
-								    			<div class="col-md-6">
-								    				<div class="title sectionRow">
-								    					<label class="text-primary">Title</label>
-								    					<p>Food Festival</p>
-								    				</div>
-								    				<div class="startDate sectionRow">
-								    					<label class="text-primary">Start Date</label>
-								    					<p>12/78/1254</p>
-								    				</div>
-								    				<div class="endDate sectionRow">
-								    					<label class="text-primary">End Date</label>
-								    					<p>99/36/1254</p>
-								    				</div>
-								    				
-								    			</div>
-								    			
-								    			<div class="col-md-6">
-								    				<div class="status sectionRow">
-								    					<label class="text-primary">Status</label>
-								    					<div><button type="button" class="btn btn-primary">Pending</button></div>
-								    				</div>
-								    				<div class="viewDetails" style="margin-top:10px">
-								    				<div><button type="button" class="btn btn-success">View Details</button></div>
-													</div>
-								    				
-								    			</div>
-								    		</div>
-							
-									    </div>
-									
-									
-												<div class="tab-pane" id="#tab_past">
-													<p>
-														Howdy, I'm in Tab 2.
-													</p>
 								
 												</div>
 						
@@ -243,3 +185,24 @@
 		</div>
 	</div>
 </div>
+<script type="text/javascript">
+$( document ).ready(function() {
+$('#eventTab li').on('click', function(e) {
+	
+	var active_tab = $("#eventTab li.active a").attr("href"); 
+	
+		e.preventDefault();
+		if(active_tab == "tab_upcoming"){
+			$(this).removeClass("active");
+			$(this).next().addClass("active");
+			$(".tab-content ").find("#tab_upcoming").removeClass("active").addClass("inactive");
+			$(".tab-content").find("#tab_past").removeClass("inactive").addClass("active");
+		}else if(active_tab == "tab_past"){
+			$(this).removeClass("active");
+			$(this).prev().addClass("active");
+			$(".tab-content").find("#tab_upcoming").removeClass("inactive").addClass("active");
+			$(".tab-content").find("#tab_past").removeClass("active").addClass("inactive");
+		}
+	});
+});
+</script>

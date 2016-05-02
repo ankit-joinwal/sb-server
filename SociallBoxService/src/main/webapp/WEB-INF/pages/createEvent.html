@@ -1,50 +1,325 @@
+
 <div class="container-fluid" ng-controller="EventsController">
 	<div class="side-body">
 		<div class="page-title">
 			<span class="title">Create New Event</span>
 		</div>
 		<div class="row">
-			<div class="col-md-6" ng-controller="DateTimeController as ctrl">
-			    <form class="form-inline">    
-			        <div class="form-group">
-			        		<label for="startDate">Starts</label>
-			                <input type="text" id="startDate" class="form-control" datetime-picker="MM/dd/yyyy HH:mm a" ng-model="ctrl.dates.startDate" is-open="ctrl.open.startDate" />
-			                <button type="button" class="btn btn-default" ng-click="ctrl.openCalendar($event, 'startDate')"><i class="fa fa-calendar"></i></button>
-			        </div>
-			     </form>
-			</div>
-			<div class="col-md-6" ng-controller="DateTimeController as ctrl">
-				 <form class="form-inline">    
-			        <div class="form-group">
-			        	<label for="endDate">Ends</label>
-			            <input type="text" class="form-control" datetime-picker="MM/dd/yyyy HH:mm a" ng-model="ctrl.dates.endDate" is-open="ctrl.open.endDate" />
-			            <button type="button" class="btn btn-default" ng-click="ctrl.openCalendar($event, 'endDate')"><i class="fa fa-calendar"></i></button>
-			        </div>
-			     </form>
-			</div>
-		</div>
-		<hr>
-		<div class="row">
-			<div class="col-md-12"><h4>Details</h4></div>
-		</div>
-		<div class="row" >
-			<div class="col-md-12" ng-controller="EventsController">
-				<div text-angular ng-model="eventDetails"></div>
-			</div>
-			<div class="col-md-2"><button ng-click="getDetails()">Get HTML Content</button></div>
-		</div>
-		<hr>
-		<div class="row">
-			<div class="col-md-6">
-				<h4 class="pull-left font-black">Location</h4>
-			</div>
-			<div class="col-md-8">
-				<input class="form-control input-lg"  ng-model="eventPlace" googleplace type="text">
-			</div>
-			<div class="col-md-6">
-				<button ng-click="getEventLocation()">Print Event Location on console</button>
-			</div>
+			<section style="background: #efefe9;">
+				<div class="container" id="company_process_div">
+					<div class="loader-container text-center color-white">
+						<div>
+							<i class="fa fa-spinner fa-pulse fa-3x"></i>
+						</div>
+					</div>
+					<div class="row">
+						<div class="board">
+							<div class="board-inner">
+								<ul class="nav nav-tabs-process" id="eventTabs">
+									<div class="liner"></div>
+									<li class="active step">
+									<a href="#eventDetails"
+										data-toggle="tab" title="Event Details"> <span
+											class="round-tabs one"> <i class="icon fa fa-pencil"></i>
+										</span>
+									</a>
+									</li>
+									<li class="disabled step"><a href="#eventImage" 
+										data-toggle="tab" title="Event Image"> <span
+											class="round-tabs two"> <i class="icon fa fa-photo"></i>
+										</span>
+									</a>
+									</li>
+									<li class="disabled step"><a href="#eventReview"
+										data-toggle="tab" title="Event Review"> <span
+											class="round-tabs three"> <i class="icon fa fa-check"></i>
+										</span>
+									</a>
+									</li>
+								</ul>
+							</div>
+							<div class="tab-content">
+								<div class="tab-pane  active" id="eventDetails">
+									<h3 class="head text-center">Create Event</h3>
+									<form class="form-horizontal" id="event_details_form"
+										name="event_details_form" role="form">
+										<div class="row">
+											<div class="col-md-12">
+												<label for="eventTitle" class="text-primary">Event Title</label> 
+												<input type="text"
+													required class="form-control" ng-model="eventTitle"
+													id="eventTitle" placeholder="Event Title">
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<label for="eventDescription" class="text-primary">Event Description</label>
+												<div class="col-md-12 eventDescription" ng-controller="EventsController">
+													<div text-angular ng-model="eventDetails"></div>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<label for="eventLocation" class="text-primary">Event Location</label>
+												 <input type="text" required
+													class="form-control" ng-model="eventLocation"  googleplace id="eventLocation"
+													placeholder="Location">
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6" ng-controller="DateTimeController as ctrl">
+											    <form class="form-inline">    
+											        <div class="form">
+											        		<div class="dateStartLabel"><label for="startDate" class="text-primary" >Event Start Date & Time</label></div>	
+											        		<input type="text" required id="startDate" class="form-control" datetime-picker="MM/dd/yyyy HH:mm a" ng-model="ctrl.dates.startDate" is-open="ctrl.open.startDate" />
+											                <button type="button" class="btn btn-default dateButton" ng-click="ctrl.openCalendar($event, 'startDate')"><i class="fa fa-calendar"></i></button>
+											        </div>
+											     </form>
+											</div>
+											<div class="col-md-6" ng-controller="DateTimeController as ctrl">
+												 <form class="form-inline">    
+											        <div class="form">
+											        	<div class="dateEndLabel"><label for="endDate"  class="text-primary">Event End Date & Time</label></div>
+											            <input type="text" class="form-control dateInput" id="endDate" datetime-picker="MM/dd/yyyy HH:mm a" ng-model="ctrl.dates.endDate" is-open="ctrl.open.endDate" />
+											            <button type="button" class="btn btn-default dateButton" ng-click="ctrl.openCalendar($event, 'endDate')"><i class="fa fa-calendar"></i></button>
+											        </div>
+											     </form>
+											</div>
+										</div>
+										
+										<div class="row">
+											<div class="col-md-12" id="tags">
+											<label for="tags" class="text-primary">Event Tags</label> 
+												<div>
+												 <button type="button" class="btn btninactive">Shopping</button>
+												  <button type="button" class="btn btninactive">Fashion</button>
+												  <button type="button" class="btn btninactive">Sale</button>
+												  <button type="button" class="btn btninactive">Electronics</button>
+												  <button type="button" class="btn btninactive">Rock</button>
+												  <button type="button" class="btn btninactive">Jazz</button>
+												  <button type="button" class="btn btninactive">Hip-Hop</button>
+												  <button type="button" class="btn btninactive">Sufi</button>
+												  <button type="button" class="btn btninactive">Drinks</button>
+												  <button type="button" class="btn btninactive">Happy Hours</button>
+												  <button type="button" class="btn btninactive">Theater</button>
+												  <button type="button" class="btn btninactive">Exhibition</button>
+												  <button type="button" class="btn btninactive">Library</button>
+												  <button type="button" class="btn btninactive">Standup</button>
+												  <button type="button" class="btn btninactive">Club</button>
+												  <button type="button" class="btn btninactive">Bollywood</button>
+												  <button type="button" class="btn btninactive">Book Fair</button>
+												  <button type="button" class="btn btninactive">Yoga</button>
+												  <button type="button" class="btn btninactive">Marathon</button>
+												  <button type="button" class="btn btninactive">Start Up</button>
+												  <button type="button" class="btn btninactive">Adventure</button>
+												  <button type="button" class="btn btninactive">Family</button>
+												  <button type="button" class="btn btninactive">Religion</button>
+												  <button type="button" class="btn btninactive">Wild Life</button>
+												</div>
+											</div>
+										</div>
+										
+										<div class="row">
+											 <div class="col-md-12" id="IsFreeButton">
+											<label class="text-primary">Is Event Free</label>
+												<button type="button" class="btn inactive" >YES</button>
+												  <button type="button" class="btn active">NO</button>
+											</div>
+										</div>
+										
+										<div class="row" align="center">
+											<fieldset>
+												<button type="submit"  href="#eventImage" name="event_details_form"
+													class="btn-eventnext btn btn-success" ng-click="uploadDataForReview()">
+													Next <span style="margin-left: 10px;"
+														class="icon fa fa-location-arrow"></span>
+												</button>
+											</fieldset>
+										</div>
+									</form>
+								</div>
+								<div class="tab-pane inactive" id="eventImage">
+									<h3 class="head text-center">Cover Photo</h3>
+									<form class="form-horizontal" id="event_images_form"
+										name="event_images_form" role="form">
+										<div class="row">
+											<div class="col-md-12">
+												<label for="companyName">Please select a event image</label>
+												<input type="file" file-model="eventPic"
+													class="form-control" />
+											</div>
+										</div>
+										<div class="row" align="center">
+										<div class=" col-md-4  col-sm-3"></div>
+											<div class="col-md-2 col-sm-3">
+											<fieldset>
+												<button type="button" class="previous-button btn btn-primary">Previous</button>
+											</fieldset>
+											</div>
+											<div class="col-md-2 col-sm-3">
+											<fieldset>
+												<button  href="#eventReview" name="event_images_form"
+													class="btn-eventnext btn btn-success">
+													Next <span style="margin-left: 10px;"
+														class="icon fa fa-location-arrow"></span>
+												</button>
+											</fieldset>
+											</div>
+										</div>
+									</form>
+								</div>
+								
+								<div class="tab-pane inactive" id="eventReview">
+
+									<h3 class="head text-center">Please review the details</h3>
+									<form class="form-horizontal" id="event_review_form"
+										name="event_review_form" role="form">
+
+										<div class="row">
+											<div class="col-md-12">
+												<label for="reviewEventTitle" class="text-primary">Event Title</label>
+												<h3 id="reviewEventTitle">{{eventTitle}}</h3>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<label for="reviewEventDescription" class="text-primary">Event Description</label>
+												<h3 id="reviewEventDescription">{{eventDetails}}</h3>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<label for="reviewEventLocation" class="text-primary">Location</label>
+												<h3 id="reviewEventLocation">{{eventLocation}}</h3>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6">
+												<label for="reviewEventStartDate" class="text-primary">Start Date</label>
+												<h3 id="reviewEventStartDate"></h3>
+											</div>
+											<div class="col-md-6">
+												<label for="reviewEventEndDate" class="text-primary">End Date</label>
+												<h3 id="reviewEventEndDate"></h3>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-12">
+												<label for="eventTags" class="text-primary">Event Tags</label>
+												<div class="reviewTagNames">
+												 </div>
+											</div>
+										</div>
+										
+										<div class="row">
+											<div class="col-md-12">
+												<label for="reviewFreeButton" class="text-primary">Is Event Free</label>
+												<div class="reviewFreeButton">
+												 </div>
+											</div>
+										</div>
+										
+										<div class="row" align="center">
+										<div class=" col-md-4  col-sm-3"></div>
+											<div class="col-md-2 col-sm-3">
+											<fieldset>
+												<button type="button" class="previous-button btn btn-primary">Previous</button>
+											</fieldset>
+											</div>
+											<div class="col-md-2 col-sm-3">
+											<fieldset>
+												<button  type="submit" name="review_form"
+													ng-click="createEvent()" class="btn-eventnext btn btn-success">
+													Submit <span style="margin-left: 10px;"
+														class="icon fa fa-location-arrow"></span>
+												</button>
+											</fieldset>
+											</div>
+										</div>
+									</form>
+								</div>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
 		</div>
 	</div>
 </div>
- 
+<style>
+#tags button{width:110px;}
+#tags button.btninactive, #IsFreeButton button.inactive{background-color: #F0F0F0;
+    border-color: #EAEAEA;}
+#tags button.btnactive,#IsFreeButton button.active,.reviewTagNames button.btnactive,.reviewFreeButton button.btnactive{background-color: #ac1a2f;
+    border-color: #ac1a2f;color:#fff}
+   #startDate{display: inline-block;vertical-align: middle;width: 364px;}
+    .dateInput{width:364px !important}
+    .eventDescription{padding:0}
+    .dateButton{margin-left:-5px}
+    #IsFreeButton button,.reviewFreeButton button{width:70px;}
+    #IsFreeButton button:nth-child(2){margin-left:10px}
+    #IsFreeButton button:nth-child(3){margin-left:-4px}
+    .reviewTagNames button{margin-right:10px}
+    
+</style>
+
+<script type="text/javascript">
+$( document ).ready(function() {
+	$('#tags button').on('click', function(e) {
+		if($(this).hasClass("btninactive")){
+		   $(this).removeClass("btninactive").addClass("btnactive");
+		}else if($(this).hasClass("btnactive")) {
+			$(this).removeClass("btnactive").addClass("btninactive");
+		}
+	});
+	
+	$('#IsFreeButton button').on('click', function(e) {
+		if($(this).text()=="NO"){
+			   $(this).removeClass("inactive").addClass("active");
+			   $(this).siblings("button").removeClass("active").addClass("inactive");
+			}else if($(this).text()=="YES") {
+				 $(this).removeClass("inactive").addClass("active");
+				   $(this).siblings("button").removeClass("active").addClass("inactive");
+			}
+		});
+	
+	
+	$('a[title]').tooltip(); 
+	$('.btn-eventnext').on('click', function(e) {
+		
+			var formname = $(this).attr('name'); 
+			var actived_nav = $('#eventTabs > li.active');
+			var contentSection = $(".tab-pane.active");
+			
+			var inpObj = document.getElementById(formname);
+			if (inpObj.checkValidity()) { 
+				
+				/* Only works in Firefox/Chrome need polyfill for IE9, Safari. http://afarkas.github.io/webshim/demos/ */ 
+				e.preventDefault();
+				$('#eventTabs > li').removeClass("disabled");
+				//if(tabname == "#details")
+				//	tabIndex =1;
+				actived_nav.next("li").addClass('active');
+				actived_nav.removeClass('active');
+				contentSection.removeClass("active").addClass("inactive");
+				contentSection.next("div").removeClass("inactive").addClass("active");
+				} 
+			}); 
+	$(".previous-button").click(function(){
+		var actived_nav = $('#eventTabs > li.active');
+		var contentSection = $(".tab-pane.active");
+		
+		actived_nav.prev("li").addClass('active');
+		actived_nav.removeClass('active');
+		contentSection.removeClass("active").addClass("inactive");
+		contentSection.prev("div").removeClass("inactive").addClass("active");
+		
+	});
+	
+	$('ul.nav-tabs-process li').on('click', function(e) {
+		e.preventDefault();		
+		}); 
+	});
+</script>
